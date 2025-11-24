@@ -1,0 +1,46 @@
+pre-push:
+  jobs:
+    - runner: bash
+      script: "push-split.sh"
+
+pre-commit:
+  parallel: true
+  jobs:
+    - run: ./vendor/bin/pint {staged_files}
+      glob: "*.{php}"
+      exclude:
+        - "bootstrap/cache"
+        - "bootstrap/cache/*"
+        - "bootstrap/cache/**"
+        - "workbench"
+        - "workbench/*"
+        - "workbench/**"
+        - "forks/"
+        - "public"
+        - "config"
+        - "storage"
+        - ".bruno"
+        - ".junie"
+        - ".laravel"
+      stage_fixed: true
+
+
+
+#
+#     - name: rubocop
+#       glob: "*.rb"
+#       exclude:
+#         - config/application.rb
+#         - config/routes.rb
+#       run: bundle exec rubocop --force-exclusion {all_files}
+#
+#     - name: govet
+#       files: git ls-files -m
+#       glob: "*.go"
+#       run: go vet {files}
+#
+#     - script: "hello.js"
+#       runner: node
+#
+#     - script: "hello.go"
+#       runner: go run

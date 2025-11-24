@@ -35,8 +35,7 @@
         "pestphp/pest": "^4.1",
         "pestphp/pest-plugin-arch": "^4.1",
         "pestphp/pest-plugin-browser": "^4.1",
-        "pestphp/pest-plugin-laravel": "^4.1",
-        "projektgopher/whisky": "^0.7.4"
+        "pestphp/pest-plugin-laravel": "^4.1"
     },
     "config": {
         "sort-packages": true,
@@ -58,10 +57,10 @@
     },
     "scripts": {
         "post-install-cmd": [
-            "@php vendor/bin/whisky update"
+            "lefthook install"
         ],
         "post-update-cmd": [
-            "@php vendor/bin/whisky update"
+            "lefthook install"
         ],
         "test": "@php vendor/bin/pest",
         "test-coverage": "@php vendor/bin/pest --coverage",

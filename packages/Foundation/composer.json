@@ -12,24 +12,14 @@
         "php": "^8.3",
         "laravel/framework": "^12.8"
     },
-    "suggest": {
-        "unigale/module-execution-platform": "Some activities and workflows are registered by this module"
-    },
     "autoload": {
         "psr-4": {
-            "UniGaleModules\\MailingSystem\\": "./src"
+            "UniGale\\Foundation": "."
         }
     },
     "config": {
         "sort-packages": true
     },
     "minimum-stability": "dev",
-    "prefer-stable": true,
-    "extra": {
-        "unigale": {
-            "modules": [
-                "UniGaleModules\\MailingSystem\\MailingSystemModule"
-            ]
-        }
-    }
+    "prefer-stable": true
 }
