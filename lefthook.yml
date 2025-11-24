@@ -3,6 +3,8 @@ pre-push:
   jobs:
     - runner: bash
       script: "push-split.sh"
+      skip:
+        - run: "! git diff --name-only origin/main...HEAD | grep -qE '^(packages|modules)/'"
 
 pre-commit:
   parallel: true
