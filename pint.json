@@ -1,0 +1,45 @@
+{
+    "preset": "laravel",
+    "exclude": [
+        "bootstrap/cache",
+        "bootstrap/cache/*",
+        "bootstrap/cache/**",
+        "workbench",
+        "workbench/*",
+        "workbench/**",
+        "forks/",
+        "public",
+        "config",
+        "storage",
+        ".bruno",
+        ".junie",
+        ".laravel"
+    ],
+    "rules": {
+        "array_push": true,
+        "backtick_to_shell_exec": true,
+        "binary_operator_spaces": {
+            "default": "single_space",
+            "operators": {
+                "=>": "align_single_space_minimal"
+            }
+        },
+        "date_time_immutable": true,
+        "declare_strict_types": true,
+        "explicit_indirect_variable": true,
+        "explicit_string_variable": true,
+        "fully_qualified_strict_types": {
+            "import_symbols": true
+        },
+        "global_namespace_import": {
+            "import_classes": true,
+            "import_constants": true,
+            "import_functions": true
+        },
+        "mb_str_functions": true,
+        "no_superfluous_elseif": true,
+        "no_useless_else": true,
+        "strict_comparison": true,
+        "visibility_required": true
+    }
+}

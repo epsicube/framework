@@ -1,0 +1,35 @@
+{
+    "name": "unigale/module-administration",
+    "type": "library",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "COLANT Alan",
+            "email": "contact@alancolant.com"
+        }
+    ],
+    "require": {
+        "ext-intl": "*",
+        "php": "^8.3",
+        "illuminate/support": "^12.8",
+        "filament/filament": "^v4.0.0-beta5",
+        "unigale/foundation": "*"
+    },
+    "autoload": {
+        "psr-4": {
+            "UniGaleModules\\Administration\\": "."
+        }
+    },
+    "config": {
+        "sort-packages": true
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true,
+    "extra": {
+        "unigale": {
+            "modules": [
+                "UniGaleModules\\Administration\\AdministrationModule"
+            ]
+        }
+    }
+}

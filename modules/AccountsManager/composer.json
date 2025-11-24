@@ -1,0 +1,43 @@
+{
+    "name": "unigale/module-accounts-manager",
+    "type": "library",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "COLANT Alan",
+            "email": "contact@alancolant.com"
+        }
+    ],
+    "require": {
+        "php": "^8.3",
+        "illuminate/support": "^12.8",
+        "illuminate/database": "^12.8",
+        "unigale/foundation": "*",
+        "filament/filament": "^v4.0.0-beta5"
+    },
+    "suggest": {
+        "unigale/module-administration": "User can be managed through the administration panel"
+    },
+    "autoload": {
+        "psr-4": {
+            "UniGaleModules\\AccountsManager\\": "."
+        }
+    },
+    "config": {
+        "sort-packages": true
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true,
+    "extra": {
+        "unigale": {
+            "modules": [
+                "UniGaleModules\\AccountsManager\\AccountsManagerModule"
+            ],
+            "hypercore": {
+                "adapters": [
+                    "UniGaleModules\\AccountsManager\\AccountsManagerModuleAdapter"
+                ]
+            }
+        }
+    }
+}

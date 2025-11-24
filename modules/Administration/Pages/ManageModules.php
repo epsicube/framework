@@ -1,0 +1,215 @@
+<?php
+
+declare(strict_types=1);
+
+namespace UniGaleModules\Administration\Pages;
+
+use BackedEnum;
+use Filament\Actions\Action;
+use Filament\Infolists\Components\RepeatableEntry;
+use Filament\Infolists\Components\TextEntry;
+use Filament\Pages\Page;
+use Filament\Schemas\Components\Section;
+use Filament\Schemas\Concerns\InteractsWithSchemas;
+use Filament\Schemas\Contracts\HasSchemas;
+use Filament\Schemas\Schema;
+use Filament\Support\Colors\Color;
+use Filament\Support\Enums\Alignment;
+use Filament\Support\Icons\Heroicon;
+use Illuminate\Contracts\Support\Htmlable;
+use UniGale\Foundation\Concerns\Module;
+use UniGale\Foundation\Facades\Modules;
+use UnitEnum;
+
+class ManageModules extends Page implements HasSchemas
+{
+    use InteractsWithSchemas;
+
+    protected string $view = 'unigale-administration::pages.manage-modules';
+
+    protected static string|null|BackedEnum $navigationIcon = Heroicon::OutlinedCube;
+
+    protected static ?int $navigationSort = 30;
+
+    public array $state = [];
+
+    public static function getNavigationLabel(): string
+    {
+        return __('Modules');
+    }
+
+    public function getTitle(): string|Htmlable
+    {
+        return __('Manage modules');
+    }
+
+    public function mount(): void
+    {
+        $this->state = $this->getState();
+    }
+
+    public static function getNavigationGroup(): string|UnitEnum|null
+    {
+        return __('Integrations');
+    }
+
+    public function modulesInfolist(Schema $schema): Schema
+    {
+        return $schema->statePath('state')->constantState($this->state)->schema([
+            RepeatableEntry::make('modules')
+                ->hiddenLabel()
+                ->contained(false)
+                ->grid([
+                    'default' => 1,
+                    'md'      => 2,
+                    '2xl'     => 3,
+                ])->schema([
+                    Section::make()
+                        ->heading(fn (array $state) => $state['name'])
+                        ->columns(2)
+                        ->collapsible()
+                        ->afterHeader(fn (array $state) => [
+                            TextEntry::make('status')->hiddenLabel()
+                                ->badge()
+                                ->color($this->getActivationColorForModule($state['identifier']))
+                                ->getStateUsing(fn () => match (true) {
+                                    $state['mu']        => __('Must-Use'),
+                                    $state['enabled']   => __('Enabled'),
+                                    ! $state['enabled'] => __('Disabled'),
+                                }),
+
+                        ])->schema([
+                            TextEntry::make('author')->label(__('Author')),
+                            TextEntry::make('version')->label(__('Version')),
+                            TextEntry::make('description')->label(__('Description'))->columnSpanFull()
+                                ->hidden(fn (?string $state) => empty($state)),
+                            TextEntry::make('dependencies')->label(__('Dependencies'))->columnSpanFull()
+                                ->hidden(fn (?array $state) => empty($state))
+                                ->formatStateUsing(fn (string $state) => Modules::safeGet($state)?->name() ?? $state)
+                                ->badge()
+                                ->color(fn (string $state) => $this->getActivationColorForModule($state)),
+                            TextEntry::make('integrations')->label(__('Integrations'))->columnSpanFull()
+                                ->hidden(fn (?array $state) => empty($state))
+                                ->formatStateUsing(fn (string $state) => Modules::safeGet($state)?->name() ?? $state)
+                                ->badge()
+                                ->color(fn (string $state) => $this->getActivationColorForModule($state)),
+                        ])
+                        ->footerActionsAlignment(Alignment::Center)
+                        ->footerActions([
+                            Action::make('enable')->label(__('Enable'))
+                                ->link()->color(Color::Green)
+                                ->visible(fn ($state) => Modules::canBeEnabled($state['identifier'])
+                                    && ! Modules::hasUnresolvedDependencies($state['identifier']))
+                                ->action(function ($state) {
+                                    Modules::enable($state['identifier']);
+                                    $this->reloadModules();
+                                })->requiresConfirmation(),
+
+                            Action::make('enableWithDependencies')->label(__('Enable with dependencies'))
+                                ->link()->color(Color::Green)
+                                ->visible(fn ($state) => Modules::hasUnresolvedDependencies($state['identifier'])
+                                    && Modules::canEnableWithDependencies($state['identifier']))
+                                ->modalHeading(__('Enable with dependencies'))
+                                ->modalDescription(fn ($state) => function_exists('__')
+                                    ? __('This will enable (in order): :list', [
+                                        'list' => implode(', ', array_map(
+                                            fn (string $id) => Modules::safeGet($id)?->name() ?? $id,
+                                            Modules::resolveEnableChain($state['identifier'])
+                                        )),
+                                    ])
+                                    : 'This will enable (in order): '.implode(', ', array_map(
+                                        fn (string $id) => Modules::safeGet($id)?->name() ?? $id,
+                                        Modules::resolveEnableChain($state['identifier'])
+                                    )))
+                                ->action(function ($state) {
+                                    Modules::enableWithDependencies($state['identifier']);
+                                    $this->reloadModules();
+                                })
+                                ->requiresConfirmation(),
+
+                            Action::make('disable')->label(__('Disable'))
+                                ->link()->color(Color::Red)
+                                ->visible(fn ($state) => Modules::canBeDisabled($state['identifier']))
+                                ->action(function ($state) {
+                                    Modules::disable($state['identifier']);
+                                    $this->reloadModules();
+                                })->requiresConfirmation(),
+
+                            Action::make('disableWithDependents')->label(__('Disable with dependents'))
+                                ->link()->color(Color::Red)
+                                ->visible(fn ($state) => ! Modules::canBeDisabled($state['identifier'])
+                                    && Modules::canDisableWithDependents($state['identifier']))
+                                ->modalHeading(__('Disable with dependents'))
+                                ->modalDescription(fn ($state) => function_exists('__')
+                                    ? __('This will disable (in order): :list', [
+                                        'list' => implode(', ', array_map(
+                                            fn (string $id) => Modules::safeGet($id)?->name() ?? $id,
+                                            Modules::resolveDisableChain($state['identifier'])
+                                        )),
+                                    ])
+                                    : 'This will disable (in order): '.implode(', ', array_map(
+                                        fn (string $id) => Modules::safeGet($id)?->name() ?? $id,
+                                        Modules::resolveDisableChain($state['identifier'])
+                                    )))
+                                ->action(function ($state) {
+                                    Modules::disableWithDependents($state['identifier']);
+                                    $this->reloadModules();
+                                })
+                                ->requiresConfirmation(),
+                        ]),
+
+                ]),
+        ]);
+    }
+
+    protected function getActivationColorForModule(string|Module $module): array
+    {
+        return match (true) {
+            Modules::safeGet($module) === null => Color::Zinc, // <- absent
+            Modules::isMustUse($module)        => Color::Orange, // <- present, must-use
+            Modules::isEnabled($module)        => Color::Green, // <- present, enabled
+            default                            => Color::Red, // <- present, disabled
+        };
+    }
+
+    // Refresh après action
+    protected function reloadModules(): void
+    {
+        $this->forceRender();
+        $this->dispatch('$refresh');
+    }
+
+    public function getState(?string $search = null): array
+    {
+        $modules = Modules::all();
+        if (! empty($search)) {
+            $search = mb_strtolower($search);
+            $modules = array_filter($modules, function (Module $module) use ($search) {
+                // Sécurise tous les champs avec ?? '' pour éviter les null
+                $haystack = mb_strtolower(implode(' ', [
+                    $module->name() ?? '',
+                    $module->description() ?? '',
+                    $module->author() ?? '',
+                ]));
+
+                //                dump($haystack);
+
+                return str_contains(mb_strtolower($haystack), $search);
+            });
+        }
+
+        $modules = array_values(array_map(fn (Module $module) => [
+            'identifier'   => $module->identifier(),
+            'name'         => $module->name(),
+            'description'  => $module->description(),
+            'author'       => $module->author(),
+            'version'      => $module->version(),
+            'mu'           => Modules::isMustUse($module),
+            'enabled'      => Modules::isEnabled($module),
+            'dependencies' => Modules::dependenciesOf($module),
+            'integrations' => Modules::integrationsOf($module),
+        ], $modules));
+
+        return ['modules' => $modules];
+    }
+}

@@ -1,0 +1,5 @@
+http://0.0.0.0:8000 {
+    root /var/www/html/public
+	encode zstd br gzip
+	php_server
+}

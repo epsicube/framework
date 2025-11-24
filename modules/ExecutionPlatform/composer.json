@@ -1,0 +1,39 @@
+{
+    "name": "unigale/module-execution-platform",
+    "type": "library",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "COLANT Alan",
+            "email": "contact@alancolant.com"
+        }
+    ],
+    "require": {
+        "php": "^8.3",
+        "illuminate/support": "^12.8",
+        "illuminate/database": "^12.8",
+        "unigale/foundation": "*",
+        "phiki/phiki": "^2.0.4",
+        "codeat3/blade-clarity-icons": "^1.8"
+    },
+    "suggest": {
+        "unigale/module-administration": "Executions can be tracked in administration"
+    },
+    "autoload": {
+        "psr-4": {
+            "UniGaleModules\\ExecutionPlatform\\": "."
+        }
+    },
+    "config": {
+        "sort-packages": true
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true,
+    "extra": {
+        "unigale": {
+            "modules": [
+                "UniGaleModules\\ExecutionPlatform\\ExecutionPlatformModule"
+            ]
+        }
+    }
+}
