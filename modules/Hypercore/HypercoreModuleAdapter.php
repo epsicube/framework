@@ -17,6 +17,7 @@ class HypercoreModuleAdapter extends HypercoreAdapter
         return HypercoreModule::make()->identifier();
     }
 
+    //
     // TODO merge hypercore in base app ans use a trait on module instead of adapter
     public function register(): void
     {
