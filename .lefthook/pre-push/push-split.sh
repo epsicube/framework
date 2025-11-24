@@ -18,7 +18,7 @@ function split()
             return
         fi
         echo ">>> Changes detected for $1 — pushing..."
-        git push "$2" "$LOCAL_SHA:refs/heads/$CURRENT_BRANCH" -f
+        git push --no-verify "$2" "$LOCAL_SHA:refs/heads/$CURRENT_BRANCH" -f
 }
 
 
