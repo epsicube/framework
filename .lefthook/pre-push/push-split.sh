@@ -2,7 +2,7 @@
 
 set -e
 
-CURRENT_BRANCH="main"
+CURRENT_BRANCH=$(git rev-parse --abbrev-ref HEAD)
 
 function remote()
 {
@@ -22,7 +22,7 @@ function split()
 }
 
 
-git pull origin $CURRENT_BRANCH
+git pull origin "$CURRENT_BRANCH"
 
 remote module-accounts-manager git@github.com:unigale/module-accounts-manager.git
 remote module-administration git@github.com:unigale/module-administration.git
