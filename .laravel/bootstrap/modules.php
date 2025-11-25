@@ -1,20 +1,11 @@
 <?php
 
-return array (
-  'core::administration' => 
-  array (
-    'enabled' => true,
-  ),
-  'core::account-manager' => 
-  array (
-    'enabled' => true,
-  ),
-  'core::accounts-manager' => 
-  array (
-    'enabled' => true,
-  ),
-  'core::hypercore' => 
-  array (
-    'enabled' => true,
-  ),
-);
+declare(strict_types=1);
+
+return [
+    'core::administration'   => true,
+    'core::account-manager'  => true,
+    'core::accounts-manager' => true,
+    'core::hypercore'        => true,
+    'core::mailing-system'   => true,
+];

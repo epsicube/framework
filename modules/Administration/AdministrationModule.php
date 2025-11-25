@@ -8,8 +8,10 @@ use Composer\InstalledVersions;
 use Filament\FilamentServiceProvider;
 use Filament\PanelRegistry;
 use UniGale\Foundation\Concerns\CoreModule;
+use UniGale\Foundation\Contracts\HasOptions;
+use UniGale\Foundation\Options\OptionsDefinition;
 
-class AdministrationModule extends CoreModule
+class AdministrationModule extends CoreModule implements HasOptions
 {
     protected function coreIdentifier(): string
     {
@@ -31,6 +33,15 @@ class AdministrationModule extends CoreModule
     public function description(): ?string
     {
         return __('Provides administrative tools and management features for the system.');
+    }
+
+    public function options(OptionsDefinition $options): void
+    {
+        $options->add(
+            key: 'domain',
+            autoload: true,
+            default: 'de'
+        );
     }
 
     public function register(): void

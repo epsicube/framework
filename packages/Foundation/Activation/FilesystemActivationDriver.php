@@ -20,7 +20,7 @@ class FilesystemActivationDriver implements ActivationDriver
     {
         $this->ensureStateIsLoaded();
 
-        $this->state[$module->identifier()] = ['enabled' => true];
+        $this->state[$module->identifier()] = true;
 
         $this->saveState($this->state);
     }
@@ -29,7 +29,7 @@ class FilesystemActivationDriver implements ActivationDriver
     {
         $this->ensureStateIsLoaded();
 
-        unset($this->state[$module->identifier()]);
+        $this->state[$module->identifier()] = false;
 
         $this->saveState($this->state);
     }
@@ -38,9 +38,7 @@ class FilesystemActivationDriver implements ActivationDriver
     {
         $this->ensureStateIsLoaded();
 
-        $entry = $this->state[$module->identifier()] ?? null;
-
-        return is_array($entry) && ($entry['enabled'] ?? false) === true;
+        return $this->state[$module->identifier()] ?? false;
     }
 
     public function isMustUse(Module $module): bool

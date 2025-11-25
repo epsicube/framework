@@ -13,6 +13,9 @@ use UniGale\Foundation\Console\Commands\ModulesDisableCommand;
 use UniGale\Foundation\Console\Commands\ModulesEnableCommand;
 use UniGale\Foundation\Console\Commands\ModulesListCommand;
 use UniGale\Foundation\Facades\Modules;
+use UniGale\Foundation\Facades\Options;
+use UniGale\Foundation\Options\DatabaseStore;
+use UniGale\Foundation\Options\OptionsManager;
 use UniGale\Foundation\Registries\ModulesRegistry;
 
 /**
@@ -35,8 +38,6 @@ class UnigaleServiceProvider extends ServiceProvider
             );
         });
 
-        $this->app->alias('unigale-manifest', UnigaleManifest::class);
-
         $this->app->singleton('modules', function () {
             $registry = new ModulesRegistry(
                 new FilesystemActivationDriver(new Filesystem, $this->app->bootstrapPath('modules.php'))
@@ -52,8 +53,21 @@ class UnigaleServiceProvider extends ServiceProvider
             return $registry;
         });
 
+        $this->app->singleton('options.store', function () {
+            return new DatabaseStore;
+        });
+
+        $this->app->singleton('options', function () {
+            $manager = new OptionsManager(app('options.store'));
+            $manager->registerModules(...app(ModulesRegistry::class)->enabled());
+
+            return $manager;
+        });
+
         // Keep alias binding to allow remapping and access to initial without triggering callback
+        $this->app->alias('unigale-manifest', UnigaleManifest::class);
         $this->app->alias('modules', Modules::$accessor);
+        $this->app->alias('options', Options::$accessor);
     }
 
     public function boot(): void
@@ -63,5 +77,6 @@ class UnigaleServiceProvider extends ServiceProvider
             ModulesEnableCommand::class,
             ModulesDisableCommand::class,
         ]);
+        $this->loadMigrationsFrom(__DIR__.'/database/migrations');
     }
 }

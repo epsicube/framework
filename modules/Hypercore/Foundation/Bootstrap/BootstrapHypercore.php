@@ -59,9 +59,10 @@ class BootstrapHypercore
 
     protected function configureTenant(Tenant $tenant, Application $app, ModulesRegistry $registry): void
     {
-        //        dump('tenant');
         $tenantDriver = new TenantActivationDriver($tenant->id);
         $this->applyTenantAdapters($app, $tenant, $registry, $tenantDriver);
+
+        // Override unigale
         $registry->setDriver($tenantDriver);
         $tenant->setConnection(HypercoreActivator::centralConnectionName());
 

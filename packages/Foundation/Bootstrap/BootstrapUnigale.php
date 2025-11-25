@@ -40,6 +40,7 @@ class BootstrapUnigale
 
             // Bootstrap all enabled modules that provide custom bootstrapper (without events)
             $registry = $app->make(Modules::$accessor);
+
             foreach ($registry->enabled() as $module) {
                 if ($module instanceof InjectBootstrappers) {
                     foreach ($module->bootstrappers() as $bootstrapper) {

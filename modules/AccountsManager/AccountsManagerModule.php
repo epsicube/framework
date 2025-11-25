@@ -76,6 +76,7 @@ class AccountsManagerModule extends CoreModule implements HasIntegrations
         $integrations->forModule(
             identifier: 'core::administration',
             whenEnabled: [AdministrationIntegration::class, 'handle']
+
         );
     }
 }

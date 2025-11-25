@@ -46,6 +46,8 @@ class HypercoreModule extends CoreModule implements HasIntegrations, InjectBoots
 
     public function boot(): void
     {
+        // TODO DISABLE CORE MIGRATIONS
+        // MOVE HYPERCORE INTO FOUNDATION INSTEAD OF MODULE
         $this->loadMigrationsFrom(__DIR__.'/database/migrations');
 
         $this->commands([

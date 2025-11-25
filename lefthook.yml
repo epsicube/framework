@@ -4,7 +4,7 @@ pre-push:
     - runner: bash
       script: "push-split.sh"
       skip:
-        - run: "! git diff --name-only origin/main...HEAD | grep -qE '^(packages|modules)/'"
+        - run: "! git diff --name-only origin/main...HEAD | grep -qE '^(packages|modules)/'" # Only push on main
 
 pre-commit:
   parallel: true
