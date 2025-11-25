@@ -30,7 +30,7 @@ class OptionsDefinition
         string $type = 'string', // <- todo ENUM or INTERFACE (wait for schemas)
         ?bool $autoload = false,
         mixed $default = null,
-    ): void {
+    ): static {
         if (isset($this->options[$key])) {
             throw new InvalidArgumentException("Option '{$key}' already defined.");
         }
@@ -39,6 +39,8 @@ class OptionsDefinition
             'autoload' => (bool) $autoload,
             'default'  => $default,
         ];
+
+        return $this;
     }
 
     public function getAutoloads(): array

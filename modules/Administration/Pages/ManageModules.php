@@ -19,6 +19,7 @@ use Filament\Support\Icons\Heroicon;
 use Illuminate\Contracts\Support\Htmlable;
 use UniGale\Foundation\Concerns\Module;
 use UniGale\Foundation\Facades\Modules;
+use UniGale\Foundation\Facades\Options;
 use UnitEnum;
 
 class ManageModules extends Page implements HasSchemas
@@ -32,6 +33,11 @@ class ManageModules extends Page implements HasSchemas
     protected static ?int $navigationSort = 30;
 
     public array $state = [];
+
+    public static function canAccess(): bool
+    {
+        return Options::get('enable-modules-manager', 'core::administration');
+    }
 
     public static function getNavigationLabel(): string
     {

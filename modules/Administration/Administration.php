@@ -14,6 +14,7 @@ use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
 use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Session\Middleware\StartSession;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
+use UniGale\Foundation\Facades\Options;
 
 class Administration extends FilamentPanel
 {
@@ -33,5 +34,10 @@ class Administration extends FilamentPanel
                 DisableBladeIconComponents::class,
                 DispatchServingFilamentEvent::class,
             ]);
+
+        // Options configurations
+        $this->brandName(Options::get('brand-name', 'core::administration'));
+        $this->spa(Options::get('spa', 'core::administration'));
+        $this->topNavigation(Options::get('top-navigation', 'core::administration'));
     }
 }

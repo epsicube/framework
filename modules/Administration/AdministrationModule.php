@@ -38,9 +38,21 @@ class AdministrationModule extends CoreModule implements HasOptions
     public function options(OptionsDefinition $options): void
     {
         $options->add(
-            key: 'domain',
-            autoload: true,
-            default: 'de'
+            key: 'enable-modules-manager',
+            type: 'boolean', // <- todo type management
+            default: true
+        )->add(
+            key: 'brand-name',
+            type: 'string', // <- todo type management
+            default: fn () => config('app.name')
+        )->add(
+            key: 'spa',
+            type: 'boolean', // <- todo type management
+            default: false
+        )->add(
+            key: 'top-navigation',
+            type: 'boolean', // <- todo type management
+            default: true
         );
     }
 
