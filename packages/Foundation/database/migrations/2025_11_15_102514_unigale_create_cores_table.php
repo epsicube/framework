@@ -13,11 +13,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('hypercore_tenants', function (Blueprint $table) {
-            $table->dropColumn('_maintenance_data');
-            $table->jsonb('_maintenance_data')->nullable()->default(null);
-        });
-        Schema::create('hypercore_tenants', function (Blueprint $table) {
+        Schema::create('cores', function (Blueprint $table) {
             $table->id();
             $table->string('identifier', 64)->unique();
             $table->string('key', 64)->unique();
@@ -39,12 +35,11 @@ return new class extends Migration
 
             // Internal
             $table->jsonb('_maintenance_data')->nullable()->default(null);
-
         });
     }
 
     public function down(): void
     {
-        Schema::dropIfExists('hypercore_tenants');
+        Schema::dropIfExists('cores');
     }
 };

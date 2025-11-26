@@ -16,17 +16,23 @@ return new class extends Migration
         Schema::create('hypercore_modules', function (Blueprint $table) {
             $table->id();
 
-            $table->foreignId('tenant_id')->index()
-                ->constrained('hypercore_tenants')
-                ->cascadeOnUpdate()
-                ->cascadeOnDelete();
+            $table->foreignId('core_id')->nullable()->index()
+                ->constrained('cores')->on('id')
+                ->cascadeOnUpdate()->cascadeOnDelete();
+
             $table->string('identifier', 255);
             $table->boolean('enabled')->default(true)->index();
 
             // data_version  <- etat_seeder
             // schema_version  <- etat_migration
 
-            $table->unique(['tenant_id', 'identifier']);
+            // Internal
+            $table->unsignedBigInteger('_lock_core_id')
+                ->invisible()
+                ->storedAs("CASE WHEN core_id IS NULL THEN 0 ELSE core_id END")
+                ->comment('one option per core');
+
+            $table->unique(['_lock_core_id', 'identifier']);
         });
     }
 

@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace UniGale\Foundation\Bootstrap;
 
-use Error;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Database\DatabaseServiceProvider;
 use Illuminate\Database\Eloquent\Model;

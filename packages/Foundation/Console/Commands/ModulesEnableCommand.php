@@ -15,10 +15,8 @@ use function Laravel\Prompts\multiselect;
 
 class ModulesEnableCommand extends Command implements PromptsForMissingInput
 {
-    protected $signature = '
-        modules:enable
-        {identifier* : The identifier of the module to enable}
-    ';
+    protected $signature = 'modules:enable {identifier* : The identifier of the module to enable}';
+    protected $aliases = ['m:e'];
 
     protected $description = 'Enable a module by its identifier';
 

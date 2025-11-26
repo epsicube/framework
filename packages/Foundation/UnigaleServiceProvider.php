@@ -11,7 +11,7 @@ use UniGale\Foundation\Activation\FilesystemActivationDriver;
 use UniGale\Foundation\Concerns\Module;
 use UniGale\Foundation\Console\Commands\ModulesDisableCommand;
 use UniGale\Foundation\Console\Commands\ModulesEnableCommand;
-use UniGale\Foundation\Console\Commands\ModulesListCommand;
+use UniGale\Foundation\Console\Commands\ModulesStatusCommand;
 use UniGale\Foundation\Facades\Modules;
 use UniGale\Foundation\Facades\Options;
 use UniGale\Foundation\Options\DatabaseStore;
@@ -73,7 +73,7 @@ class UnigaleServiceProvider extends ServiceProvider
     public function boot(): void
     {
         $this->commands([
-            ModulesListCommand::class,
+            ModulesStatusCommand::class,
             ModulesEnableCommand::class,
             ModulesDisableCommand::class,
         ]);

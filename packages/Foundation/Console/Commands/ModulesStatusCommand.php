@@ -11,11 +11,12 @@ use UniGale\Foundation\Facades\Modules;
 
 use function Laravel\Prompts\table;
 
-class ModulesListCommand extends Command
+class ModulesStatusCommand extends Command
 {
-    protected $signature = 'modules:list';
+    protected $signature = 'modules:status';
+    protected $aliases = ['m:s'];
 
-    protected $description = 'Command description';
+    protected $description = 'Displays all available modules with their metadata and activation status.';
 
     public function handle(): void
     {

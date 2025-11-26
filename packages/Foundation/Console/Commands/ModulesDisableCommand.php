@@ -15,10 +15,8 @@ use function Laravel\Prompts\multiselect;
 
 class ModulesDisableCommand extends Command implements PromptsForMissingInput
 {
-    protected $signature = '
-        modules:disable
-        {identifier* : The identifier of the module to disable}
-    ';
+    protected $signature = 'modules:disable {identifier* : The identifier of the module to disable}';
+    protected $aliases = ['m:d'];
 
     protected $description = 'Disable a module by its identifier';
 
