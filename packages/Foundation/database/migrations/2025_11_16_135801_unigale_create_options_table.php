@@ -6,7 +6,8 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration {
+return new class extends Migration
+{
     /**
      * Run the migrations.
      */
@@ -16,7 +17,7 @@ return new class extends Migration {
             $table->id();
 
             $table->foreignId('core_id')->nullable()->index()
-                ->constrained('cores')->on('id')
+                ->constrained('cores', 'id')
                 ->cascadeOnUpdate()->cascadeOnDelete();
 
             $table->string('module_identifier', 255)->nullable()->index();
@@ -27,7 +28,7 @@ return new class extends Migration {
 
             $table->unsignedBigInteger('_lock_core_id')
                 ->invisible()
-                ->storedAs("CASE WHEN core_id IS NULL THEN 0 ELSE core_id END")
+                ->storedAs('CASE WHEN core_id IS NULL THEN 0 ELSE core_id END')
                 ->comment('one option per [core,module,key]');
 
             $table->string('_lock_module_identifier')
@@ -38,7 +39,7 @@ return new class extends Migration {
             $table->unique([
                 '_lock_core_id',
                 '_lock_module_identifier',
-                'key'
+                'key',
             ]);
         });
     }
