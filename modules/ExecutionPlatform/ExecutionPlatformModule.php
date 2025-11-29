@@ -8,6 +8,7 @@ use Composer\InstalledVersions;
 use UniGale\Foundation\Concerns\CoreModule;
 use UniGale\Foundation\Contracts\HasIntegrations;
 use UniGale\Foundation\IntegrationsManager;
+use UniGaleModules\ExecutionPlatform\Console\Commands\ListCommand;
 use UniGaleModules\ExecutionPlatform\Facades\Activities;
 use UniGaleModules\ExecutionPlatform\Facades\Workflows;
 use UniGaleModules\ExecutionPlatform\Integrations\Administration\AdministrationIntegration;
@@ -46,6 +47,7 @@ class ExecutionPlatformModule extends CoreModule implements HasIntegrations
     public function boot(): void
     {
         $this->loadMigrationsFrom(__DIR__.'/database/migrations');
+        $this->commands([ListCommand::class]);
     }
 
     public function integrations(IntegrationsManager $integrations): void
