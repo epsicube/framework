@@ -29,7 +29,7 @@ return new class extends Migration
             // Internal
             $table->unsignedBigInteger('_lock_core_id')
                 ->invisible()
-                ->storedAs("CASE WHEN core_id IS NULL THEN 0 ELSE core_id END")
+                ->storedAs('CASE WHEN core_id IS NULL THEN 0 ELSE core_id END')
                 ->comment('one option per core');
 
             $table->unique(['_lock_core_id', 'identifier']);
