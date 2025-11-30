@@ -4,7 +4,7 @@ import starlight from '@astrojs/starlight';
 
 // https://astro.build/config
 export default defineConfig({
-    // site: 'https://stargazers.club', // TODO
+    site: 'https://unigale.quix-labs.com',
     integrations: [
         starlight({
             title: 'Unigale Framework',
