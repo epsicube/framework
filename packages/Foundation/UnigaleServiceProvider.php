@@ -8,10 +8,10 @@ use Carbon\Laravel\ServiceProvider;
 use Illuminate\Filesystem\Filesystem;
 use Illuminate\Support\Env;
 use UniGale\Foundation\Activation\FilesystemActivationDriver;
-use UniGale\Foundation\Concerns\Module;
 use UniGale\Foundation\Console\Commands\ModulesDisableCommand;
 use UniGale\Foundation\Console\Commands\ModulesEnableCommand;
 use UniGale\Foundation\Console\Commands\ModulesStatusCommand;
+use UniGale\Foundation\Contracts\Module;
 use UniGale\Foundation\Facades\Modules;
 use UniGale\Foundation\Facades\Options;
 use UniGale\Foundation\Options\DatabaseStore;
@@ -45,7 +45,7 @@ class UnigaleServiceProvider extends ServiceProvider
 
             $manifestModules = array_map(function (string $moduleClass) {
                 /** @var class-string<Module> $moduleClass */
-                return $moduleClass::make();
+                return $this->app->make($moduleClass, ['app' => $this->app]);
             }, $this->app->get(UnigaleManifest::class)->modules());
 
             $registry->register(...$manifestModules);

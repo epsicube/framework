@@ -23,11 +23,11 @@ abstract class Registry
      */
     abstract public function getRegistrableType(): string;
 
-    /**
-     * @var Registrable
-     */
     protected array $items = [];
 
+    /**
+     * @param  T  ...$items
+     */
     public function register(Registrable ...$items): void
     {
         foreach ($items as $item) {
@@ -46,6 +46,9 @@ abstract class Registry
         }
     }
 
+    /**
+     * @return T
+     */
     public function get(string $identifier): Registrable
     {
         if (! array_key_exists($identifier, $this->all())) {
@@ -55,6 +58,9 @@ abstract class Registry
         return $this->all()[$identifier];
     }
 
+    /**
+     * @return T|null
+     */
     public function safeGet(string $identifier): ?Registrable
     {
         try {
@@ -65,7 +71,7 @@ abstract class Registry
     }
 
     /**
-     * @return Registrable
+     * @return array<string,T>
      */
     public function all(): array
     {
@@ -91,6 +97,9 @@ abstract class Registry
         }, $this->all());
     }
 
+    /**
+     * @param  T  $item
+     */
     protected function registerItem(string $identifier, Registrable $item): void
     {
         $this->items[$identifier] = $item;

@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace UniGaleModules\Hypercore\Foundation;
 
 use Closure;
-use UniGale\Foundation\Concerns\Module;
 use UniGale\Foundation\Contracts\ActivationDriver;
+use UniGale\Foundation\Contracts\Module;
 use UniGale\Foundation\Registries\ModulesRegistry;
 
 class HypercoreApplier

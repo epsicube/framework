@@ -7,31 +7,31 @@ namespace UniGaleModules\AccountsManager;
 use Composer\InstalledVersions;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Password;
-use UniGale\Foundation\Concerns\CoreModule;
+use Illuminate\Support\ServiceProvider;
 use UniGale\Foundation\Contracts\HasIntegrations;
+use UniGale\Foundation\Contracts\Module;
 use UniGale\Foundation\IntegrationsManager;
+use UniGale\Foundation\ModuleIdentity;
 use UniGaleModules\AccountsManager\Integrations\Administration\AdministrationIntegration;
 use UniGaleModules\AccountsManager\Models\Account;
 
-class AccountsManagerModule extends CoreModule implements HasIntegrations
+class AccountsManagerModule extends ServiceProvider implements HasIntegrations, Module
 {
     private ?string $hypercoreContext = null;
 
-    public function coreIdentifier(): string
+    public function identifier(): string
     {
-        return 'accounts-manager';
+        return 'core::accounts-manager';
     }
 
-    public function name(): string
+    public function identity(): ModuleIdentity
     {
-        return __('Accounts Manager');
-    }
-
-    public function version(): string
-    {
-        return
-            InstalledVersions::getPrettyVersion('unigale/framework')
-            ?? InstalledVersions::getPrettyVersion('unigale/module-accounts-manager');
+        return ModuleIdentity::make(
+            name: __('Accounts Manager'),
+            version: InstalledVersions::getPrettyVersion('unigale/framework')
+            ?? InstalledVersions::getPrettyVersion('unigale/module-accounts-manager'),
+            author: 'Core Team',
+        );
     }
 
     public function setHypercoreContext(string $context): void

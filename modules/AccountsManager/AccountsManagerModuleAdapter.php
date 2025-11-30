@@ -16,7 +16,7 @@ class AccountsManagerModuleAdapter extends HypercoreAdapter
 {
     public function moduleIdentifier(): string
     {
-        return AccountsManagerModule::make()->identifier();
+        return 'core::accounts-manager';
     }
 
     public function configureCentral(HypercoreApplier $applier): void

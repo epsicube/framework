@@ -4,11 +4,13 @@ declare(strict_types=1);
 
 namespace UniGaleModules\MailingSystem;
 
+use Carbon\Laravel\ServiceProvider;
 use Composer\InstalledVersions;
 use Illuminate\Contracts\Support\DeferrableProvider;
-use UniGale\Foundation\Concerns\CoreModule;
 use UniGale\Foundation\Contracts\HasIntegrations;
+use UniGale\Foundation\Contracts\Module;
 use UniGale\Foundation\IntegrationsManager;
+use UniGale\Foundation\ModuleIdentity;
 use UniGaleModules\ExecutionPlatform\Facades\Activities;
 use UniGaleModules\ExecutionPlatform\Facades\Workflows;
 use UniGaleModules\MailingSystem\ExecutionEngine\Activities\SendMail as SendMailActivity;
@@ -20,27 +22,22 @@ use UniGaleModules\MailingSystem\Mails\Templates\Blank;
 use UniGaleModules\MailingSystem\Registries\MailersRegistry;
 use UniGaleModules\MailingSystem\Registries\TemplatesRegistry;
 
-class MailingSystemModule extends CoreModule implements DeferrableProvider, HasIntegrations
+class MailingSystemModule extends ServiceProvider implements DeferrableProvider, HasIntegrations, Module
 {
-    protected function coreIdentifier(): string
+    public function identifier(): string
     {
-        return 'mailing-system';
+        return 'core::mailing-system';
     }
 
-    public function name(): string
+    public function identity(): ModuleIdentity
     {
-        return __('Mailing System');
-    }
-
-    public function description(): ?string
-    {
-        return __('Mail delivery system, extensible and equipped with outbound message tracking.');
-    }
-
-    public function version(): string
-    {
-        return InstalledVersions::getPrettyVersion('unigale/framework')
-            ?? InstalledVersions::getPrettyVersion('unigale/module-mailing-system');
+        return ModuleIdentity::make(
+            name: __('Mailing System'),
+            version: InstalledVersions::getPrettyVersion('unigale/framework')
+            ?? InstalledVersions::getPrettyVersion('unigale/module-mailing-system'),
+            author: 'Core Team',
+            description: __('Mail delivery system, extensible and equipped with outbound message tracking.')
+        );
     }
 
     public function provides(): array

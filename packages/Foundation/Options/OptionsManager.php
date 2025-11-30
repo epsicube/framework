@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace UniGale\Foundation\Options;
 
-use UniGale\Foundation\Concerns\Module;
 use UniGale\Foundation\Contracts\HasOptions;
+use UniGale\Foundation\Contracts\Module;
 use UniGale\Foundation\Contracts\OptionsStore;
 use UniGale\Foundation\Exceptions\DefinitionNotFoundException;
 

@@ -4,10 +4,12 @@ declare(strict_types=1);
 
 namespace UniGaleModules\ExecutionPlatform;
 
+use Carbon\Laravel\ServiceProvider;
 use Composer\InstalledVersions;
-use UniGale\Foundation\Concerns\CoreModule;
 use UniGale\Foundation\Contracts\HasIntegrations;
+use UniGale\Foundation\Contracts\Module;
 use UniGale\Foundation\IntegrationsManager;
+use UniGale\Foundation\ModuleIdentity;
 use UniGaleModules\ExecutionPlatform\Console\Commands\ListCommand;
 use UniGaleModules\ExecutionPlatform\Facades\Activities;
 use UniGaleModules\ExecutionPlatform\Facades\Workflows;
@@ -15,27 +17,22 @@ use UniGaleModules\ExecutionPlatform\Integrations\Administration\AdministrationI
 use UniGaleModules\ExecutionPlatform\Registries\ActivitiesRegistry;
 use UniGaleModules\ExecutionPlatform\Registries\WorkflowsRegistry;
 
-class ExecutionPlatformModule extends CoreModule implements HasIntegrations
+class ExecutionPlatformModule extends ServiceProvider implements HasIntegrations, Module
 {
-    protected function coreIdentifier(): string
+    public function identifier(): string
     {
-        return 'execution-platform';
+        return 'core::execution-platform';
     }
 
-    public function name(): string
+    public function identity(): ModuleIdentity
     {
-        return __('Execution Platform');
-    }
-
-    public function description(): ?string
-    {
-        return __('Provides support for asynchronous workflows and activities, enabling modules to extend these capabilities');
-    }
-
-    public function version(): string
-    {
-        return InstalledVersions::getPrettyVersion('unigale/framework')
-            ?? InstalledVersions::getPrettyVersion('unigale/module-execution-platform');
+        return ModuleIdentity::make(
+            name: __('Execution Platform'),
+            version: InstalledVersions::getPrettyVersion('unigale/framework')
+            ?? InstalledVersions::getPrettyVersion('unigale/module-execution-platform'),
+            author: 'Core Team',
+            description: __('Provides support for asynchronous workflows and activities, enabling modules to extend these capabilities')
+        );
     }
 
     public function register(): void

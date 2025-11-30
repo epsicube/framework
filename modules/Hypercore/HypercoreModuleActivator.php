@@ -4,35 +4,32 @@ declare(strict_types=1);
 
 namespace UniGaleModules\Hypercore;
 
+use Carbon\Laravel\ServiceProvider;
 use Composer\InstalledVersions;
 use Filament\View\PanelsRenderHook;
-use UniGale\Foundation\Concerns\CoreModule;
 use UniGale\Foundation\Contracts\HasIntegrations;
+use UniGale\Foundation\Contracts\Module;
 use UniGale\Foundation\IntegrationsManager;
+use UniGale\Foundation\ModuleIdentity;
 use UniGaleModules\Administration\Administration;
 use UniGaleModules\Administration\Pages\ManageModules;
 
-class HypercoreModuleActivator extends CoreModule implements HasIntegrations
+class HypercoreModuleActivator extends ServiceProvider implements HasIntegrations, Module
 {
-    protected function coreIdentifier(): string
+    public function identifier(): string
     {
-        return 'hypercore-activator';
+        return 'core::hypercore-activator';
     }
 
-    public function name(): string
+    public function identity(): ModuleIdentity
     {
-        return __('Hyper-Core Activator ⚡');
-    }
-
-    public function description(): ?string
-    {
-        return __('Injected module from Hyper-Core to enable support for modules.');
-    }
-
-    public function version(): string
-    {
-        return InstalledVersions::getPrettyVersion('unigale/framework')
-            ?? InstalledVersions::getPrettyVersion('unigale/module-hypercore');
+        return ModuleIdentity::make(
+            name: __('Hyper-Core Activator ⚡'),
+            version: InstalledVersions::getPrettyVersion('unigale/framework')
+              ?? InstalledVersions::getPrettyVersion('unigale/module-hypercore'),
+            author: 'Core Team',
+            description: __('Injected module from Hyper-Core to enable support for modules.')
+        );
     }
 
     public function boot(): void

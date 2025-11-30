@@ -4,35 +4,31 @@ declare(strict_types=1);
 
 namespace UniGaleModules\Administration;
 
+use Carbon\Laravel\ServiceProvider;
 use Composer\InstalledVersions;
 use Filament\FilamentServiceProvider;
 use Filament\PanelRegistry;
-use UniGale\Foundation\Concerns\CoreModule;
 use UniGale\Foundation\Contracts\HasOptions;
+use UniGale\Foundation\Contracts\Module;
+use UniGale\Foundation\ModuleIdentity;
 use UniGale\Foundation\Options\OptionsDefinition;
 
-class AdministrationModule extends CoreModule implements HasOptions
+class AdministrationModule extends ServiceProvider implements HasOptions, Module
 {
-    protected function coreIdentifier(): string
+    public function identifier(): string
     {
-        return 'administration';
+        return 'core::administration';
     }
 
-    public function name(): string
+    public function identity(): ModuleIdentity
     {
-        return __('Administration');
-    }
-
-    public function version(): string
-    {
-        return
-            InstalledVersions::getPrettyVersion('unigale/framework')
-            ?? InstalledVersions::getPrettyVersion('unigale/module-administration');
-    }
-
-    public function description(): ?string
-    {
-        return __('Provides administrative tools and management features for the system.');
+        return ModuleIdentity::make(
+            name: __('Administration'),
+            version: InstalledVersions::getPrettyVersion('unigale/framework')
+            ?? InstalledVersions::getPrettyVersion('unigale/module-administration'),
+            author: 'Core Team',
+            description: __('Provides administrative tools and management features for the system.')
+        );
     }
 
     public function options(OptionsDefinition $options): void

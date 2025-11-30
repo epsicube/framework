@@ -4,37 +4,34 @@ declare(strict_types=1);
 
 namespace UniGaleModules\Hypercore;
 
+use Carbon\Laravel\ServiceProvider;
 use Composer\InstalledVersions;
-use UniGale\Foundation\Concerns\CoreModule;
 use UniGale\Foundation\Contracts\HasIntegrations;
 use UniGale\Foundation\Contracts\InjectBootstrappers;
+use UniGale\Foundation\Contracts\Module;
 use UniGale\Foundation\IntegrationsManager;
+use UniGale\Foundation\ModuleIdentity;
 use UniGaleModules\Hypercore\Console\CacheCommand;
 use UniGaleModules\Hypercore\Console\ClearCommand;
 use UniGaleModules\Hypercore\Foundation\Bootstrap\BootstrapHypercore;
 use UniGaleModules\Hypercore\Integrations\Administration\AdministrationIntegration;
 
-class HypercoreModule extends CoreModule implements HasIntegrations, InjectBootstrappers
+class HypercoreModule extends ServiceProvider implements HasIntegrations, InjectBootstrappers, Module
 {
-    protected function coreIdentifier(): string
+    public function identifier(): string
     {
-        return 'hypercore';
+        return 'core::hypercore';
     }
 
-    public function name(): string
+    public function identity(): ModuleIdentity
     {
-        return __('Hyper-Core 🚀');
-    }
-
-    public function description(): ?string
-    {
-        return __('Turn it into a multi-app manager, enabling multi-tenant setups and effortless handling of multiple applications.');
-    }
-
-    public function version(): string
-    {
-        return InstalledVersions::getPrettyVersion('unigale/framework')
-            ?? InstalledVersions::getPrettyVersion('unigale/module-hypercore');
+        return ModuleIdentity::make(
+            name: __('Hyper-Core 🚀'),
+            version: InstalledVersions::getPrettyVersion('unigale/framework')
+                 ?? InstalledVersions::getPrettyVersion('unigale/module-hypercore'),
+            author: 'Core Team',
+            description: __('Turn it into a multi-app manager, enabling multi-tenant setups and effortless handling of multiple applications.'),
+        );
     }
 
     public function bootstrappers(): array

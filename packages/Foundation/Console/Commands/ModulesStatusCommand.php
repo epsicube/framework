@@ -6,7 +6,7 @@ namespace UniGale\Foundation\Console\Commands;
 
 use Illuminate\Console\Command;
 use Illuminate\Support\Str;
-use UniGale\Foundation\Concerns\Module;
+use UniGale\Foundation\Contracts\Module;
 use UniGale\Foundation\Facades\Modules;
 
 use function Laravel\Prompts\table;
@@ -14,6 +14,7 @@ use function Laravel\Prompts\table;
 class ModulesStatusCommand extends Command
 {
     protected $signature = 'modules:status';
+
     protected $aliases = ['m:s'];
 
     protected $description = 'Displays all available modules with their metadata and activation status.';
@@ -32,13 +33,14 @@ class ModulesStatusCommand extends Command
 
         $rows = array_map(function (Module $module) use ($fmt) {
             $enabled = Modules::isEnabled($module);
+            $identity = $module->identity();
 
             return [
                 $fmt($module->identifier(), 'fg=cyan;options=bold'),
-                $fmt($module->name(), 'fg=yellow'),
-                $fmt(Str::limit($module->description() ?? '', 50), 'fg=gray'),
-                $fmt($module->author(), 'fg=magenta'),
-                $fmt($module->version(), 'fg=green'),
+                $fmt($identity->name, 'fg=yellow'),
+                $fmt(Str::limit($identity->description ?? '', 50), 'fg=gray'),
+                $fmt($identity->author, 'fg=magenta'),
+                $fmt($identity->version, 'fg=green'),
                 match (true) {
                     Modules::isMustUse($module) => $fmt('MUST-USE', 'fg=yellow'),
                     $enabled                    => $fmt('ENABLED', 'fg=green'),

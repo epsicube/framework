@@ -7,7 +7,7 @@ namespace UniGale\Foundation\Console\Commands;
 use Illuminate\Console\Command;
 use Illuminate\Contracts\Console\PromptsForMissingInput;
 use Throwable;
-use UniGale\Foundation\Concerns\Module;
+use UniGale\Foundation\Contracts\Module;
 use UniGale\Foundation\Facades\Modules;
 
 use function Laravel\Prompts\error;
@@ -16,6 +16,7 @@ use function Laravel\Prompts\multiselect;
 class ModulesDisableCommand extends Command implements PromptsForMissingInput
 {
     protected $signature = 'modules:disable {identifier* : The identifier of the module to disable}';
+
     protected $aliases = ['m:d'];
 
     protected $description = 'Disable a module by its identifier';
@@ -27,7 +28,7 @@ class ModulesDisableCommand extends Command implements PromptsForMissingInput
             'identifier' => fn () => multiselect(
                 label: 'Which modules would you like to disable?',
                 options: array_map(
-                    fn (Module $module) => $module->name(),
+                    fn (Module $module) => $module->identity()->name,
                     array_filter(Modules::all(), fn (Module $module) => Modules::canBeDisabled($module))
                 ),
                 required: 'You must select at least one module'

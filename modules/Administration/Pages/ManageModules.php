@@ -17,7 +17,7 @@ use Filament\Support\Colors\Color;
 use Filament\Support\Enums\Alignment;
 use Filament\Support\Icons\Heroicon;
 use Illuminate\Contracts\Support\Htmlable;
-use UniGale\Foundation\Concerns\Module;
+use UniGale\Foundation\Contracts\Module;
 use UniGale\Foundation\Facades\Modules;
 use UniGale\Foundation\Facades\Options;
 use UnitEnum;
@@ -89,14 +89,15 @@ class ManageModules extends Page implements HasSchemas
                             TextEntry::make('version')->label(__('Version')),
                             TextEntry::make('description')->label(__('Description'))->columnSpanFull()
                                 ->hidden(fn (?string $state) => empty($state)),
+
                             TextEntry::make('dependencies')->label(__('Dependencies'))->columnSpanFull()
                                 ->hidden(fn (?array $state) => empty($state))
-                                ->formatStateUsing(fn (string $state) => Modules::safeGet($state)?->name() ?? $state)
+                                ->formatStateUsing(fn (string $state) => Modules::safeGet($state)?->identity()->name ?? $state)
                                 ->badge()
                                 ->color(fn (string $state) => $this->getActivationColorForModule($state)),
                             TextEntry::make('integrations')->label(__('Integrations'))->columnSpanFull()
                                 ->hidden(fn (?array $state) => empty($state))
-                                ->formatStateUsing(fn (string $state) => Modules::safeGet($state)?->name() ?? $state)
+                                ->formatStateUsing(fn (string $state) => Modules::safeGet($state)?->identity()->name ?? $state)
                                 ->badge()
                                 ->color(fn (string $state) => $this->getActivationColorForModule($state)),
                         ])
@@ -119,12 +120,12 @@ class ManageModules extends Page implements HasSchemas
                                 ->modalDescription(fn ($state) => function_exists('__')
                                     ? __('This will enable (in order): :list', [
                                         'list' => implode(', ', array_map(
-                                            fn (string $id) => Modules::safeGet($id)?->name() ?? $id,
+                                            fn (string $id) => Modules::safeGet($id)?->identity()->name ?? $id,
                                             Modules::resolveEnableChain($state['identifier'])
                                         )),
                                     ])
                                     : 'This will enable (in order): '.implode(', ', array_map(
-                                        fn (string $id) => Modules::safeGet($id)?->name() ?? $id,
+                                        fn (string $id) => Modules::safeGet($id)?->identity()->name ?? $id,
                                         Modules::resolveEnableChain($state['identifier'])
                                     )))
                                 ->action(function ($state) {
@@ -149,12 +150,12 @@ class ManageModules extends Page implements HasSchemas
                                 ->modalDescription(fn ($state) => function_exists('__')
                                     ? __('This will disable (in order): :list', [
                                         'list' => implode(', ', array_map(
-                                            fn (string $id) => Modules::safeGet($id)?->name() ?? $id,
+                                            fn (string $id) => Modules::safeGet($id)?->identity()->name ?? $id,
                                             Modules::resolveDisableChain($state['identifier'])
                                         )),
                                     ])
                                     : 'This will disable (in order): '.implode(', ', array_map(
-                                        fn (string $id) => Modules::safeGet($id)?->name() ?? $id,
+                                        fn (string $id) => Modules::safeGet($id)?->identity()->name ?? $id,
                                         Modules::resolveDisableChain($state['identifier'])
                                     )))
                                 ->action(function ($state) {
@@ -178,7 +179,6 @@ class ManageModules extends Page implements HasSchemas
         };
     }
 
-    // Refresh après action
     protected function reloadModules(): void
     {
         $this->forceRender();
@@ -191,14 +191,12 @@ class ManageModules extends Page implements HasSchemas
         if (! empty($search)) {
             $search = mb_strtolower($search);
             $modules = array_filter($modules, function (Module $module) use ($search) {
-                // Sécurise tous les champs avec ?? '' pour éviter les null
+                $identity = $module->identity();
                 $haystack = mb_strtolower(implode(' ', [
-                    $module->name() ?? '',
-                    $module->description() ?? '',
-                    $module->author() ?? '',
+                    $identity->name ?? '',
+                    $identity->description ?? '',
+                    $identity->author ?? '',
                 ]));
-
-                //                dump($haystack);
 
                 return str_contains(mb_strtolower($haystack), $search);
             });
@@ -206,10 +204,10 @@ class ManageModules extends Page implements HasSchemas
 
         $modules = array_values(array_map(fn (Module $module) => [
             'identifier'   => $module->identifier(),
-            'name'         => $module->name(),
-            'description'  => $module->description(),
-            'author'       => $module->author(),
-            'version'      => $module->version(),
+            'name'         => $module->identity()->name,
+            'description'  => $module->identity()->description,
+            'author'       => $module->identity()->author,
+            'version'      => $module->identity()->version,
             'mu'           => Modules::isMustUse($module),
             'enabled'      => Modules::isEnabled($module),
             'dependencies' => Modules::dependenciesOf($module),

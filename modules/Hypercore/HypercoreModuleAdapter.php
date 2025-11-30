@@ -14,7 +14,7 @@ class HypercoreModuleAdapter extends HypercoreAdapter
 {
     public function moduleIdentifier(): string
     {
-        return HypercoreModule::make()->identifier();
+        return 'core::hypercore';
     }
 
     //
@@ -41,7 +41,7 @@ class HypercoreModuleAdapter extends HypercoreAdapter
         $this->register();
         $applier->removeModules([$this->moduleIdentifier()]);
 
-        $activator = HypercoreModuleActivator::make();
+        $activator = new HypercoreModuleActivator(app());
         $applier->injectModules($activator);
         $applier->markAsMustUse($activator->identifier());
     }
