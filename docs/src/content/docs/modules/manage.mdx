@@ -1,0 +1,100 @@
+---
+title: "Manage Modules"
+description: "Learn how to manage modules in your application."
+sidebar:
+    order: 2
+---
+import { Aside } from '@astrojs/starlight/components';
+
+Modules can be **enabled** or **disabled** using Artisan commands or using the Administration.
+
+### Module Status
+
+<Aside type="note">
+Enabling or disabling a module is **not the same** as installing or uninstalling it.
+
+Disabled modules retain their stored options but will not register services or applications concerns.
+</Aside>
+
+A module can have one of the following statuses:
+
+* **ENABLED** – The module is active and its services are booted.
+* **DISABLED** – The module is inactive; configuration is preserved, but services do not boot.
+* **MUST-USE** – The module is required and cannot be disabled.
+
+### Check Module Status
+
+To view the status of all modules:
+
+```bash
+php artisan modules:status
+```
+
+Example output:
+
+```md
+ ┌──────────────────────────┬────────────────────┬───────────────────────────────────────────────────────┬───────────┬──────────┬──────────┐
+ │ Identifier               │ Name               │ Description                                           │ Author    │ Version  │ Status   │
+ ├──────────────────────────┼────────────────────┼───────────────────────────────────────────────────────┼───────────┼──────────┼──────────┤
+ │ core::administration     │ Administration     │ Provides administrative tools and management features │ Core Team │ dev-main │ ENABLED  │
+ │ core::execution-platform │ Execution Platform │ Supports asynchronous workflows and activities        │ Core Team │ dev-main │ DISABLED │
+ │ core::mailing-system     │ Mailing System     │ Extensible mail delivery system with notifications    │ Core Team │ dev-main │ DISABLED │
+ └──────────────────────────┴────────────────────┴───────────────────────────────────────────────────────┴───────────┴──────────┴──────────┘
+```
+
+---
+
+### Enable Modules
+
+<Aside type="caution" title="Important informations">
+Currently, there is **no automation for module installation** (like migrations or setup scripts).
+Each time a module with custom migrations is enabled, you must run:
+
+```bash
+php artisan migrate
+```
+Auto-installation and uninstallation are planned for future versions.
+</Aside>
+
+To activate modules:
+
+```bash
+php artisan modules:enable {identifier*}
+```
+
+Example interactive prompt:
+
+```md
+ ┌ Which modules would you like to enable? ─────────────────────┐
+ │ › ◻ Accounts Manager                                         │
+ │   ◻ Administration                                           │
+ └──────────────────────────────────────────────────────────────┘
+```
+
+---
+
+### Disable Modules
+
+<Aside type="danger" title="Important informations">
+Currently, there is **no automated uninstallation** for modules (such as rolling back migrations or running uninstall scripts).
+
+If you need to remove all module migrations, this must be done manually.
+
+Auto-installation and uninstallation are planned for future releases.
+
+</Aside>
+
+To deactivate modules:
+
+```bash
+php artisan modules:disable {identifier*}
+```
+
+Example interactive prompt:
+
+```md
+ ┌ Which modules would you like to disable? ────────────────────┐
+ │ › ◻ Administration                                           │
+ │   ◻ Execution Platform                                       │
+ └──────────────────────────────────────────────────────────────┘
+```

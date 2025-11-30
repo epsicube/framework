@@ -4,6 +4,8 @@
         "bootstrap/cache",
         "bootstrap/cache/*",
         "bootstrap/cache/**",
+        "docs",
+        "docs/*",
         "workbench",
         "workbench/*",
         "workbench/**",

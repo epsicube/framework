@@ -1,0 +1,69 @@
+---
+title: Options
+description: "Create custom configuration options for your module."
+sidebar:
+  order: 3
+---
+import { Aside } from '@astrojs/starlight/components';
+
+Modules can be extended with customizable options, allowing developers to configure settings, and adapt features without modifying the module’s core code.
+
+## Registering Options
+
+To enable options, your module must implement the [`UniGale\Foundation\Contracts\HasOptions`](https://github.com/unigale/framework/blob/main/packages/Foundation/Contracts/HasOptions.php) interface in addition to [Module](/modules).
+
+### Required Method
+
+```php
+public function options(\UniGale\Foundation\Options\OptionsDefinition $options): void;
+````
+
+The `OptionsDefinition` object allows you to register specific options for your module.
+
+### Example: Registering an API Key Option
+
+```php
+use UniGale\Foundation\Contracts\Module;
+use UniGale\Foundation\Contracts\HasOptions;
+use UniGale\Foundation\Options\OptionsDefinition;
+use Illuminate\Support\ServiceProvider;
+
+class ExternalApiModule extends ServiceProvider implements HasOptions, Module
+{
+    //...
+    public function options(OptionsDefinition $options): void
+    {
+       $options->add(
+            key: 'api_token',
+            type: 'string',
+            autoload: false,
+            default: null,
+       );
+    }
+}
+```
+
+### Configuration Parameters
+
+* `key`: Unique identifier for the option.
+* `type`: Data type (e.g., string, integer).
+* `autoload`: When true, options are bulk-retrieved on first access to avoid repeated database calls.
+* `default`: Default value or a Closure returning the expected value.
+
+## Interact with Options
+
+<Aside>
+* Options are stored in the `options` table.
+* Uninstalling a module cascades the deletion of its options, ensuring no leftover configuration remains.
+</Aside>
+
+The `Options` facade allows you to retrieve and manage options for your module:
+
+```php
+use UniGale\Foundation\Facades\Options;
+
+Options::all('your-module-identifier'); // Retrieve all options
+Options::get('api_token', 'your-module-identifier'); // Retrieve specific option
+Options::set('api_token', 'new_value', 'your-module-identifier'); // Update option
+Options::delete('api_token', 'your-module-identifier'); // Delete option to reset to default
+```
