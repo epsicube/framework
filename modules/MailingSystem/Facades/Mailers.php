@@ -10,7 +10,7 @@ use UniGaleModules\MailingSystem\Registries\MailersRegistry;
 
 class Mailers extends Facade
 {
-    public static string $accessor = 'unigale-mail::mailers';
+    public static string $accessor = MailersRegistry::class;
 
     protected static function getFacadeAccessor(): string
     {

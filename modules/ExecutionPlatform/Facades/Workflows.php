@@ -10,7 +10,7 @@ use UniGaleModules\ExecutionPlatform\Registries\WorkflowsRegistry;
 
 class Workflows extends Facade
 {
-    public static string $accessor = 'workflows';
+    public static string $accessor = WorkflowsRegistry::class;
 
     protected static function getFacadeAccessor(): string
     {

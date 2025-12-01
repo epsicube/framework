@@ -212,11 +212,11 @@ class ManageModules extends Page implements HasSchemas
             'version'      => $module->identity()->version,
             'mu'           => Modules::isMustUse($module),
             'enabled'      => Modules::isEnabled($module),
-            'dependencies' => ($modules instanceof HasDependencies)
-                ? $modules->dependencies()->requiredModules()
+            'dependencies' => is_a($module, HasDependencies::class)
+                ? $module->dependencies()->requiredModules()
                 : [],
-            'integrations' => ($modules instanceof HasIntegrations)
-                ? array_keys($modules->integrations()->registrations())
+            'integrations' => is_a($module, HasIntegrations::class)
+                ? array_keys($module->integrations()->registrations())
                 : [],
         ], $modules));
 

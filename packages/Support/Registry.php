@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace UniGale\Support;
 
 use Closure;
+use UniGale\Support\Contracts\HasLabel;
 use UniGale\Support\Contracts\Registrable;
 use UniGale\Support\Exceptions\DuplicateItemException;
 use UniGale\Support\Exceptions\UnexpectedItemTypeException;
@@ -87,16 +88,30 @@ abstract class Registry
         return $modules;
     }
 
-    protected function registerItem(string $identifier, Registrable $item): void
-    {
-        $this->items[$identifier] = $item;
-    }
-
     /**
      * @param Closure($item T, $identifier string): void $callback
      */
     public function modifyItemsUsing(Closure $callback): void
     {
         $this->modifyItemsUsing[] = $callback;
+    }
+
+    /**
+     * @return array<string,string> Key -> label
+     */
+    public function toIdentifierLabelMap(): array
+    {
+        return array_map(function (Registrable $r) {
+            if (is_a($r, HasLabel::class)) {
+                return $r->label();
+            }
+
+            return $r->identifier();
+        }, $this->items);
+    }
+
+    protected function registerItem(string $identifier, Registrable $item): void
+    {
+        $this->items[$identifier] = $item;
     }
 }

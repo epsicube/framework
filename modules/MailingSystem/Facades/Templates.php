@@ -10,7 +10,7 @@ use UniGaleModules\MailingSystem\Registries\TemplatesRegistry;
 
 class Templates extends Facade
 {
-    public static string $accessor = 'unigale-mail::templates';
+    public static string $accessor = TemplatesRegistry::class;
 
     protected static function getFacadeAccessor(): string
     {
