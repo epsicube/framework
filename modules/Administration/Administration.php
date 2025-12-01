@@ -23,6 +23,7 @@ class Administration extends FilamentPanel
         $this
             ->discoverResources(in: __DIR__.'/Resources', for: __NAMESPACE__.'\\Resources')
             ->discoverPages(in: __DIR__.'/Pages', for: __NAMESPACE__.'\\Pages')
+            ->discoverClusters(in: __DIR__.'/Clusters', for: __NAMESPACE__.'\\Clusters')
             ->middleware([
                 EncryptCookies::class,
                 AddQueuedCookiesToResponse::class,
