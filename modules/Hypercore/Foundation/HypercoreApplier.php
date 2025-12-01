@@ -5,14 +5,16 @@ declare(strict_types=1);
 namespace UniGaleModules\Hypercore\Foundation;
 
 use Closure;
-use UniGale\Foundation\Contracts\ActivationDriver;
-use UniGale\Foundation\Contracts\Module;
-use UniGale\Foundation\Registries\ModulesRegistry;
+use InvalidArgumentException;
+use UniGale\Foundation\Managers\ModulesManager;
+use UniGale\Support\Contracts\ActivationDriver;
+use UniGale\Support\Contracts\HasIntegrations;
+use UniGale\Support\Contracts\Module;
 
 class HypercoreApplier
 {
     public function __construct(
-        protected ModulesRegistry $registry,
+        protected ModulesManager $registry,
         protected Module $recordingModule,
         protected ActivationDriver $activationDriver
     ) {}
@@ -45,10 +47,13 @@ class HypercoreApplier
         Closure|callable|null $whenEnabled = null,
         Closure|callable|null $whenDisabled = null,
     ): void {
-        $integrations = $this->registry->integrations();
-        $integrations->beginRecording($this->recordingModule->identifier());
-        $integrations->forModule($identifier, $whenEnabled, $whenDisabled);
-        $integrations->endRecording();
+
+        $module = $this->registry->get($identifier);
+        if (! ($module instanceof HasIntegrations)) {
+            throw new InvalidArgumentException(sprintf("Module '%s' does not implement HasIntegrations", $identifier));
+        }
+
+        $module->integrations()->forModule($identifier, $whenEnabled, $whenDisabled);
     }
 
     public function getModule(string $identifier): ?Module

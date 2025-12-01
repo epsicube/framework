@@ -23,17 +23,18 @@ Dependencies are checked automatically when enabling modules via the **Administr
 <Steps>
 1. ### Implement the Interface
 
-   Your module must implement the [`UniGale\Foundation\Contracts\HasDependencies`](https://github.com/unigale/framework/blob/main/packages/Foundation/Contracts/HasDependencies.php) interface.
+   Your module must implement the [`UniGale\Support\Contracts\HasDependencies`](https://github.com/unigale/framework/blob/main/packages/Support/Contracts/HasDependencies.php) interface.
 
     ```php
-    use UniGale\Foundation\Contracts\HasDependencies;
+    use UniGale\Support\Contracts\HasDependencies;
+    use UniGale\Support\Dependencies;
 
     class BrandingModule extends ServiceProvider implements HasDependencies, Module
     {
         // ...
-        public function dependencies(): array
+        public function dependencies(): Dependencies
         {
-            return ['core::execution-platform'];
+            return Dependencies::make(['core::execution-platform']);
         }
     }
     ```

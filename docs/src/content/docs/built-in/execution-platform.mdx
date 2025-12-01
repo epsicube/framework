@@ -65,15 +65,13 @@ use UniGaleModules\ExecutionPlatform\Facades\Workflows;
 
 class MailModule extends ServiceProvider implements HasIntegrations, Module
 {
-    public function integrations(IntegrationsManager $integrations): void
+    public function integrations(): Integrations
     {
-        $integrations->forModule(
-            identifier: 'core::execution-platform',
-            whenEnabled: function () {
+        return Integrations::make()
+            ->forModule('core::execution-platform', function () {
                 Activities::register(SendMailActivity::make());
                 Workflows::register(SendMailWorkflow::make());
-            }
-        );
+            });
     }
 }
 ```

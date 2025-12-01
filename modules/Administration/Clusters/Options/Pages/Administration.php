@@ -10,7 +10,7 @@ use Filament\Pages\Page;
 use Filament\Schemas\Concerns\InteractsWithSchemas;
 use Filament\Schemas\Contracts\HasSchemas;
 use Filament\Schemas\Schema;
-use UniGale\Foundation\Facades\Options;
+use UniGale\Support\Facades\Options;
 use UniGaleModules\Administration\Clusters\Options\OptionsCluster;
 
 class Administration extends Page implements HasSchemas

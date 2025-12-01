@@ -8,10 +8,10 @@ use Carbon\Laravel\ServiceProvider;
 use Composer\InstalledVersions;
 use Filament\FilamentServiceProvider;
 use Filament\PanelRegistry;
-use UniGale\Foundation\Contracts\HasOptions;
-use UniGale\Foundation\Contracts\Module;
-use UniGale\Foundation\ModuleIdentity;
-use UniGale\Foundation\Options\OptionsDefinition;
+use UniGale\Support\Contracts\HasOptions;
+use UniGale\Support\Contracts\Module;
+use UniGale\Support\ModuleIdentity;
+use UniGale\Support\OptionsDefinition;
 
 class AdministrationModule extends ServiceProvider implements HasOptions, Module
 {
@@ -31,9 +31,9 @@ class AdministrationModule extends ServiceProvider implements HasOptions, Module
         );
     }
 
-    public function options(OptionsDefinition $options): void
+    public function options(): OptionsDefinition
     {
-        $options->add(
+        return OptionsDefinition::make()->add(
             key: 'enable-modules-manager',
             type: 'boolean', // <- todo type management
             default: true

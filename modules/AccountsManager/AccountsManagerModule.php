@@ -5,13 +5,11 @@ declare(strict_types=1);
 namespace UniGaleModules\AccountsManager;
 
 use Composer\InstalledVersions;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Password;
 use Illuminate\Support\ServiceProvider;
-use UniGale\Foundation\Contracts\HasIntegrations;
-use UniGale\Foundation\Contracts\Module;
-use UniGale\Foundation\IntegrationsManager;
-use UniGale\Foundation\ModuleIdentity;
+use UniGale\Support\Contracts\HasIntegrations;
+use UniGale\Support\Contracts\Module;
+use UniGale\Support\Integrations;
+use UniGale\Support\ModuleIdentity;
 use UniGaleModules\AccountsManager\Integrations\Administration\AdministrationIntegration;
 use UniGaleModules\AccountsManager\Models\Account;
 
@@ -71,12 +69,11 @@ class AccountsManagerModule extends ServiceProvider implements HasIntegrations, 
         }
     }
 
-    public function integrations(IntegrationsManager $integrations): void
+    public function integrations(): Integrations
     {
-        $integrations->forModule(
+        return Integrations::make()->forModule(
             identifier: 'core::administration',
             whenEnabled: [AdministrationIntegration::class, 'handle']
-
         );
     }
 }

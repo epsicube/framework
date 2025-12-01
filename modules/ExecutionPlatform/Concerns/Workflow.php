@@ -17,13 +17,13 @@ abstract class Workflow implements WorkflowContract
     public function run(int $execution_id, array $input = []): mixed
     {
         try {
-            StartProcessing::make()->handle([
+            (new StartProcessing)->handle([
                 'execution_id' => $execution_id,
             ]);
 
             $res = $this->handle($input);
 
-            MarkAsCompleted::make()->handle([
+            (new MarkAsCompleted)->handle([
                 'execution_id' => $execution_id,
                 'output'       => $res,
             ]);
@@ -31,14 +31,14 @@ abstract class Workflow implements WorkflowContract
             return $res;
         } catch (CanceledException $e) {
             report($e);
-            MarkAsCanceled::make()->handle([
+            (new MarkAsCanceled)->handle([
                 'execution_id' => $execution_id,
                 'reason'       => $e->getReason(),
             ]);
             throw $e;
         } catch (Throwable $e) {
             report($e);
-            MarkAsFailed::make()->handle([
+            (new MarkAsFailed)->handle([
                 'execution_id' => $execution_id,
                 'error'        => $e->getMessage(),
             ]);

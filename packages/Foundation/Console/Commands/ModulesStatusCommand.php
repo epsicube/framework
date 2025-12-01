@@ -6,8 +6,8 @@ namespace UniGale\Foundation\Console\Commands;
 
 use Illuminate\Console\Command;
 use Illuminate\Support\Str;
-use UniGale\Foundation\Contracts\Module;
-use UniGale\Foundation\Facades\Modules;
+use UniGale\Support\Contracts\Module;
+use UniGale\Support\Facades\Modules;
 
 use function Laravel\Prompts\table;
 

@@ -7,10 +7,10 @@ namespace UniGale\Foundation\Console\Commands;
 use Illuminate\Console\Command;
 use Illuminate\Contracts\Console\PromptsForMissingInput;
 use InvalidArgumentException;
-use UniGale\Foundation\Contracts\Module;
-use UniGale\Foundation\Exceptions\DefinitionNotFoundException;
-use UniGale\Foundation\Facades\Modules;
-use UniGale\Foundation\Facades\Options;
+use UniGale\Support\Contracts\Module;
+use UniGale\Support\Exceptions\DefinitionNotFoundException;
+use UniGale\Support\Facades\Modules;
+use UniGale\Support\Facades\Options;
 
 use function Laravel\Prompts\error;
 use function Laravel\Prompts\info;
@@ -85,7 +85,7 @@ class OptionsSetCommand extends Command implements PromptsForMissingInput
     {
         return [
             'module' => fn () => select(
-                label: 'Which modules do you want to update?',
+                label: 'Which module do you want to update?',
                 options: collect(Options::definitions())->map(
                     fn ($_, string $moduleIdentifier) => Modules::safeGet($moduleIdentifier)?->identity()->name ?? $moduleIdentifier,
                 )->all(),
@@ -107,7 +107,7 @@ class OptionsSetCommand extends Command implements PromptsForMissingInput
             },
 
             'value' => fn () => text(
-                label: 'Enter the new value for the selected key(s):'
+                label: 'Enter the new value for the selected key:'
             ),
         ];
     }

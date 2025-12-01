@@ -12,7 +12,7 @@
         "php": "^8.3",
         "illuminate/support": "^12.8",
         "illuminate/database": "^12.8",
-        "unigale/foundation": "*",
+        "unigale/support": "*",
         "filament/filament": "^v4.0.0-beta5"
     },
     "suggest": {

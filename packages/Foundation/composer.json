@@ -1,25 +1,26 @@
 {
-    "name": "unigale/foundation",
-    "type": "library",
-    "license": "MIT",
-    "authors": [
-        {
-            "name": "COLANT Alan",
-            "email": "contact@alancolant.com"
-        }
-    ],
-    "require": {
-        "php": "^8.3",
-        "laravel/framework": "^12.8"
-    },
-    "autoload": {
-        "psr-4": {
-            "UniGale\\Foundation": "."
-        }
-    },
-    "config": {
-        "sort-packages": true
-    },
-    "minimum-stability": "dev",
-    "prefer-stable": true
+  "name": "unigale/foundation",
+  "type": "library",
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "COLANT Alan",
+      "email": "contact@alancolant.com"
+    }
+  ],
+  "require": {
+    "php": "^8.3",
+    "laravel/framework": "^12.8",
+    "unigale/support": "*"
+  },
+  "autoload": {
+    "psr-4": {
+      "UniGale\\Foundation": "."
+    }
+  },
+  "config": {
+    "sort-packages": true
+  },
+  "minimum-stability": "dev",
+  "prefer-stable": true
 }

@@ -6,9 +6,9 @@ namespace UniGale\Foundation\Console\Commands;
 
 use Illuminate\Console\Command;
 use Illuminate\Contracts\Console\PromptsForMissingInput;
-use UniGale\Foundation\Exceptions\DefinitionNotFoundException;
-use UniGale\Foundation\Facades\Modules;
-use UniGale\Foundation\Facades\Options;
+use UniGale\Support\Exceptions\DefinitionNotFoundException;
+use UniGale\Support\Facades\Modules;
+use UniGale\Support\Facades\Options;
 
 use function Laravel\Prompts\error;
 use function Laravel\Prompts\multiselect;
@@ -70,7 +70,7 @@ class OptionsUnsetCommand extends Command implements PromptsForMissingInput
     {
         return [
             'module' => fn () => select(
-                label: 'Which modules do you want to update?',
+                label: 'Which module do you want to update?',
                 options: collect(Options::definitions())->map(
                     fn ($_, string $moduleIdentifier) => Modules::safeGet($moduleIdentifier)?->identity()->name ?? $moduleIdentifier,
                 )->all(),

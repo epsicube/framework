@@ -20,18 +20,18 @@ Options can be managed either via the **CLI** or the **Administration interface*
 <br/>
 <Steps>
 1. ### Implement the Interface
-   Your module must implement the [`UniGale\Foundation\Contracts\HasOptions`](https://github.com/unigale/framework/blob/main/packages/Foundation/Contracts/HasOptions.php) interface.
+   Your module must implement the [`UniGale\Support\Contracts\HasOptions`](https://github.com/unigale/framework/blob/main/packages/Support/Contracts/HasOptions.php) interface.
 
     ```php
-    use UniGale\Foundation\Contracts\HasOptions;
-    use UniGale\Foundation\Options\OptionsDefinition;
+    use UniGale\Support\Contracts\HasOptions;
+    use UniGale\Support\OptionsDefinition;
 
     class ExternalApiModule extends ServiceProvider implements HasOptions, Module
     {
         //...
-        public function options(OptionsDefinition $options): void
+        public function options(): OptionsDefinition
         {
-             $options->add(
+             return OptionsDefinition::make()->add(
                  key: 'api_token',
                  type: 'string',
                  autoload: false,
@@ -50,7 +50,7 @@ Options can be managed either via the **CLI** or the **Administration interface*
    | `autoload` | If `true`, the option will be preloaded on first access to avoid repeated fetch. |
    | `default`  | Default value, or a Closure returning the default value.                                    |
 
-3. ### Use Your Options
+3. ### Use Your options
    The `Options` facade allows you to **retrieve**, **update**, and **delete** options for your module:
 
    <Aside type="caution">
@@ -59,7 +59,7 @@ Options can be managed either via the **CLI** or the **Administration interface*
    </Aside>
 
    ```php
-   use UniGale\Foundation\Facades\Options;
+   use UniGale\Support\Facades\Options;
 
    // Retrieve all options for a module
    Options::all('your-module-identifier');

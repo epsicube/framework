@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace UniGaleModules\Hypercore\Activation;
 
-use UniGale\Foundation\Contracts\ActivationDriver;
-use UniGale\Foundation\Contracts\Module;
+use UniGale\Support\Contracts\ActivationDriver;
+use UniGale\Support\Contracts\Module;
 use UniGaleModules\Hypercore\Facades\HypercoreActivator;
 use UniGaleModules\Hypercore\Models\Module as ModuleModel;
 

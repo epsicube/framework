@@ -9,13 +9,12 @@ use Illuminate\Mail\Mailable;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\SentMessage;
 use Illuminate\Queue\SerializesModels;
-use UniGale\Foundation\Concerns\Makeable;
 use UniGaleModules\MailingSystem\Facades\Mailers;
 use UniGaleModules\MailingSystem\Facades\Templates;
 
 class UnigaleMail extends Mailable
 {
-    use Makeable, Queueable, SerializesModels;
+    use Queueable, SerializesModels;
 
     protected string $templateIdentifier = '_blank';
 

@@ -7,8 +7,8 @@ namespace UniGale\Foundation\Console\Commands;
 use Illuminate\Console\Command;
 use Illuminate\Contracts\Console\PromptsForMissingInput;
 use Throwable;
-use UniGale\Foundation\Contracts\Module;
-use UniGale\Foundation\Facades\Modules;
+use UniGale\Support\Contracts\Module;
+use UniGale\Support\Facades\Modules;
 
 use function Laravel\Prompts\error;
 use function Laravel\Prompts\multiselect;

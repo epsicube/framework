@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace UniGaleModules\MailingSystem\Registries;
 
-use UniGale\Foundation\Concerns\Registry;
+use UniGale\Support\Registry;
 use UniGaleModules\MailingSystem\Contracts\MailTemplate;
 
 /**

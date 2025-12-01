@@ -33,7 +33,7 @@ class SendMail implements Activity
      */
     public function handle(array $inputs = []): array
     {
-        $mail = UnigaleMail::make()
+        $mail = (new UnigaleMail)
             ->mailer(data_get($inputs, 'mailer'))
             ->setTemplate(data_get($inputs, 'template'))
             ->subject(data_get($inputs, 'subject'))

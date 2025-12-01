@@ -68,21 +68,21 @@ This allows you to register additional resources, pages, widgets, or apply advan
 ## Example: Adding Custom Filament Resources
 
 ```php
+use UniGaleModules\Administration\Administration;
+
 class YourCustomModule extends ServiceProvider implements HasIntegrations, Module
 {
-    public function integrations(IntegrationsManager $integrations): void
+    public function integrations(): Integrations
     {
-        $integrations->forModule(
-            identifier: 'core::administration',
-            whenEnabled: function () {
+        return Integrations::make()
+            ->forModule('core::administration', function () {
                 Administration::configureUsing(function (Administration $admin) {
                     $admin->discoverResources(
                         in: __DIR__ . '/Administration/Resources',
                         for: __NAMESPACE__ . '\\Administration\\Resources'
                     );
                 });
-            }
-        );
+            });
     }
 }
 ```

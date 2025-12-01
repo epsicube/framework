@@ -11,11 +11,11 @@ use Illuminate\Filesystem\FilesystemServiceProvider;
 use Illuminate\Foundation\Bootstrap\LoadConfiguration;
 use Illuminate\Foundation\Bootstrap\RegisterProviders;
 use Illuminate\View\ViewServiceProvider;
-use UniGale\Foundation\Contracts\InjectBootstrappers;
-use UniGale\Foundation\Facades\Modules;
-use UniGale\Foundation\Registries\ModulesRegistry;
+use UniGale\Foundation\Managers\ModulesManager;
+use UniGale\Foundation\Providers\UnigaleServiceProvider;
 use UniGale\Foundation\UnigaleApplication;
-use UniGale\Foundation\UnigaleServiceProvider;
+use UniGale\Support\Contracts\InjectBootstrappers;
+use UniGale\Support\Facades\Modules;
 
 class BootstrapUnigale
 {
@@ -54,9 +54,9 @@ class BootstrapUnigale
 
         // Register enabled modules as ServiceProvider in the application
         $app->afterBootstrapping(RegisterProviders::class, function (Application $app) {
-            /** @var ModulesRegistry $registry */
-            $registry = $app->make(Modules::$accessor);
-            $registry->registerInApp($app);
+            /** @var ModulesManager $modulesManager */
+            $modulesManager = $app->make(Modules::$accessor);
+            $modulesManager->registerInApp($app);
         });
     }
 }

@@ -14,11 +14,11 @@ use Illuminate\Foundation\MaintenanceModeManager;
 use Illuminate\Routing\RouteGroup;
 use Illuminate\Routing\Router;
 use RuntimeException;
-use UniGale\Foundation\Contracts\ActivationDriver;
-use UniGale\Foundation\Facades\Modules;
-use UniGale\Foundation\Registries\ModulesRegistry;
+use UniGale\Foundation\Managers\ModulesManager;
 use UniGale\Foundation\UnigaleApplication;
-use UniGale\Foundation\UnigaleManifest;
+use UniGale\Foundation\Utilities\UnigaleManifest;
+use UniGale\Support\Contracts\ActivationDriver;
+use UniGale\Support\Facades\Modules;
 use UniGaleModules\Hypercore\Activation\TenantActivationDriver;
 use UniGaleModules\Hypercore\Concerns\HypercoreAdapter;
 use UniGaleModules\Hypercore\Facades\HypercoreActivator;
@@ -50,14 +50,14 @@ class BootstrapHypercore
         $this->configureTenant($tenant, $app, app(Modules::$accessor));
     }
 
-    protected function configureCentral(Application $app, ModulesRegistry $registry): void
+    protected function configureCentral(Application $app, ModulesManager $registry): void
     {
         //        dump('central');
 
         $this->applyCentralAdapter($app, $registry, $registry->getDriver());
     }
 
-    protected function configureTenant(Tenant $tenant, Application $app, ModulesRegistry $registry): void
+    protected function configureTenant(Tenant $tenant, Application $app, ModulesManager $registry): void
     {
         $tenantDriver = new TenantActivationDriver($tenant->id);
         $this->applyTenantAdapters($app, $tenant, $registry, $tenantDriver);
@@ -147,7 +147,7 @@ class BootstrapHypercore
      * Enabled adapters customize tenant behavior (module injection, must-use
      * marking, activation adjustments) through the HypercoreApplier.
      */
-    protected function applyTenantAdapters(Application $app, Tenant $tenant, ModulesRegistry $registry, ActivationDriver $driver): void
+    protected function applyTenantAdapters(Application $app, Tenant $tenant, ModulesManager $registry, ActivationDriver $driver): void
     {
         $manifest = $app->get(UnigaleManifest::class)->config('hypercore');
         $adapters = array_merge([HypercoreModuleAdapter::class], $manifest['adapters'] ?? []);
@@ -175,7 +175,7 @@ class BootstrapHypercore
      * Enabled adapters customize tenant behavior (module injection, must-use
      * marking, activation adjustments) through the HypercoreApplier.
      */
-    protected function applyCentralAdapter(Application $app, ModulesRegistry $registry, ActivationDriver $driver): void
+    protected function applyCentralAdapter(Application $app, ModulesManager $registry, ActivationDriver $driver): void
     {
         $manifest = $app->get(UnigaleManifest::class)->config('hypercore');
         $adapters = array_merge([HypercoreModuleAdapter::class], $manifest['adapters'] ?? []);

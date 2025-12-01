@@ -6,11 +6,11 @@ namespace UniGaleModules\Hypercore;
 
 use Carbon\Laravel\ServiceProvider;
 use Composer\InstalledVersions;
-use UniGale\Foundation\Contracts\HasIntegrations;
-use UniGale\Foundation\Contracts\InjectBootstrappers;
-use UniGale\Foundation\Contracts\Module;
-use UniGale\Foundation\IntegrationsManager;
-use UniGale\Foundation\ModuleIdentity;
+use UniGale\Support\Contracts\HasIntegrations;
+use UniGale\Support\Contracts\InjectBootstrappers;
+use UniGale\Support\Contracts\Module;
+use UniGale\Support\Integrations;
+use UniGale\Support\ModuleIdentity;
 use UniGaleModules\Hypercore\Console\CacheCommand;
 use UniGaleModules\Hypercore\Console\ClearCommand;
 use UniGaleModules\Hypercore\Foundation\Bootstrap\BootstrapHypercore;
@@ -59,9 +59,9 @@ class HypercoreModule extends ServiceProvider implements HasIntegrations, Inject
         );
     }
 
-    public function integrations(IntegrationsManager $integrations): void
+    public function integrations(): Integrations
     {
-        $integrations->forModule(
+        return Integrations::make()->forModule(
             identifier: 'core::administration',
             whenEnabled: [AdministrationIntegration::class, 'handle'],
         );

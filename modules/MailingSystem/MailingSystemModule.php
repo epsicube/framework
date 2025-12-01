@@ -7,10 +7,10 @@ namespace UniGaleModules\MailingSystem;
 use Carbon\Laravel\ServiceProvider;
 use Composer\InstalledVersions;
 use Illuminate\Contracts\Support\DeferrableProvider;
-use UniGale\Foundation\Contracts\HasIntegrations;
-use UniGale\Foundation\Contracts\Module;
-use UniGale\Foundation\IntegrationsManager;
-use UniGale\Foundation\ModuleIdentity;
+use UniGale\Support\Contracts\HasIntegrations;
+use UniGale\Support\Contracts\Module;
+use UniGale\Support\Integrations;
+use UniGale\Support\ModuleIdentity;
 use UniGaleModules\ExecutionPlatform\Facades\Activities;
 use UniGaleModules\ExecutionPlatform\Facades\Workflows;
 use UniGaleModules\MailingSystem\ExecutionEngine\Activities\SendMail as SendMailActivity;
@@ -70,13 +70,13 @@ class MailingSystemModule extends ServiceProvider implements DeferrableProvider,
         $this->loadViewsFrom(__DIR__.'/resources/email-templates', 'unigale-mail');
     }
 
-    public function integrations(IntegrationsManager $integrations): void
+    public function integrations(): Integrations
     {
-        $integrations->forModule(
+        return Integrations::make()->forModule(
             identifier: 'core::execution-platform',
             whenEnabled: function () {
-                Activities::register(SendMailActivity::make());
-                Workflows::register(SendMailWorkflow::make());
+                Activities::register(new SendMailActivity);
+                Workflows::register(new SendMailWorkflow);
             }
         );
     }

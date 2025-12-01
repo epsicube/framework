@@ -10,7 +10,7 @@ import { Steps, Aside } from '@astrojs/starlight/components';
 ## Module Structure
 
 A Unigale module is a standard **[Laravel Service Provider](https://laravel.com/docs/providers)** that additionally implements the
-[`UniGale\Foundation\Contracts\Module`](https://github.com/unigale/framework/blob/main/packages/Foundation/Contracts/Module.php) interface.
+[`UniGale\Support\Contracts\Module`](https://github.com/unigale/framework/blob/main/packages/Foundation/Support/Module.php) interface.
 
 This contract provides the metadata Unigale needs to register, identify, and manage your module.
 
@@ -35,10 +35,10 @@ This contract provides the metadata Unigale needs to register, identify, and man
     Update the provider to implement the `Module` interface:
 
     ```php
-    use UniGale\Foundation\Contracts\Module;
-    use UniGale\Foundation\ModuleIdentity;
     use Illuminate\Support\ServiceProvider;
-
+    use UniGale\Support\Contracts\Module;
+    use UniGale\Support\ModuleIdentity;
+    
     class MyCustomModule extends ServiceProvider implements Module
     {
         public function identifier(): string

@@ -9,7 +9,6 @@ use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Utilities\Get;
-use UniGale\Foundation\Concerns\Makeable;
 use UniGaleModules\ExecutionPlatform\Concerns\Workflow;
 use UniGaleModules\ExecutionPlatform\Contracts\HasInputSchema;
 use UniGaleModules\MailingSystem\ExecutionEngine\Activities\SendMail as SendMailActivity;
@@ -18,8 +17,6 @@ use UniGaleModules\MailingSystem\Facades\Templates;
 
 class SendMail extends Workflow implements HasInputSchema
 {
-    use Makeable;
-
     public function identifier(): string
     {
         return 'unigale-mail::workflow-send-mail';

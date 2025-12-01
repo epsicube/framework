@@ -11,6 +11,9 @@ export default defineConfig({
         starlight({
             title: 'Unigale Framework',
             social: [{icon: 'github', label: 'GitHub', href: 'https://github.com/unigale/framework'}],
+            editLink: {
+                baseUrl: 'https://github.com/unigale/framework/edit/main/docs/',
+            },
             sidebar: [
                 {
                     label: 'Getting Started',

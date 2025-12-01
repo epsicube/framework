@@ -30,6 +30,7 @@ remote module-execution-platform git@github.com:unigale/module-execution-platfor
 remote module-hypercore git@github.com:unigale/module-hypercore.git
 remote module-mailing-system git@github.com:unigale/module-mailing-system.git
 remote foundation git@github.com:unigale/foundation.git
+remote support git@github.com:unigale/support.git
 remote docs git@github.com:unigale/docs.git
 
 split 'modules/AccountsManager' module-accounts-manager &
@@ -38,6 +39,7 @@ split 'modules/ExecutionPlatform' module-execution-platform &
 split 'modules/Hypercore' module-hypercore &
 split 'modules/MailingSystem' module-mailing-system &
 split 'packages/Foundation' foundation &
+split 'packages/Support' support &
 split 'docs' docs &
 
 wait

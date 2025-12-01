@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace UniGale\Foundation\Console\Commands;
 
 use Illuminate\Console\Command;
-use UniGale\Foundation\Facades\Options;
-use UniGale\Foundation\Options\OptionsDefinition;
+use UniGale\Support\Facades\Options;
+use UniGale\Support\OptionsDefinition;
 
 use function Laravel\Prompts\table;
 
@@ -30,7 +30,6 @@ class OptionsListCommand extends Command
 
             return $noAnsi ? $text : "<{$ansi}>{$text}</>";
         };
-
         $headers = [
             $fmt('Module', 'fg=cyan;options=bold'),
             $fmt('Key', 'fg=blue;options=bold'),
@@ -39,6 +38,7 @@ class OptionsListCommand extends Command
             $fmt('Type', 'fg=yellow;options=bold'),
             $fmt('Autoload', 'fg=white;options=bold'),
         ];
+
         $definitions = Options::definitions();
         if ($modulesFilter = $this->argument('modules')) {
             $definitions = array_filter(
@@ -52,7 +52,9 @@ class OptionsListCommand extends Command
             return collect($definition->all())->map(fn (array $field, string $key) => [
                 $fmt($moduleIdentifier, 'fg=cyan;options=bold'),
                 $fmt($key, 'fg=blue'),
+
                 $fmt(json_encode(Options::get($key, $moduleIdentifier, true)), 'fg=green'),
+
                 $fmt(json_encode($definition->getDefaultValue($key)), 'fg=magenta'),
                 $fmt($field['type'], 'fg=yellow'),
                 $fmt(json_encode($field['autoload']), 'fg=white'),

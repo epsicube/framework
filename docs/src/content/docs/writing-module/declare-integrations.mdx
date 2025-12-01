@@ -20,17 +20,18 @@ They allow you to register behavior or resources that execute **only when a targ
 <br/>
 <Steps>
 1. ### Implement the Interface
-   Your module must implement the [`UniGale\Foundation\Contracts\HasIntegrations`](https://github.com/unigale/framework/blob/main/packages/Foundation/Contracts/HasIntegrations.php) interface.
+   Your module must implement the [`UniGale\Support\Contracts\HasIntegrations`](https://github.com/unigale/framework/blob/main/packages/Support/Contracts/HasIntegrations.php) interface.
 
    ```php
-   use UniGale\Foundation\Contracts\HasIntegrations;
+   use UniGale\Support\Contracts\HasIntegrations;
+   use UniGale\Support\Integrations;
 
    class YourModule extends ServiceProvider implements HasIntegrations, Module
    {
        // ...
-       public function integrations(IntegrationsManager $integrations): void
+       public function integrations(): Integrations
        {
-           $integrations->forModule(
+           return Integrations::make()->forModule(
                identifier: 'core::execution-platform',
                whenEnabled: function() {
                     // Callback executed only when the target module is enabled
@@ -43,7 +44,7 @@ They allow you to register behavior or resources that execute **only when a targ
        }
    }
    ```
-2. ### Understand Integrations
+2. ### Understand integrations
 
     When defining an integration with another module, you provide a set of **parameters** that control how your module interacts with the target module.
 

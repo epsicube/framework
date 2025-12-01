@@ -17,9 +17,11 @@ use Filament\Support\Colors\Color;
 use Filament\Support\Enums\Alignment;
 use Filament\Support\Icons\Heroicon;
 use Illuminate\Contracts\Support\Htmlable;
-use UniGale\Foundation\Contracts\Module;
-use UniGale\Foundation\Facades\Modules;
-use UniGale\Foundation\Facades\Options;
+use UniGale\Support\Contracts\HasDependencies;
+use UniGale\Support\Contracts\HasIntegrations;
+use UniGale\Support\Contracts\Module;
+use UniGale\Support\Facades\Modules;
+use UniGale\Support\Facades\Options;
 use UnitEnum;
 
 class ManageModules extends Page implements HasSchemas
@@ -210,8 +212,12 @@ class ManageModules extends Page implements HasSchemas
             'version'      => $module->identity()->version,
             'mu'           => Modules::isMustUse($module),
             'enabled'      => Modules::isEnabled($module),
-            'dependencies' => Modules::dependenciesOf($module),
-            'integrations' => Modules::integrationsOf($module),
+            'dependencies' => ($modules instanceof HasDependencies)
+                ? $modules->dependencies()->requiredModules()
+                : [],
+            'integrations' => ($modules instanceof HasIntegrations)
+                ? array_keys($modules->integrations()->registrations())
+                : [],
         ], $modules));
 
         return ['modules' => $modules];

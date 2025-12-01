@@ -6,10 +6,10 @@ namespace UniGaleModules\ExecutionPlatform;
 
 use Carbon\Laravel\ServiceProvider;
 use Composer\InstalledVersions;
-use UniGale\Foundation\Contracts\HasIntegrations;
-use UniGale\Foundation\Contracts\Module;
-use UniGale\Foundation\IntegrationsManager;
-use UniGale\Foundation\ModuleIdentity;
+use UniGale\Support\Contracts\HasIntegrations;
+use UniGale\Support\Contracts\Module;
+use UniGale\Support\Integrations;
+use UniGale\Support\ModuleIdentity;
 use UniGaleModules\ExecutionPlatform\Console\Commands\ListCommand;
 use UniGaleModules\ExecutionPlatform\Facades\Activities;
 use UniGaleModules\ExecutionPlatform\Facades\Workflows;
@@ -47,9 +47,9 @@ class ExecutionPlatformModule extends ServiceProvider implements HasIntegrations
         $this->commands([ListCommand::class]);
     }
 
-    public function integrations(IntegrationsManager $integrations): void
+    public function integrations(): Integrations
     {
-        $integrations->forModule(
+        return Integrations::make()->forModule(
             identifier: 'core::administration',
             whenEnabled: [AdministrationIntegration::class, 'handle']
         );
