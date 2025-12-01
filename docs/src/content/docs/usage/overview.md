@@ -14,7 +14,7 @@ Modules are implemented as Laravel **[Service Providers](https://laravel.com/doc
 * **Modularity** — Break applications into reusable, independent units.
 * **Scalability** — Add new features incrementally by installing modules.
 * **Dynamic Management** — Enable, disable, or extend modules without modifying core code.
-* **Isolation** — Each module is self-contained, reducing the risk of conflicts between features, while still allowing controlled communication through the **[Integrations](/writing-module/integrations/)** layer.
+* **Isolation** — Each module is self-contained, reducing the risk of conflicts between features, while still allowing controlled communication through the **[Integrations](/writing-module/declare-integrations/)** layer.
 
 ## Support
 
