@@ -44,16 +44,16 @@ To set an option, run:
 php artisan options:set {module} {key} {value}
 ```
 ```text
- ┌ Select module(s) to update ────────────────────────────────┐
- │ Administration                                               │
+ ┌ Which module do you want to update? ───────────────────────┐
+ │ Administration                                             │
  └────────────────────────────────────────────────────────────┘
 
- ┌ Select the key(s) to modify ──────────────────────────────┐
- │ spa                                                          │
+ ┌ Which key do you want to modify? ──────────────────────────┐
+ │ spa                                                        │
  └────────────────────────────────────────────────────────────┘
 
- ┌ Enter the new value for the selected key(s) ───────────────┐
- │                                                              │
+ ┌ Enter the new value for the selected key: ─────────────────┐
+ │                                                            │
  └────────────────────────────────────────────────────────────┘
 ```
 
@@ -71,15 +71,15 @@ To unset an option:
 php artisan options:unset {module} {keys*}
 ```
 ```text
- ┌ Select module(s) to update ────────────────────────────────┐
- │ Administration                                               │
+ ┌ Which module do you want to update? ───────────────────────┐
+ │ Administration                                             │
  └────────────────────────────────────────────────────────────┘
 
  ┌ Select the key(s) to unset ────────────────────────────────┐
- │   ◼ enable-modules-manager                                   │
- │ › ◼ brand-name                                               │
- │   ◻ spa                                                      │
- │   ◻ top-navigation                                           │
+ │   ◼ enable-modules-manager                                 │
+ │ › ◼ brand-name                                             │
+ │   ◻ spa                                                    │
+ │   ◻ top-navigation                                         │
  └────────────────────────────────────────────────────────────┘
 ```
 
