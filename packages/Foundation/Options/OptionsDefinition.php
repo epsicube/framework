@@ -65,6 +65,11 @@ class OptionsDefinition
         return array_key_exists($key, $this->options);
     }
 
+    public function all(): array
+    {
+        return $this->options;
+    }
+
     public function getDefinedKeys(): array
     {
         return array_keys($this->options);

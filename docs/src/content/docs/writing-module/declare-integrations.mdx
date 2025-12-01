@@ -1,0 +1,61 @@
+---
+title: Declare integrations
+description: "Enable modules to communicate, extend functionality, and integrate seamlessly across your application."
+sidebar:
+    order: 4
+---
+
+import { Aside, Steps } from '@astrojs/starlight/components';
+
+Integrations let modules **interact and extend each other** safely.
+
+They allow you to register behavior or resources that execute **only when a target module is enabled**, with optional fallback when the module is disabled.
+
+<Aside title="Ensures predictable and consistent module interactions">
+* Without integrations, modules that modify or extend other modules might cause errors if the target modules are not enabled.
+* Clearly informs developers which modules your module can safely integrate with, making maintenance easier and more reliable.
+</Aside>
+
+## How to declare your integrations ?
+<br/>
+<Steps>
+1. ### Implement the Interface
+   Your module must implement the [`UniGale\Foundation\Contracts\HasIntegrations`](https://github.com/unigale/framework/blob/main/packages/Foundation/Contracts/HasIntegrations.php) interface.
+
+   ```php
+   use UniGale\Foundation\Contracts\HasIntegrations;
+
+   class YourModule extends ServiceProvider implements HasIntegrations, Module
+   {
+       // ...
+       public function integrations(IntegrationsManager $integrations): void
+       {
+           $integrations->forModule(
+               identifier: 'core::execution-platform',
+               whenEnabled: function() {
+                    // Callback executed only when the target module is enabled
+                    Workflows::register(YourModuleWorkflow::make());
+               },
+               whenDisabled: function() {
+                   // Optional callback executed if the target module is disabled
+               }
+           );
+       }
+   }
+   ```
+2. ### Understand Integrations
+
+    When defining an integration with another module, you provide a set of **parameters** that control how your module interacts with the target module.
+
+   | Parameter      | Description                                                                                                                               |
+   |----------------|-------------------------------------------------------------------------------------------------------------------------------------------|
+   | `identifier`   | The unique identifier of the target module you want to integrate with.                                                                    |
+   | `whenEnabled`  | A closure executed **only when the target module is enabled**. <br/>Use it to extend functionality or interact with the module’s APIs.    |
+   | `whenDisabled` | An optional closure executed **only when the target module is disabled**.                                                                 |
+
+3. ### Best Practices
+
+   * Always guard integration callbacks against missing or disabled modules.
+   * Keep integration logic modular to prevent side effects on other modules.
+
+</Steps>

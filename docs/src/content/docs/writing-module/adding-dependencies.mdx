@@ -1,0 +1,47 @@
+---
+title: Adding Dependencies
+description: "Declare and enforce dependencies across modules."
+sidebar:
+    order: 2
+---
+
+import { Aside, Steps } from '@astrojs/starlight/components';
+
+Dependencies allow a module to require other modules to be **enabled** before it can function. This ensures that your module only operates in an environment where its prerequisites are met.
+
+By declaring dependencies, you can:
+
+* Guarantee that shared functionality or services provided by other modules are available.
+* Prevent errors or misbehavior caused by missing modules.
+* Control the activation order of modules in a predictable way.
+
+Dependencies are checked automatically when enabling modules via the **Administration interface** or **CLI commands**, ensuring that all requirements are satisfied before a module becomes active.
+
+
+## How to add dependencies ?
+<br/>
+<Steps>
+1. ### Implement the Interface
+
+   Your module must implement the [`UniGale\Foundation\Contracts\HasDependencies`](https://github.com/unigale/framework/blob/main/packages/Foundation/Contracts/HasDependencies.php) interface.
+
+    ```php
+    use UniGale\Foundation\Contracts\HasDependencies;
+
+    class BrandingModule extends ServiceProvider implements HasDependencies, Module
+    {
+        // ...
+        public function dependencies(): array
+        {
+            return ['core::execution-platform'];
+        }
+    }
+    ```
+2. ### Understand Constraints
+
+   <Aside type="tip" title="Constraints" icon="approve-check">
+   * A module cannot be enabled unless all of its dependencies are satisfied.
+   * All dependent modules must be enabled to activate this module.
+   </Aside>
+
+</Steps>

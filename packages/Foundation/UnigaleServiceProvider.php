@@ -11,6 +11,9 @@ use UniGale\Foundation\Activation\FilesystemActivationDriver;
 use UniGale\Foundation\Console\Commands\ModulesDisableCommand;
 use UniGale\Foundation\Console\Commands\ModulesEnableCommand;
 use UniGale\Foundation\Console\Commands\ModulesStatusCommand;
+use UniGale\Foundation\Console\Commands\OptionsListCommand;
+use UniGale\Foundation\Console\Commands\OptionsSetCommand;
+use UniGale\Foundation\Console\Commands\OptionsUnsetCommand;
 use UniGale\Foundation\Contracts\Module;
 use UniGale\Foundation\Facades\Modules;
 use UniGale\Foundation\Facades\Options;
@@ -76,6 +79,9 @@ class UnigaleServiceProvider extends ServiceProvider
             ModulesStatusCommand::class,
             ModulesEnableCommand::class,
             ModulesDisableCommand::class,
+            OptionsListCommand::class,
+            OptionsSetCommand::class,
+            OptionsUnsetCommand::class,
         ]);
         $this->loadMigrationsFrom(__DIR__.'/database/migrations');
     }

@@ -1,0 +1,76 @@
+---
+title: Registering Options
+description: "Create and manage custom configuration options for your module."
+sidebar:
+    order: 3
+---
+
+import { Aside, Steps } from '@astrojs/starlight/components';
+
+Modules can be extended with **customizable options**, enabling developers to configure settings or adapt features without modifying the module’s core code.
+
+Options can be managed either via the **CLI** or the **Administration interface**. For detailed usage, see [Manage Options](/usage/manage-options/).
+
+<Aside title="Informations">
+    * All options are stored in the `options` table.
+    * Uninstalling a module automatically deletes its options to prevent leftover configuration.
+</Aside>
+
+## How to declare your options ?
+<br/>
+<Steps>
+1. ### Implement the Interface
+   Your module must implement the [`UniGale\Foundation\Contracts\HasOptions`](https://github.com/unigale/framework/blob/main/packages/Foundation/Contracts/HasOptions.php) interface.
+
+    ```php
+    use UniGale\Foundation\Contracts\HasOptions;
+    use UniGale\Foundation\Options\OptionsDefinition;
+
+    class ExternalApiModule extends ServiceProvider implements HasOptions, Module
+    {
+        //...
+        public function options(OptionsDefinition $options): void
+        {
+             $options->add(
+                 key: 'api_token',
+                 type: 'string',
+                 autoload: false,
+                 default: fn() => 'XXX-XXXXX-XXX',
+             );
+        }
+    }
+    ```
+
+2. ### Understand Configuration Parameters
+
+   | Parameter  | Description                                                                                 |
+   | ---------- | ------------------------------------------------------------------------------------------- |
+   | `key`      | Unique identifier for the option.                                                           |
+   | `type`     | Data type of the option (e.g., `string`, `integer`, `boolean`).                             |
+   | `autoload` | If `true`, the option will be preloaded on first access to avoid repeated fetch. |
+   | `default`  | Default value, or a Closure returning the default value.                                    |
+
+3. ### Use Your Options
+   The `Options` facade allows you to **retrieve**, **update**, and **delete** options for your module:
+
+   <Aside type="caution">
+        Using `Options` during the registration phase can cause lifecycle issues.<br/>
+        Avoid using it at this stage.
+   </Aside>
+
+   ```php
+   use UniGale\Foundation\Facades\Options;
+
+   // Retrieve all options for a module
+   Options::all('your-module-identifier');
+
+   // Retrieve a specific option
+   Options::get('api_token', 'your-module-identifier');
+
+   // Update an option
+   Options::set('api_token', 'new_value', 'your-module-identifier');
+
+   // Delete an option to revert to default
+   Options::delete('api_token', 'your-module-identifier');
+   ```
+</Steps>

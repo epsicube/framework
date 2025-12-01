@@ -1,0 +1,85 @@
+---
+title: "Manage Options"
+description: "Learn how to manage application options using Artisan."
+sidebar:
+    order: 3
+---
+
+import { Aside } from '@astrojs/starlight/components';
+
+Options can be **set** or **unset** using Artisan commands or using the Administration.
+
+## List All Options
+
+To view all registered options, run the command:
+
+```bash
+php artisan options:list {modules?*}
+```
+
+* `{modules?*}` – *optional*: specify one or more module identifiers to filter the list.
+  If omitted, all options from all modules will be displayed.
+
+
+```text
+ ┌──────────────────────┬────────────────────────┬───────┬───────────┬─────────┬──────────┐
+ │ Module               │ Key                    │ Value │ Default   │ Type    │ Autoload │
+ ├──────────────────────┼────────────────────────┼───────┼───────────┼─────────┼──────────┤
+ │ core::administration │ enable-modules-manager │ null  │ true      │ boolean │ false    │
+ │ core::administration │ brand-name             │ null  │ "Laravel" │ string  │ false    │
+ │ core::administration │ spa                    │ null  │ false     │ boolean │ false    │
+ │ core::administration │ top-navigation         │ null  │ true      │ boolean │ false    │
+ └──────────────────────┴────────────────────────┴───────┴───────────┴─────────┴──────────┘
+```
+
+
+
+## Set a Specific Option
+
+To set an option, run:
+
+<Aside type="tip">You can omit arguments to use the interactive prompt.</Aside>
+
+```bash
+php artisan options:set {module} {key} {value}
+```
+```text
+ ┌ Select module(s) to update ────────────────────────────────┐
+ │ Administration                                               │
+ └────────────────────────────────────────────────────────────┘
+
+ ┌ Select the key(s) to modify ──────────────────────────────┐
+ │ spa                                                          │
+ └────────────────────────────────────────────────────────────┘
+
+ ┌ Enter the new value for the selected key(s) ───────────────┐
+ │                                                              │
+ └────────────────────────────────────────────────────────────┘
+```
+
+## Unset a Specific Option
+
+<Aside type="note">
+When an option is unset, the system will revert to the **default value** provided by the module.
+</Aside>
+
+To unset an option:
+
+<Aside type="tip">You can omit arguments to use the interactive prompt.</Aside>
+
+```bash
+php artisan options:unset {module} {keys*}
+```
+```text
+ ┌ Select module(s) to update ────────────────────────────────┐
+ │ Administration                                               │
+ └────────────────────────────────────────────────────────────┘
+
+ ┌ Select the key(s) to unset ────────────────────────────────┐
+ │   ◼ enable-modules-manager                                   │
+ │ › ◼ brand-name                                               │
+ │   ◻ spa                                                      │
+ │   ◻ top-navigation                                           │
+ └────────────────────────────────────────────────────────────┘
+```
+

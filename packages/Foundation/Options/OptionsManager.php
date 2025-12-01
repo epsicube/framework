@@ -51,20 +51,32 @@ class OptionsManager
 
     }
 
-    public function get(string $key, ?string $moduleIdentifier = null, mixed $default = null): mixed
+    /**
+     * @return array<string,OptionsDefinition>
+     */
+    public function definitions(): array
+    {
+        return $this->definitions;
+
+    }
+
+    public function get(string $key, ?string $moduleIdentifier = null, bool $ignoreDefault = false): mixed
     {
         $this->ensureAutoload();
 
         if (! array_key_exists($key, $this->loadedKeys[$moduleIdentifier ?? '__GLOBAL__'] ?? [])) {
-            $value = $this->applyDefaults(
-                moduleIdentifier: $moduleIdentifier,
-                options: [$key => $this->store->get($key, $moduleIdentifier)]
-            )[$key];
+            $value = $this->store->get($key, $moduleIdentifier);
             $this->state[$moduleIdentifier ?? '__GLOBAL__'][$key] = $value;
             $this->loadedKeys[$moduleIdentifier ?? '__GLOBAL__'][$key] = true;
         }
+        if ($ignoreDefault) {
+            return $this->state[$moduleIdentifier ?? '__GLOBAL__'][$key] ?? null;
+        }
 
-        return $this->state[$moduleIdentifier ?? '__GLOBAL__'][$key] ?? $default;
+        return $this->applyDefaults(
+            moduleIdentifier: $moduleIdentifier ?? '__GLOBAL__',
+            options: [$key => $this->state[$moduleIdentifier ?? '__GLOBAL__'][$key] ?? null]
+        )[$key];
     }
 
     public function set(string $key, mixed $value, ?string $moduleIdentifier = null): void

@@ -17,8 +17,8 @@ export default defineConfig({
                     autogenerate: {directory: 'getting-started'},
                 },
                 {
-                    label: 'Modules',
-                    autogenerate: {directory: 'modules'},
+                    label: 'Usage',
+                    autogenerate: {directory: 'usage'},
                 },
                 {
                     label: 'Writing module',
