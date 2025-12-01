@@ -1,0 +1,94 @@
+---
+
+title: "Execution Platform"
+description: "Define and run Activities and Workflows with tracking, retries, and seamless integrations."
+
+---
+
+import { Aside, Steps } from '@astrojs/starlight/components';
+
+The **Execution Platform** enables modules to define and execute **Activities** and **Workflows** with full state tracking, automatic retries, and integration with external systems.
+
+## Core Concepts
+
+* **Activities** — Atomic operations that can run independently or as part of a Workflow.
+* **Workflows** — Orchestrated sequences of Activities, with complete state and history tracking.
+
+## Features
+
+* Extendable by any module
+* Automatic execution tracking and logging
+* Database-backed history of all runs
+* Built-in error handling and retry strategies
+* Optional **InputSchema** and **OutputSchema** for each Activity or Workflow
+
+## Installation
+
+<Steps>
+1. ### Install the Package
+    <Aside type="tip">
+    If you are using `unigale/framework`, this module is included by default, skip this step.
+    </Aside>
+    ```bash
+    composer require unigale/module-execution-platform
+    ```
+
+2. ### Enable the Module
+
+   ```bash
+   php artisan modules:enable core::execution-platform
+   ```
+
+3. ### Clear Cached Configuration
+
+   ```bash
+   php artisan config:clear
+   ```
+
+</Steps>
+
+## Extending the Execution Platform
+
+Modules can inject custom Activities and Workflows through **[Integrations](/writing-module/integrations/)**.
+When the Execution Platform is active, you can extend its registries:
+
+```php
+\UniGaleModules\ExecutionPlatform\Facades\Activities::register(...);
+\UniGaleModules\ExecutionPlatform\Facades\Workflows::register(...);
+```
+
+### Example: Register a Custom Activity and Workflow
+
+```php
+use UniGaleModules\ExecutionPlatform\Facades\Activities;
+use UniGaleModules\ExecutionPlatform\Facades\Workflows;
+
+class MailModule extends ServiceProvider implements HasIntegrations, Module
+{
+    public function integrations(IntegrationsManager $integrations): void
+    {
+        $integrations->forModule(
+            identifier: 'core::execution-platform',
+            whenEnabled: function () {
+                Activities::register(SendMailActivity::make());
+                Workflows::register(SendMailWorkflow::make());
+            }
+        );
+    }
+}
+```
+
+## Future Vision & Capabilities
+
+The Execution Platform provides a flexible orchestration layer that supports both current and planned functionality:
+
+* Expose all **Activities**, **Tasks**, and **Workflows** via an auto-generated **MCP Server**
+* Trigger Activities programmatically or via graphical tools like **N8N**
+* Dispatch Workflows across multiple workers using external engines such as **Temporal.io**
+* Planned workflow execution drivers:
+
+  * **Temporal.io** — Distributed orchestration for complex workflows
+  * **Laravel Workflow** — Laravel-native engine
+  * **Sync driver** — Simple synchronous execution for lightweight tasks
+
+This unified approach allows modules to integrate seamlessly, track executions, and scale with both native and external orchestration tools.

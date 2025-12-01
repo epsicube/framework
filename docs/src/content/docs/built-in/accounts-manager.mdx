@@ -1,0 +1,35 @@
+---
+title: "Accounts Manager"
+description: ""
+draft: true
+---
+import { Aside, Steps } from '@astrojs/starlight/components';
+
+A core module reserved for authentication and account lifecycle integrations.
+
+
+## Installation
+
+<Steps>
+1. ### Install the package
+
+    <Aside type="tip">
+    If you are using `unigale/framework`, this module is included by default, skip this step.
+    </Aside>
+
+    ```bash
+    composer require unigale/module-accounts-manager
+    ```
+
+2. ### Enable the module
+
+    ```bash
+    php artisan modules:enable core::accounts-manager
+    ```
+
+3. ### Clear cached configuration (if applicable)
+
+    ```bash
+    php artisan config:clear
+    ```
+</Steps>

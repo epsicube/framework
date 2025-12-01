@@ -1,0 +1,41 @@
+---
+title: "Mailing System"
+description: ""
+draft: true
+---
+import { Aside, Steps } from '@astrojs/starlight/components';
+
+The mailing system module extends Laravel’s mailer features.
+
+## Features
+
+* Send standard email using Laravel’s drivers
+* Allow modules to register custom **email templates**
+* Provide **Activities** and **Workflows** dedicated to email sending
+
+
+## Installation
+
+<Steps>
+1. ### Install the package
+
+    <Aside type="tip">
+    If you are using `unigale/framework`, this module is included by default, skip this step.
+    </Aside>
+
+    ```bash
+    composer require unigale/module-mailing-system
+    ```
+
+2. ### Enable the module
+
+    ```bash
+    php artisan modules:enable core::mailing-system
+    ```
+
+3. ### Clear cached configuration (if applicable)
+
+    ```bash
+    php artisan config:clear
+    ```
+</Steps>

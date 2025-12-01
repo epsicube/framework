@@ -16,23 +16,18 @@ Enabling or disabling a module is **not the same** as installing or uninstalling
 Disabled modules retain their stored options but will not register services or applications concerns.
 </Aside>
 
-A module can have one of the following statuses:
+A module can have one of the following statuses defined by the [Activation Driver](/advanced/activation-driver/):
 
 * **ENABLED** – The module is active and its services are booted.
 * **DISABLED** – The module is inactive; configuration is preserved, but services do not boot.
 * **MUST-USE** – The module is required and cannot be disabled.
-
-### Check Module Status
 
 To view the status of all modules:
 
 ```bash
 php artisan modules:status
 ```
-
-Example output:
-
-```md
+```text
  ┌──────────────────────────┬────────────────────┬───────────────────────────────────────────────────────┬───────────┬──────────┬──────────┐
  │ Identifier               │ Name               │ Description                                           │ Author    │ Version  │ Status   │
  ├──────────────────────────┼────────────────────┼───────────────────────────────────────────────────────┼───────────┼──────────┼──────────┤
@@ -41,7 +36,6 @@ Example output:
  │ core::mailing-system     │ Mailing System     │ Extensible mail delivery system with notifications    │ Core Team │ dev-main │ DISABLED │
  └──────────────────────────┴────────────────────┴───────────────────────────────────────────────────────┴───────────┴──────────┴──────────┘
 ```
-
 ---
 
 ### Enable Modules
@@ -61,10 +55,7 @@ To activate modules:
 ```bash
 php artisan modules:enable {identifier*}
 ```
-
-Example interactive prompt:
-
-```md
+```text
  ┌ Which modules would you like to enable? ─────────────────────┐
  │ › ◻ Accounts Manager                                         │
  │   ◻ Administration                                           │
@@ -75,7 +66,7 @@ Example interactive prompt:
 
 ### Disable Modules
 
-<Aside type="danger" title="Important informations">
+<Aside type="caution" title="Important informations">
 Currently, there is **no automated uninstallation** for modules (such as rolling back migrations or running uninstall scripts).
 
 If you need to remove all module migrations, this must be done manually.
@@ -90,9 +81,7 @@ To deactivate modules:
 php artisan modules:disable {identifier*}
 ```
 
-Example interactive prompt:
-
-```md
+```text
  ┌ Which modules would you like to disable? ────────────────────┐
  │ › ◻ Administration                                           │
  │   ◻ Execution Platform                                       │

@@ -1,0 +1,95 @@
+---
+title: "Administration"
+description: "Overview of the Administration module and how to extend it."
+sidebar:
+    order: 1
+---
+import { Aside, Steps } from '@astrojs/starlight/components';
+
+The **Administration module** provides an extensible Filament-powered control panel used to manage your application.
+
+It includes a native module manager, allowing you to enable or disable modules directly from the interface.
+
+## How to use ?
+<br/>
+<Steps>
+1. ### Install the package
+
+    <Aside type="tip">
+    If you are using `unigale/framework`, this module is included by default, skip this step.
+    </Aside>
+
+    ```bash
+    composer require unigale/module-administration
+    ```
+
+2. ### Enable the module
+
+    ```bash
+    php artisan modules:enable core::administration
+    ```
+
+3. ### Clear cached routes (if applicable)
+
+    ```bash
+    php artisan route:clear
+    ```
+</Steps>
+
+## Configuration
+
+The module exposes several options that allow you to refine the panel’s behavior and presentation:
+
+- **Enable Module Manager** — Adds the module management section to the panel.
+- **Brand Name** — Defines the label shown in the navigation bar.
+- **SPA Mode** — Enables Filament’s Single-Page Application mode.
+- **Top Navigation** — Switches from a sidebar layout to a top-aligned navigation.
+
+These options can be adjusted from within the Administration UI or via command-line options (documentation forthcoming).
+
+## Accessing the Panel
+
+Once enabled, the Administration module automatically registers a Filament panel at the root path `/`.
+No additional configuration is required.
+
+## Extending the Administration Panel
+
+Modules can extend or customize the panel through
+**[Integrations](/writing-module/integrations/)**.
+
+When the Administration module is active, you can hook into its configuration:
+
+```php
+Administration::configureUsing($callback);
+````
+
+This allows you to register additional resources, pages, widgets, or apply advanced configuration logic.
+
+## Example: Adding Custom Filament Resources
+
+```php
+class YourCustomModule extends ServiceProvider implements HasIntegrations, Module
+{
+    public function integrations(IntegrationsManager $integrations): void
+    {
+        $integrations->forModule(
+            identifier: 'core::administration',
+            whenEnabled: function () {
+                Administration::configureUsing(function (Administration $admin) {
+                    $admin->discoverResources(
+                        in: __DIR__ . '/Administration/Resources',
+                        for: __NAMESPACE__ . '\\Administration\\Resources'
+                    );
+                });
+            }
+        );
+    }
+}
+```
+
+When your module is enabled, this integration automatically registers your Filament resources into the Administration panel.
+
+## Further Reading
+
+For detailed configuration options and panel customization, refer to the
+**[Filament documentation](https://filamentphp.com/docs/4.x/panel-configuration)**.

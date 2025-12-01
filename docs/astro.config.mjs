@@ -1,11 +1,13 @@
 // @ts-check
 import {defineConfig} from 'astro/config';
 import starlight from '@astrojs/starlight';
+import mermaid from 'astro-mermaid';
 
 // https://astro.build/config
 export default defineConfig({
     site: 'https://unigale.quix-labs.com',
     integrations: [
+        mermaid({}),
         starlight({
             title: 'Unigale Framework',
             social: [{icon: 'github', label: 'GitHub', href: 'https://github.com/unigale/framework'}],

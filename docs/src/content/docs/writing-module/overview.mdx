@@ -1,0 +1,110 @@
+
+---
+title: "Write your own"
+description: "Learn how to create your own Unigale module."
+sidebar:
+  order: 1
+---
+import { Steps, Aside } from '@astrojs/starlight/components';
+
+## Module Structure
+
+A Unigale module is a standard **[Laravel Service Provider](https://laravel.com/docs/providers)** that additionally implements the
+[`UniGale\Foundation\Contracts\Module`](https://github.com/unigale/framework/blob/main/packages/Foundation/Contracts/Module.php) interface.
+
+This contract provides the metadata Unigale needs to register, identify, and manage your module.
+
+---
+
+## Create a Module — Step by Step
+
+<Steps>
+
+1. ### Create a Service Provider
+
+    Generate a new provider using Laravel’s CLI:
+
+    ```bash
+    php artisan make:provider MyCustomModule
+    ```
+
+    <Aside type="note">
+    This class becomes the foundation of your module.
+    </Aside>
+
+2. ###  Implement the Module Contract
+
+    Update the provider to implement the `Module` interface:
+
+    ```php
+    use UniGale\Foundation\Contracts\Module;
+    use UniGale\Foundation\ModuleIdentity;
+    use Illuminate\Support\ServiceProvider;
+
+    class MyCustomModule extends ServiceProvider implements Module
+    {
+        public function identifier(): string
+        {
+            return 'my-custom-module';
+        }
+
+        public function identity(): ModuleIdentity
+        {
+            return ModuleIdentity::make(
+                name: __('Your custom module'),
+                version: 'dev-master',
+                author: 'Your Team',
+                description: '' // Optional
+            );
+        }
+
+        // ... register()
+        // ... boot()
+    }
+    ```
+
+    <Aside type="caution">
+    Ensure your <strong>identifier</strong> is unique across the entire application.
+    </Aside>
+
+3. ### Register the Module
+
+    Unigale does not use Laravel’s default provider registration system.
+
+    **Remove** the provider from:
+    - `bootstrap/providers.php`
+    - or `config/app.php → providers`
+
+    **Instead, register it in your module’s `composer.json`:**
+
+    ```json
+    "extra": {
+        "unigale": {
+            "modules": [
+                "App\\Providers\\MyCustomModule"
+            ]
+        }
+    }
+    ```
+
+    <Aside type="tip">
+    When publishing your module as an external package:<br/>
+    • The <code>extra.unigale.modules</code> section will be auto-discovered.<br/>
+    • Remove your provider from the <code>extra.laravel.providers</code> section to avoid duplicate registration.
+    </Aside>
+
+4. ### Refresh composer cache
+   ```bash
+   composer dump-autoload
+   ```
+
+5. ### Enable your module
+   - Using the administration, or using the cli:
+   ```bash
+   php artisan modules:enable my-custom-module # Use the specified identifier
+   ```
+</Steps>
+
+## Related Laravel Documentation
+
+* **[Package Development](https://laravel.com/docs/packages)** — Learn how to create reusable packages with configuration, migrations, assets, and service providers.

@@ -1,0 +1,62 @@
+---
+title: Installation
+description: Learn how to install and bootstrap Unigale in your Laravel application.
+slug: "getting-started/installation"
+---
+import { Steps, Aside } from '@astrojs/starlight/components';
+
+**Unigale** is a modular application framework built on top of Laravel.
+It provides a robust architecture for building extensible systems composed of isolated modules, shared integrations, and
+configurable execution pipelines.
+
+Unigale enhances Laravel's foundation without altering its philosophy, offering additional capabilities such as module
+lifecycle management, multi-core orchestration, workflow execution, and centralized configuration.
+
+
+## Requirements
+
+Unigale follows the requirements of your Laravel version and does not introduce additional PHP extension dependencies.
+
+Ensure your environment meets the following:
+
+- PHP version required by your Laravel installation
+- Composer
+- A working Laravel application (supported version: **Laravel 12.x**)
+
+---
+
+## Installation Steps
+
+<Steps>
+1. ### Install the framework
+
+    Install Unigale via Composer:
+
+    ```bash
+    composer require unigale/framework
+    ```
+
+2. ### Replace the application class
+
+    Unigale uses its own application container, `UnigaleApplication`.
+    Update your `bootstrap/app.php` accordingly:
+
+    ```php
+    use UniGale\Foundation\UnigaleApplication;
+
+    return UnigaleApplication::configure(basePath: dirname(__DIR__))
+        ->withRouting()
+        ->withMiddleware()
+        ->withExceptions()
+        ->create();
+    ```
+
+3. ### Run migrations
+
+    Unigale automatically provides additional migrations required for its internal systems.
+    Apply all pending migrations:
+
+    ```bash
+    php artisan migrate
+    ```
+</Steps>
