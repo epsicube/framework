@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace UniGaleModules\Hypercore\Foundation\Bootstrap;
 
-use Filament\Facades\Filament;
 use Illuminate\Config\Repository;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Contracts\Foundation\CachesConfiguration;
@@ -16,8 +15,8 @@ use Illuminate\Routing\Router;
 use RuntimeException;
 use UniGale\Foundation\Managers\ModulesManager;
 use UniGale\Foundation\UnigaleApplication;
-use UniGale\Foundation\Utilities\UnigaleManifest;
 use UniGale\Support\Contracts\ActivationDriver;
+use UniGale\Support\Facades\Manifest;
 use UniGale\Support\Facades\Modules;
 use UniGaleModules\Hypercore\Activation\TenantActivationDriver;
 use UniGaleModules\Hypercore\Concerns\HypercoreAdapter;
@@ -52,8 +51,6 @@ class BootstrapHypercore
 
     protected function configureCentral(Application $app, ModulesManager $registry): void
     {
-        //        dump('central');
-
         $this->applyCentralAdapter($app, $registry, $registry->getDriver());
     }
 
@@ -149,7 +146,7 @@ class BootstrapHypercore
      */
     protected function applyTenantAdapters(Application $app, Tenant $tenant, ModulesManager $registry, ActivationDriver $driver): void
     {
-        $manifest = $app->get(UnigaleManifest::class)->config('hypercore');
+        $manifest = $app->get(Manifest::$accessor)->config('hypercore');
         $adapters = array_merge([HypercoreModuleAdapter::class], $manifest['adapters'] ?? []);
         foreach ($adapters as $adapterClass) {
             if (! is_a($adapterClass, HypercoreAdapter::class, true)) {
@@ -177,7 +174,7 @@ class BootstrapHypercore
      */
     protected function applyCentralAdapter(Application $app, ModulesManager $registry, ActivationDriver $driver): void
     {
-        $manifest = $app->get(UnigaleManifest::class)->config('hypercore');
+        $manifest = $app->get(Manifest::$accessor)->config('hypercore');
         $adapters = array_merge([HypercoreModuleAdapter::class], $manifest['adapters'] ?? []);
         foreach ($adapters as $adapterClass) {
             if (! is_a($adapterClass, HypercoreAdapter::class, true)) {
