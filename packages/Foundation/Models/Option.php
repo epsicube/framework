@@ -11,7 +11,6 @@ use Illuminate\Database\Eloquent\Model;
  * @property string $group
  * @property string $key
  * @property mixed $value
- * @property bool $autoload
  */
 class Option extends Model
 {
@@ -24,8 +23,7 @@ class Option extends Model
     protected function casts(): array
     {
         return [
-            'value'    => 'json',
-            'autoload' => 'boolean',
+            'value' => 'json',
         ];
     }
 }

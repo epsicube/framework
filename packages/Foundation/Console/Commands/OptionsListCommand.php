@@ -36,7 +36,6 @@ class OptionsListCommand extends Command
             $fmt('Value', 'fg=green;options=bold'),
             $fmt('Default', 'fg=magenta;options=bold'),
             $fmt('Type', 'fg=yellow;options=bold'),
-            $fmt('Autoload', 'fg=white;options=bold'),
         ];
 
         $definitions = Options::definitions();
@@ -57,7 +56,6 @@ class OptionsListCommand extends Command
 
                 $fmt(json_encode($definition->getDefaultValue($key)), 'fg=magenta'),
                 $fmt($field['type'], 'fg=yellow'),
-                $fmt(json_encode($field['autoload']), 'fg=white'),
             ])->all();
         })->flatten(1)->all();
 

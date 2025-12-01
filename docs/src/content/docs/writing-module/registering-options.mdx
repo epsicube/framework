@@ -34,7 +34,6 @@ Options can be managed either via the **CLI** or the **Administration interface*
              return OptionsDefinition::make()->add(
                  key: 'api_token',
                  type: 'string',
-                 autoload: false,
                  default: fn() => 'XXX-XXXXX-XXX',
              );
         }
@@ -47,7 +46,6 @@ Options can be managed either via the **CLI** or the **Administration interface*
    | ---------- | ------------------------------------------------------------------------------------------- |
    | `key`      | Unique identifier for the option.                                                           |
    | `type`     | Data type of the option (e.g., `string`, `integer`, `boolean`).                             |
-   | `autoload` | If `true`, the option will be preloaded on first access to avoid repeated fetch. |
    | `default`  | Default value, or a Closure returning the default value.                                    |
 
 3. ### Use Your options

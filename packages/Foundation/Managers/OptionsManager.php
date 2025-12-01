@@ -22,8 +22,6 @@ class OptionsManager
     /** @var array<string,true> */
     protected array $fullyLoaded = [];
 
-    protected bool $autoloaded = false;
-
     public function __construct(protected OptionsStore $store) {}
 
     public function registerDefinition(string $group, OptionsDefinition $definition): void
@@ -51,8 +49,6 @@ class OptionsManager
 
     public function get(string $group, string $key, bool $ignoreDefault = false): mixed
     {
-        $this->ensureAutoload();
-
         if (! array_key_exists($key, $this->loadedKeys[$group] ?? [])) {
             $value = $this->store->get($key, $group);
             $this->state[$group][$key] = $value;
@@ -129,36 +125,5 @@ class OptionsManager
         }
 
         return array_filter($options, fn ($_, $key) => $definition->has($key), ARRAY_FILTER_USE_BOTH);
-    }
-
-    protected function ensureAutoload(): void
-    {
-        if ($this->autoloaded) {
-            return;
-        }
-
-        $groupedKeys = [];
-        foreach ($this->definitions as $group => $definition) {
-            $autoloads = $definition->getAutoloads();
-            if (! empty($autoloads)) {
-                $groupedKeys[$group] = $autoloads;
-            }
-        }
-
-        if (empty($groupedKeys)) {
-            $this->autoloaded = true;
-
-            return;
-        }
-
-        $results = $this->store->getMultiples($groupedKeys);
-        foreach ($results as $group => $values) {
-            foreach ($values as $key => $value) {
-                $this->state[$group][$key] = $value;
-                $this->loadedKeys[$group][$key] = true;
-            }
-        }
-
-        $this->autoloaded = true;
     }
 }

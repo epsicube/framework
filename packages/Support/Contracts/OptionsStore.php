@@ -32,17 +32,4 @@ interface OptionsStore
      * Clear all options for the specified group.
      */
     public function clear(string $group): void;
-
-    /**
-     * Retrieve multiple keys in bulk. (useful to preload items)
-     *
-     * [
-     *   'moduleIdentifier1' => ['key','key2',...],
-     *   'moduleIdentifier2' => ['key','key2',...],
-     * ]
-     *
-     * @param  array<string, array<string>>  $groupedKeys  Grouped keys per groups
-     * @return array<string, array<string, mixed>> Grouped key->value results per groups
-     */
-    public function getMultiples(array $groupedKeys = []): array;
 }

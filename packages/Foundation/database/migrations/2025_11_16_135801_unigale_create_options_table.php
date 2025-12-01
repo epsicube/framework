@@ -23,7 +23,6 @@ return new class extends Migration
             $table->string('group', 255)->index();
             $table->string('key', 255)->index();
             $table->jsonb('value')->nullable();
-            $table->boolean('autoload')->default(false)->index();
 
             $table->unsignedBigInteger('_lock_core_id')
                 ->invisible()

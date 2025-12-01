@@ -12,7 +12,6 @@ class OptionsDefinition
     /**
      * @var array<string,array{
      *      type: string,
-     *      autoload: bool,
      *      default: mixed|Closure|null
      * }>
      */
@@ -22,30 +21,22 @@ class OptionsDefinition
      * Register a new option.
      *
      * @param  string  $key  The unique identifier for the option.
-     * @param  bool|null  $autoload  Whether this option should be preloaded on boot. Defaults to false.
      * @param  mixed|Closure|null  $default  A static default value or a closure returning a value.
      */
     public function add(
         string $key,
         string $type = 'string', // <- todo ENUM or INTERFACE (wait for schemas)
-        ?bool $autoload = false,
         mixed $default = null,
     ): static {
         if (isset($this->options[$key])) {
             throw new InvalidArgumentException("Option '{$key}' already defined.");
         }
         $this->options[$key] = [
-            'type'     => $type,
-            'autoload' => (bool) $autoload,
-            'default'  => $default,
+            'type'    => $type,
+            'default' => $default,
         ];
 
         return $this;
-    }
-
-    public function getAutoloads(): array
-    {
-        return array_keys(array_filter($this->options, fn ($d) => $d['autoload']));
     }
 
     public function getDefaultValue(string $key): mixed
