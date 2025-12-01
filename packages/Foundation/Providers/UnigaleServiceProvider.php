@@ -82,6 +82,6 @@ class UnigaleServiceProvider extends ServiceProvider
             OptionsSetCommand::class,
             OptionsUnsetCommand::class,
         ]);
-        $this->loadMigrationsFrom(__DIR__.'/database/migrations');
+        $this->loadMigrationsFrom(__DIR__.'/../database/migrations');
     }
 }

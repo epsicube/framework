@@ -9,21 +9,24 @@ import { Aside } from '@astrojs/starlight/components';
 
 Options can be **set** or **unset** using Artisan commands or using the Administration.
 
+<Aside type="note">
+When used with modules, group will be the module identifier
+</Aside>
 ## List All Options
 
 To view all registered options, run the command:
 
 ```bash
-php artisan options:list {modules?*}
+php artisan options:list {groups?*}
 ```
 
-* `{modules?*}` – *optional*: specify one or more module identifiers to filter the list.
-  If omitted, all options from all modules will be displayed.
+* `{groups?*}` – *optional*: specify one or more groups to filter the list.
+  If omitted, all options from all groups will be displayed.
 
 
 ```text
  ┌──────────────────────┬────────────────────────┬───────┬───────────┬─────────┬──────────┐
- │ Module               │ Key                    │ Value │ Default   │ Type    │ Autoload │
+ │ Group                │ Key                    │ Value │ Default   │ Type    │ Autoload │
  ├──────────────────────┼────────────────────────┼───────┼───────────┼─────────┼──────────┤
  │ core::administration │ enable-modules-manager │ null  │ true      │ boolean │ false    │
  │ core::administration │ brand-name             │ null  │ "Laravel" │ string  │ false    │
@@ -32,8 +35,6 @@ php artisan options:list {modules?*}
  └──────────────────────┴────────────────────────┴───────┴───────────┴─────────┴──────────┘
 ```
 
-
-
 ## Set a Specific Option
 
 To set an option, run:
@@ -41,11 +42,11 @@ To set an option, run:
 <Aside type="tip">You can omit arguments to use the interactive prompt.</Aside>
 
 ```bash
-php artisan options:set {module} {key} {value}
+php artisan options:set {group} {key} {value}
 ```
 ```text
- ┌ Which module do you want to update? ───────────────────────┐
- │ Administration                                             │
+ ┌ Which group do you want to update? ────────────────────────┐
+ │ core::administration                                       │
  └────────────────────────────────────────────────────────────┘
 
  ┌ Which key do you want to modify? ──────────────────────────┐
@@ -60,7 +61,7 @@ php artisan options:set {module} {key} {value}
 ## Unset a Specific Option
 
 <Aside type="note">
-When an option is unset, the system will revert to the **default value** provided by the module.
+When an option is unset, the system will revert to the **default value** provided by the definition.
 </Aside>
 
 To unset an option:
@@ -68,11 +69,11 @@ To unset an option:
 <Aside type="tip">You can omit arguments to use the interactive prompt.</Aside>
 
 ```bash
-php artisan options:unset {module} {keys*}
+php artisan options:unset {group} {keys*}
 ```
 ```text
- ┌ Which module do you want to update? ───────────────────────┐
- │ Administration                                             │
+ ┌ Which group do you want to update? ────────────────────────┐
+ │ core::administration                                       │
  └────────────────────────────────────────────────────────────┘
 
  ┌ Select the key(s) to unset ────────────────────────────────┐

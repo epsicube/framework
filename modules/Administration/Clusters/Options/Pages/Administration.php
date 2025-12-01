@@ -50,7 +50,7 @@ class Administration extends Page implements HasSchemas
     public function create(): void
     {
         foreach ($this->form->getState() as $key => $value) {
-            Options::set($key, $value, 'core::administration');
+            Options::set('core::administration', $key, $value);
         }
     }
 }

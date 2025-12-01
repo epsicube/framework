@@ -65,12 +65,12 @@ Options can be managed either via the **CLI** or the **Administration interface*
    Options::all('your-module-identifier');
 
    // Retrieve a specific option
-   Options::get('api_token', 'your-module-identifier');
+   Options::get('your-module-identifier', 'api_token');
 
    // Update an option
-   Options::set('api_token', 'new_value', 'your-module-identifier');
+   Options::set('your-module-identifier', 'api_token', 'new_value');
 
    // Delete an option to revert to default
-   Options::delete('api_token', 'your-module-identifier');
+   Options::delete('your-module-identifier', 'api_token');
    ```
 </Steps>

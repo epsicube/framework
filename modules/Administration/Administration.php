@@ -37,8 +37,8 @@ class Administration extends FilamentPanel
             ]);
 
         // Options configurations
-        $this->brandName(Options::get('brand-name', 'core::administration'));
-        $this->spa(Options::get('spa', 'core::administration'));
-        $this->topNavigation(Options::get('top-navigation', 'core::administration'));
+        $this->brandName(Options::get('core::administration', 'brand-name'));
+        $this->spa(Options::get('core::administration', 'spa'));
+        $this->topNavigation(Options::get('core::administration', 'top-navigation'));
     }
 }

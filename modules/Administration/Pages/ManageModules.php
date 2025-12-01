@@ -38,7 +38,7 @@ class ManageModules extends Page implements HasSchemas
 
     public static function canAccess(): bool
     {
-        return Options::get('enable-modules-manager', 'core::administration');
+        return Options::get('core::administration', 'enable-modules-manager');
     }
 
     public static function getNavigationLabel(): string

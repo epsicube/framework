@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace UniGale\Foundation\Managers;
 
-use UniGale\Support\Contracts\Module;
 use UniGale\Support\Contracts\OptionsStore;
 use UniGale\Support\Exceptions\DefinitionNotFoundException;
 use UniGale\Support\OptionsDefinition;
@@ -12,7 +11,7 @@ use UniGale\Support\OptionsDefinition;
 class OptionsManager
 {
     /** @var array<string, OptionsDefinition> */
-    protected array $moduleDefinitions = [];
+    protected array $definitions = [];
 
     /** @var array<string,mixed> */
     protected array $state = [];
@@ -27,18 +26,18 @@ class OptionsManager
 
     public function __construct(protected OptionsStore $store) {}
 
-    public function registerDefinition(string $moduleIdentifier, OptionsDefinition $definition): void
+    public function registerDefinition(string $group, OptionsDefinition $definition): void
     {
-        $this->moduleDefinitions[$moduleIdentifier] = $definition;
+        $this->definitions[$group] = $definition;
     }
 
-    public function getDefinition(string $moduleIdentifier): OptionsDefinition
+    public function getDefinition(string $group): OptionsDefinition
     {
-        if (! array_key_exists($moduleIdentifier, $this->moduleDefinitions)) {
-            throw new DefinitionNotFoundException($moduleIdentifier);
+        if (! array_key_exists($group, $this->definitions)) {
+            throw new DefinitionNotFoundException($group);
         }
 
-        return $this->moduleDefinitions[$moduleIdentifier];
+        return $this->definitions[$group];
     }
 
     /**
@@ -46,89 +45,76 @@ class OptionsManager
      */
     public function definitions(): array
     {
-        return $this->moduleDefinitions;
+        return $this->definitions;
 
     }
 
-    public function get(string $key, ?string $moduleIdentifier = null, bool $ignoreDefault = false): mixed
+    public function get(string $group, string $key, bool $ignoreDefault = false): mixed
     {
         $this->ensureAutoload();
 
-        if (! array_key_exists($key, $this->loadedKeys[$moduleIdentifier] ?? [])) {
-            $value = $this->store->get($key, $moduleIdentifier);
-            $this->state[$moduleIdentifier][$key] = $value;
-            $this->loadedKeys[$moduleIdentifier][$key] = true;
+        if (! array_key_exists($key, $this->loadedKeys[$group] ?? [])) {
+            $value = $this->store->get($key, $group);
+            $this->state[$group][$key] = $value;
+            $this->loadedKeys[$group][$key] = true;
         }
         if ($ignoreDefault) {
-            return $this->state[$moduleIdentifier][$key] ?? null;
+            return $this->state[$group][$key] ?? null;
         }
 
         return $this->applyDefaults(
-            moduleIdentifier: $moduleIdentifier,
-            options: [$key => $this->state[$moduleIdentifier][$key] ?? null]
+            group: $group,
+            options: [$key => $this->state[$group][$key] ?? null]
         )[$key];
     }
 
-    public function set(string $key, mixed $value, ?string $moduleIdentifier = null): void
+    public function set(string $group, string $key, mixed $value): void
     {
-        $this->state[$moduleIdentifier][$key] = $value;
-        $this->loadedKeys[$moduleIdentifier][$key] = true;
+        $this->state[$group][$key] = $value;
+        $this->loadedKeys[$group][$key] = true;
 
-        $this->store->set($key, $value, $moduleIdentifier);
+        $this->store->set($key, $value, $group);
     }
 
-    public function delete(string $key, ?string $moduleIdentifier = null): void
+    public function delete(string $group, string $key): void
     {
         unset(
-            $this->state[$moduleIdentifier][$key],
-            $this->loadedKeys[$moduleIdentifier][$key]
+            $this->state[$group][$key],
+            $this->loadedKeys[$group][$key]
         );
 
-        $this->store->delete($key, $moduleIdentifier);
+        $this->store->delete($key, $group);
     }
 
-    public function all(?string $moduleIdentifier = null): array
+    public function all(string $group): array
     {
-        if ($this->fullyLoaded[$moduleIdentifier] ?? false) {
-            return $this->state[$moduleIdentifier] ?? [];
+        if ($this->fullyLoaded[$group] ?? false) {
+            return $this->state[$group] ?? [];
         }
 
-        $results = $this->applyDefaults(
-            moduleIdentifier: $moduleIdentifier,
-            options: $this->store->all($moduleIdentifier),
-            insertMissing: true
-        );
+        $results = $this->applyDefaults(group: $group, options: $this->store->all($group), insertMissing: true);
 
-        $this->state[$moduleIdentifier] = array_merge(
-            $this->state[$moduleIdentifier] ?? [],
+        $this->state[$group] = array_merge(
+            $this->state[$group] ?? [],
             $results
         );
         foreach ($results as $k => $_) {
-            $this->loadedKeys[$moduleIdentifier][$k] = true;
+            $this->loadedKeys[$group][$k] = true;
         }
-        $this->fullyLoaded[$moduleIdentifier] = true;
+        $this->fullyLoaded[$group] = true;
 
-        return $this->state[$moduleIdentifier] ?? [];
-    }
-
-    public function clear(?string $moduleIdentifier = null): void
-    {
-        $this->state = [];
-        $this->loadedKeys = [];
-        $this->fullyLoaded = [];
-
-        $this->store->clear($moduleIdentifier);
+        return $this->state[$group] ?? [];
     }
 
     /**
-     * Inject default values into an options array according to the module definition.
+     * Inject default values into an options array according to the group definition.
      *
      * @param  array<string,mixed>  $options  The current options loaded from DB or state
      * @param  bool  $insertMissing  If true, missing defaults are inserted into state + marked as loaded
      */
-    protected function applyDefaults(?string $moduleIdentifier, array $options, bool $insertMissing = false, bool $keepUnregistered = false): array
+    protected function applyDefaults(string $group, array $options, bool $insertMissing = false, bool $keepUnregistered = false): array
     {
-        $definition = $this->getDefinition($moduleIdentifier);
+        $definition = $this->getDefinition($group);
 
         foreach (array_keys($definition->all()) as $key) {
             if (! array_key_exists($key, $options) && $insertMissing) {
@@ -152,10 +138,10 @@ class OptionsManager
         }
 
         $groupedKeys = [];
-        foreach ($this->moduleDefinitions as $moduleIdentifier => $definition) {
-            $moduleAutoloads = $definition->getAutoloads();
-            if (! empty($moduleAutoloads)) {
-                $groupedKeys[$moduleIdentifier] = $moduleAutoloads;
+        foreach ($this->definitions as $group => $definition) {
+            $autoloads = $definition->getAutoloads();
+            if (! empty($autoloads)) {
+                $groupedKeys[$group] = $autoloads;
             }
         }
 
@@ -166,10 +152,10 @@ class OptionsManager
         }
 
         $results = $this->store->getMultiples($groupedKeys);
-        foreach ($results as $moduleIdentifier => $values) {
+        foreach ($results as $group => $values) {
             foreach ($values as $key => $value) {
-                $this->state[$moduleIdentifier][$key] = $value;
-                $this->loadedKeys[$moduleIdentifier][$key] = true;
+                $this->state[$group][$key] = $value;
+                $this->loadedKeys[$group][$key] = true;
             }
         }
 

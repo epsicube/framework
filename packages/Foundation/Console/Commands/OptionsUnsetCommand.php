@@ -7,7 +7,6 @@ namespace UniGale\Foundation\Console\Commands;
 use Illuminate\Console\Command;
 use Illuminate\Contracts\Console\PromptsForMissingInput;
 use UniGale\Support\Exceptions\DefinitionNotFoundException;
-use UniGale\Support\Facades\Modules;
 use UniGale\Support\Facades\Options;
 
 use function Laravel\Prompts\error;
@@ -18,22 +17,22 @@ class OptionsUnsetCommand extends Command implements PromptsForMissingInput
 {
     protected $signature = '
         options:unset
-        {module : Module identifier}
+        {group : Group}
         {keys* : The option key(s) to unset}
     ';
 
     protected $aliases = ['o:us'];
 
-    protected $description = 'Unset an option value for a specific module';
+    protected $description = 'Unset an option value';
 
     public function handle(): int
     {
         // Module verification
-        $moduleIdentifier = $this->argument('module');
+        $group = $this->argument('group');
         try {
-            $definition = Options::getDefinition($moduleIdentifier);
+            $definition = Options::getDefinition($group);
         } catch (DefinitionNotFoundException $e) {
-            error("Options definition for module '{$moduleIdentifier}' not found");
+            error($e->getMessage());
 
             return self::FAILURE;
         }
@@ -41,22 +40,22 @@ class OptionsUnsetCommand extends Command implements PromptsForMissingInput
         foreach ($this->argument('keys') as $key) {
             // Key verification
             if (! $definition->has($key)) {
-                error("Unknown option '{$key}' for module '{$moduleIdentifier}'");
+                error("Unknown option '{$key}' for group '{$group}'");
 
                 return self::FAILURE;
             }
 
             // Current value
-            $currentValue = Options::get($key, $moduleIdentifier, true);
+            $currentValue = Options::get($group, $key, true);
             $defaultValue = $definition->getDefaultValue($key);
 
             // Delete the option
-            Options::delete($key, $moduleIdentifier);
+            Options::delete($group, $key);
 
             // Informative message
             $this->info(sprintf(
                 "Options '%s': '%s' unset, reverting from '%s' to default '%s'",
-                $moduleIdentifier,
+                $group,
                 $key,
                 json_encode($currentValue),
                 json_encode($defaultValue)
@@ -69,27 +68,16 @@ class OptionsUnsetCommand extends Command implements PromptsForMissingInput
     protected function promptForMissingArgumentsUsing(): array
     {
         return [
-            'module' => fn () => select(
-                label: 'Which module do you want to update?',
-                options: collect(Options::definitions())->map(
-                    fn ($_, string $moduleIdentifier) => Modules::safeGet($moduleIdentifier)?->identity()->name ?? $moduleIdentifier,
-                )->all(),
-                required: 'You must select at least one module'
+            'group' => fn () => select(
+                label: 'Which group do you want to update?',
+                options: array_keys(Options::definitions()),
+                required: 'You must select at least one group'
             ),
-            'keys' => function () {
-                $moduleIdentifier = $this->argument('module') ?? [];
-                try {
-                    $definition = Options::getDefinition($moduleIdentifier);
-                } catch (DefinitionNotFoundException $e) {
-                    return [];
-                }
-
-                return multiselect(
-                    label: 'Which key do you want to unset?',
-                    options: array_keys($definition->all()),
-                    required: 'You must select at least one key'
-                );
-            },
+            'keys' => fn () => multiselect(
+                label: 'Which key do you want to unset?',
+                options: array_keys(Options::getDefinition($this->argument('group'))->all()),
+                required: 'You must select at least one key'
+            ),
         ];
     }
 }

@@ -20,8 +20,7 @@ return new class extends Migration
                 ->constrained('cores', 'id')
                 ->cascadeOnUpdate()->cascadeOnDelete();
 
-            $table->string('module_identifier', 255)->nullable()->index();
-
+            $table->string('group', 255)->index();
             $table->string('key', 255)->index();
             $table->jsonb('value')->nullable();
             $table->boolean('autoload')->default(false)->index();
@@ -31,16 +30,7 @@ return new class extends Migration
                 ->storedAs('CASE WHEN core_id IS NULL THEN 0 ELSE core_id END')
                 ->comment('one option per [core,module,key]');
 
-            $table->string('_lock_module_identifier')
-                ->invisible()
-                ->storedAs("CASE WHEN module_identifier IS NULL THEN '__GLOBAL__RESERVED__' ELSE module_identifier END")
-                ->comment('one option per [core,module,key]');
-
-            $table->unique([
-                '_lock_core_id',
-                '_lock_module_identifier',
-                'key',
-            ]);
+            $table->unique(['_lock_core_id', 'group', 'key']);
         });
     }
 

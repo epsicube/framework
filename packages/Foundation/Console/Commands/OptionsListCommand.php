@@ -14,7 +14,7 @@ class OptionsListCommand extends Command
 {
     protected $signature = '
         options:list
-        {modules?* : Filter the output to specific module identifiers}
+        {groups?* : Filter the output to specific groups}
     ';
 
     protected $aliases = ['o:l'];
@@ -31,7 +31,7 @@ class OptionsListCommand extends Command
             return $noAnsi ? $text : "<{$ansi}>{$text}</>";
         };
         $headers = [
-            $fmt('Module', 'fg=cyan;options=bold'),
+            $fmt('Group', 'fg=cyan;options=bold'),
             $fmt('Key', 'fg=blue;options=bold'),
             $fmt('Value', 'fg=green;options=bold'),
             $fmt('Default', 'fg=magenta;options=bold'),
@@ -40,20 +40,20 @@ class OptionsListCommand extends Command
         ];
 
         $definitions = Options::definitions();
-        if ($modulesFilter = $this->argument('modules')) {
+        if ($groupsFilter = $this->argument('groups')) {
             $definitions = array_filter(
                 $definitions,
-                fn ($_, string $identifier) => in_array($identifier, $modulesFilter, true),
+                fn ($_, string $identifier) => in_array($identifier, $groupsFilter, true),
                 ARRAY_FILTER_USE_BOTH
             );
         }
 
-        $rows = collect($definitions)->map(function (OptionsDefinition $definition, string $moduleIdentifier) use (&$fmt) {
+        $rows = collect($definitions)->map(function (OptionsDefinition $definition, string $group) use (&$fmt) {
             return collect($definition->all())->map(fn (array $field, string $key) => [
-                $fmt($moduleIdentifier, 'fg=cyan;options=bold'),
+                $fmt($group, 'fg=cyan;options=bold'),
                 $fmt($key, 'fg=blue'),
 
-                $fmt(json_encode(Options::get($key, $moduleIdentifier, true)), 'fg=green'),
+                $fmt(json_encode(Options::get($group, $key, true)), 'fg=green'),
 
                 $fmt(json_encode($definition->getDefaultValue($key)), 'fg=magenta'),
                 $fmt($field['type'], 'fg=yellow'),

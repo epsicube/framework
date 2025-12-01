@@ -12,68 +12,58 @@ use UniGale\Support\Contracts\OptionsStore;
 
 class DatabaseOptionStore implements OptionsStore
 {
-    public function get(string $key, ?string $moduleIdentifier = null): mixed
-    {
-        return $this->withExceptionHandling(function () use ($key, $moduleIdentifier) {
-            $query = Option::query()->where('key', $key);
-
-            if ($moduleIdentifier === null) {
-                $query->whereNull('module_identifier');
-            } else {
-                $query->where('module_identifier', $moduleIdentifier);
-            }
-
-            return $query->value('value') ?? null;
-        });
-    }
-
     /**
-     * Set or update a value for a given key.
+     * {@inheritDoc}
      */
-    public function set(string $key, mixed $value, ?string $moduleIdentifier = null): void
-    {
-        Option::query()->updateOrCreate(
-            ['key' => $key, 'module_identifier' => $moduleIdentifier],
-            ['value' => $value, 'autoload' => $moduleIdentifier === null]
-        );
-    }
-
-    /**
-     * Delete an option.
-     */
-    public function delete(string $key, ?string $moduleIdentifier = null): void
-    {
-        Option::query()
-            ->where('key', $key)
-            ->when($moduleIdentifier, fn ($q) => $q->where('module_identifier', $moduleIdentifier))
-            ->when(! $moduleIdentifier, fn ($q) => $q->whereNull('module_identifier'))
-            ->delete();
-    }
-
-    /**
-     * Get all options for a scope.
-     *
-     * @return array<string, mixed>
-     */
-    public function all(?string $moduleIdentifier = null): array
+    public function get(string $key, string $group): mixed
     {
         return $this->withExceptionHandling(fn () => Option::query()
-            ->when($moduleIdentifier, fn ($q) => $q->where('module_identifier', $moduleIdentifier))
-            ->when(! $moduleIdentifier, fn ($q) => $q->whereNull('module_identifier'))
-            ->pluck('value', 'key')
-            ->toArray()
+            ->where('group', $group)
+            ->where('key', $key)
+            ->value('value') ?? null
         );
     }
 
     /**
-     * Clear all options for a scope.
+     * {@inheritDoc}
      */
-    public function clear(?string $moduleIdentifier = null): void
+    public function set(string $key, mixed $value, string $group): void
+    {
+        Option::query()->updateOrCreate(
+            ['key' => $key, 'group' => $group],
+            ['value' => $value, 'autoload' => true] // <- todo autoload from definition
+        );
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function delete(string $key, string $group): void
     {
         Option::query()
-            ->when($moduleIdentifier, fn ($q) => $q->where('module_identifier', $moduleIdentifier))
-            ->when(! $moduleIdentifier, fn ($q) => $q->whereNull('module_identifier'))
+            ->where('group', $group)
+            ->where('key', $key)
             ->delete();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function all(string $group): array
+    {
+        return $this->withExceptionHandling(fn () => Option::query()
+            ->where('group', $group)
+            ->pluck('value', 'key')
+            ->toArray()
+        ) ?? [];
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function clear(string $group): void
+    {
+        Option::query()->where('group', $group)->delete();
     }
 
     /**
@@ -81,23 +71,22 @@ class DatabaseOptionStore implements OptionsStore
      */
     public function getMultiples(array $groupedKeys = []): array
     {
-        $result = [];
-
-        if (empty($globalKeys) && empty($modulesKeys)) {
-            return $result;
+        if (empty($groupedKeys)) {
+            return [];
         }
 
         $query = Option::query()->where(0, '=', 1); // <- prevent loading all
 
-        foreach ($groupedKeys as $moduleIdentifier => $moduleKeys) {
-            if (empty($moduleKeys)) {
+        foreach ($groupedKeys as $group => $keys) {
+            if (empty($keys)) {
                 continue;
             }
-            $query->orWhere(fn (Builder $q) => $q->where('module_identifier', $moduleIdentifier)->whereIn('key', $moduleKeys));
+            $query->orWhere(fn (Builder $q) => $q->where('group', $group)->whereIn('key', $keys));
         }
 
-        foreach ($query->get(['key', 'value', 'module_identifier']) as $option) {
-            $result[$option->module_identifier][$option->key] = $option->value;
+        $result = [];
+        foreach ($query->get(['key', 'value', 'group']) as $option) {
+            $result[$option->group][$option->key] = $option->value;
         }
 
         return $result;

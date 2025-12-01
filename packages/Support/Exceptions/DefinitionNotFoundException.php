@@ -9,10 +9,9 @@ use Throwable;
 
 class DefinitionNotFoundException extends RuntimeException
 {
-    public function __construct(?string $moduleIdentifier = null, int $code = 0, ?Throwable $previous = null)
+    public function __construct(string $group, int $code = 0, ?Throwable $previous = null)
     {
-        $scope = $moduleIdentifier !== null ? "module '{$moduleIdentifier}'" : 'global scope';
-        $message = "Definition not found for {$scope}.";
+        $message = "Definition not found for group '{$group}'.";
 
         parent::__construct($message, $code, $previous);
     }

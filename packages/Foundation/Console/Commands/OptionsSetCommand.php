@@ -7,9 +7,7 @@ namespace UniGale\Foundation\Console\Commands;
 use Illuminate\Console\Command;
 use Illuminate\Contracts\Console\PromptsForMissingInput;
 use InvalidArgumentException;
-use UniGale\Support\Contracts\Module;
 use UniGale\Support\Exceptions\DefinitionNotFoundException;
-use UniGale\Support\Facades\Modules;
 use UniGale\Support\Facades\Options;
 
 use function Laravel\Prompts\error;
@@ -21,23 +19,23 @@ class OptionsSetCommand extends Command implements PromptsForMissingInput
 {
     protected $signature = '
         options:set
-        {module : Module identifier}
+        {group : Group}
         {key : The option key to update}
         {value : The new value to set}
     ';
 
     protected $aliases = ['o:s'];
 
-    protected $description = 'Set an option value for a specific module';
+    protected $description = 'Set an option value';
 
     public function handle(): int
     {
-        // Module verification
-        $moduleIdentifier = $this->argument('module');
+        // Group verification
+        $group = $this->argument('group');
         try {
-            $definition = Options::getDefinition($moduleIdentifier);
+            $definition = Options::getDefinition($group);
         } catch (DefinitionNotFoundException $e) {
-            error("Options definition for module '{$moduleIdentifier}' not found");
+            error($e->getMessage());
 
             return self::FAILURE;
         }
@@ -45,13 +43,13 @@ class OptionsSetCommand extends Command implements PromptsForMissingInput
         // Key verification
         $key = $this->argument('key');
         if (! $definition->has($key)) {
-            error("Unknown option '{$key}' for module '{$moduleIdentifier}'");
+            error("Unknown option '{$key}' for group '{$group}'");
 
             return self::FAILURE;
         }
 
         // Applying value
-        $currentValue = Options::get($key, $moduleIdentifier, true);
+        $currentValue = Options::get($group, $key, true);
         $value = $this->argument('value');
 
         // TODO ENUM IN DEFINTION FOR TYPES WITH validate, ...
@@ -68,11 +66,11 @@ class OptionsSetCommand extends Command implements PromptsForMissingInput
                 "Unsupported type '".$definition->all()[$key]['type']."' for key '{$key}'."
             ),
         };
-        Options::set($key, $typedValue, $moduleIdentifier);
+        Options::set($group, $key, $typedValue);
 
         info(sprintf(
             "Option '%s': '%s' updated from '%s' to '%s'",
-            $moduleIdentifier,
+            $group,
             $key,
             json_encode($currentValue),
             json_encode($typedValue)
@@ -84,27 +82,16 @@ class OptionsSetCommand extends Command implements PromptsForMissingInput
     protected function promptForMissingArgumentsUsing(): array
     {
         return [
-            'module' => fn () => select(
-                label: 'Which module do you want to update?',
-                options: collect(Options::definitions())->map(
-                    fn ($_, string $moduleIdentifier) => Modules::safeGet($moduleIdentifier)?->identity()->name ?? $moduleIdentifier,
-                )->all(),
-                required: 'You must select at least one module'
+            'group' => fn () => select(
+                label: 'Which group do you want to update?',
+                options: array_keys(Options::definitions()),
+                required: 'You must select at least one group'
             ),
-            'key' => function () {
-                $moduleIdentifier = $this->argument('module') ?? [];
-                try {
-                    $definition = Options::getDefinition($moduleIdentifier);
-                } catch (DefinitionNotFoundException $e) {
-                    return [];
-                }
-
-                return select(
-                    label: 'Which key do you want to modify?',
-                    options: array_keys($definition->all()),
-                    required: 'You must select at least one key'
-                );
-            },
+            'key' => fn () => select(
+                label: 'Which key do you want to modify?',
+                options: array_keys(Options::getDefinition($this->argument('group'))->all()),
+                required: 'You must select at least one key'
+            ),
 
             'value' => fn () => text(
                 label: 'Enter the new value for the selected key:'
