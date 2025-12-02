@@ -15,6 +15,7 @@
     "ext-intl": "*",
     "php": "^8.3",
     "laravel/framework": "^12.8",
+    "laravel/mcp": "^0.4",
     "spatie/mjml-php": "^1.2.5",
     "phiki/phiki": "^2.0.4",
     "codeat3/blade-clarity-icons": "^1.8",
@@ -76,7 +77,8 @@
         "UniGaleModules\\Administration\\AdministrationModule",
         "UniGaleModules\\ExecutionPlatform\\ExecutionPlatformModule",
         "UniGaleModules\\Hypercore\\HypercoreModule",
-        "UniGaleModules\\MailingSystem\\MailingSystemModule"
+        "UniGaleModules\\MailingSystem\\MailingSystemModule",
+        "UniGaleModules\\McpServer\\McpServerModule"
       ],
       "hypercore": {
         "adapters": [

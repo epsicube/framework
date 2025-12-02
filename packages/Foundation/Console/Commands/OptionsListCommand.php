@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace UniGale\Foundation\Console\Commands;
 
 use Illuminate\Console\Command;
+use Illuminate\Support\Str;
 use UniGale\Support\Facades\Options;
 use UniGale\Support\OptionsDefinition;
 
@@ -52,9 +53,9 @@ class OptionsListCommand extends Command
                 $fmt($group, 'fg=cyan;options=bold'),
                 $fmt($key, 'fg=blue'),
 
-                $fmt(json_encode(Options::get($group, $key, true)), 'fg=green'),
+                $fmt(Str::limit(json_encode(Options::get($group, $key, true)), 50), 'fg=green'),
 
-                $fmt(json_encode($definition->getDefaultValue($key)), 'fg=magenta'),
+                $fmt(Str::limit(json_encode($definition->getDefaultValue($key)), 50), 'fg=magenta'),
                 $fmt($field['type'], 'fg=yellow'),
             ])->all();
         })->flatten(1)->all();

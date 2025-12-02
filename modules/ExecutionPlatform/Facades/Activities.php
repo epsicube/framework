@@ -10,7 +10,7 @@ use UniGaleModules\ExecutionPlatform\Registries\ActivitiesRegistry;
 
 class Activities extends Facade
 {
-    public static string $accessor = 'activities';
+    public static string $accessor = ActivitiesRegistry::class;
 
     protected static function getFacadeAccessor(): string
     {

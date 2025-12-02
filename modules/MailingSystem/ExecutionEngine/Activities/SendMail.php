@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace UniGaleModules\MailingSystem\ExecutionEngine\Activities;
 
+use Illuminate\JsonSchema\JsonSchema;
 use UniGaleModules\ExecutionPlatform\Contracts\Activity;
 use UniGaleModules\MailingSystem\Mails\UnigaleMail;
 
@@ -22,9 +23,34 @@ class SendMail implements Activity
         return __('Send Mail');
     }
 
+    public function description(): string
+    {
+        return __('Sends an email using the configured mailer, template, recipients, and contextual data.');
+    }
+
     public static function make(): static
     {
         return new static;
+    }
+
+    // TODO custom schema module
+    public function inputSchema(): array
+    {
+        return [
+            'mailer'   => JsonSchema::string()->required(),
+            'template' => JsonSchema::string()->required(),
+            'subject'  => JsonSchema::string()->required(),
+            'to'       => JsonSchema::array()->items(
+                JsonSchema::string()->format('email')->required(),
+            ),
+            'cc' => JsonSchema::array()->items(
+                JsonSchema::string()->format('email')->required(),
+            ),
+            'bcc' => JsonSchema::array()->items(
+                JsonSchema::string()->format('email')->required(),
+            ),
+            'data' => JsonSchema::object([]),
+        ];
     }
 
     /**
@@ -45,5 +71,13 @@ class SendMail implements Activity
         $message = $mail->send();
 
         return ['messageId' => $message->getMessageId()];
+    }
+
+    // TODO custom schema module
+    public function outputSchema(): array
+    {
+        return [
+            'messageId' => JsonSchema::string()->required(),
+        ];
     }
 }

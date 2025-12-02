@@ -14,6 +14,7 @@ use UniGaleModules\ExecutionPlatform\Console\Commands\ListCommand;
 use UniGaleModules\ExecutionPlatform\Facades\Activities;
 use UniGaleModules\ExecutionPlatform\Facades\Workflows;
 use UniGaleModules\ExecutionPlatform\Integrations\Administration\AdministrationIntegration;
+use UniGaleModules\ExecutionPlatform\Integrations\McpServer\McpServerIntegration;
 use UniGaleModules\ExecutionPlatform\Registries\ActivitiesRegistry;
 use UniGaleModules\ExecutionPlatform\Registries\WorkflowsRegistry;
 
@@ -37,8 +38,12 @@ class ExecutionPlatformModule extends ServiceProvider implements HasIntegrations
 
     public function register(): void
     {
-        $this->app->singleton(Workflows::$accessor, WorkflowsRegistry::class);
-        $this->app->singleton(Activities::$accessor, ActivitiesRegistry::class);
+        $this->app->singleton(Workflows::$accessor, function () {
+            return new WorkflowsRegistry;
+        });
+        $this->app->singleton(Activities::$accessor, function () {
+            return new ActivitiesRegistry;
+        });
     }
 
     public function boot(): void
@@ -52,6 +57,9 @@ class ExecutionPlatformModule extends ServiceProvider implements HasIntegrations
         return Integrations::make()->forModule(
             identifier: 'core::administration',
             whenEnabled: [AdministrationIntegration::class, 'handle']
+        )->forModule(
+            identifier: 'core::mcp-server',
+            whenEnabled: [McpServerIntegration::class, 'handle']
         );
     }
 }
