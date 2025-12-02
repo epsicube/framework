@@ -11,6 +11,7 @@ use UniGale\Support\Contracts\HasOptions;
 use UniGale\Support\Contracts\Module;
 use UniGale\Support\ModuleIdentity;
 use UniGale\Support\OptionsDefinition;
+use UniGaleModules\McpServer\Console\Commands\ServeCommand;
 use UniGaleModules\McpServer\Facades\Tools;
 use UniGaleModules\McpServer\Mcp\Servers\McpServer;
 use UniGaleModules\McpServer\Registries\ToolsRegistry;
@@ -48,13 +49,13 @@ class McpServerModule extends ServiceProvider implements HasOptions, Module
             type: 'string',
             default: fn () => __(<<<'markdown'
             This server allows you to:
-            
+
             - Interact with **business processes**.
             - Retrieve and manage **internal resources**.
             - Execute a variety of **internal actions**.
-            
+
             Use this server to:
-            
+
             1. Streamline operations.
             2. Automate tasks efficiently.
             3. Ensure seamless communication within the system.
@@ -71,8 +72,11 @@ class McpServerModule extends ServiceProvider implements HasOptions, Module
 
         $this->app->booted(function () {
             Mcp::web('/mcp', McpServer::class);
+            Mcp::local('unigale', McpServer::class);
         });
     }
 
-    public function boot(): void {}
+    public function boot(): void {
+
+    }
 }

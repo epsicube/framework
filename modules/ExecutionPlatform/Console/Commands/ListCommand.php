@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace UniGaleModules\ExecutionPlatform\Console\Commands;
 
 use Illuminate\Console\Command;
+use Illuminate\Support\Str;
 use UniGaleModules\ExecutionPlatform\Contracts\Activity;
 use UniGaleModules\ExecutionPlatform\Contracts\Workflow;
 use UniGaleModules\ExecutionPlatform\Facades\Activities;
@@ -34,18 +35,21 @@ class ListCommand extends Command
             $fmt('Workflow', 'fg=magenta'),
             $fmt($workflow->identifier(), 'fg=cyan;options=bold'),
             $fmt($workflow->label(), 'fg=yellow'),
+            $fmt(Str::limit('TODO',50), 'fg=white'),
         ], Workflows::all());
 
         $activities = array_map(fn (Activity $activity) => [
             $fmt('Activity', 'fg=magenta'),
             $fmt($activity->identifier(), 'fg=cyan;options=bold'),
             $fmt($activity->label(), 'fg=yellow'),
+            $fmt(Str::limit($activity->description(),50), 'fg=white'),
         ], Activities::all());
 
         $headers = [
             $fmt('Type', 'fg=magenta;options=bold'),
             $fmt('Identifier', 'fg=cyan;options=bold'),
             $fmt('Name', 'fg=yellow;options=bold'),
+            $fmt('Description', 'fg=white;options=bold'),
         ];
         table($headers, [...$workflows, ...$activities]);
     }
