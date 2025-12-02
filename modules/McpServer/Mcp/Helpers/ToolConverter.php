@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace UniGaleModules\McpServer\Mcp\Helpers;
 
 use Illuminate\Contracts\JsonSchema\JsonSchema;
-use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Log;
 use Laravel\Mcp\Request;
 use Laravel\Mcp\Response;
 use Laravel\Mcp\ResponseFactory;
@@ -14,11 +14,13 @@ use UniGaleModules\McpServer\Contracts\Tool as ToolContract;
 
 class ToolConverter extends Tool
 {
-    public function __construct(protected string $identifier, protected ToolContract $tool) {}
+    public function __construct(protected string $identifier, protected ToolContract $tool)
+    {
+    }
 
     public function name(): string
     {
-        return str($this->identifier)->replace(':','-')->slug()->toString();
+        return str($this->identifier)->replace(':', '-')->slug()->toString();
     }
 
     public function title(): string
@@ -46,8 +48,9 @@ class ToolConverter extends Tool
         //            'location' => 'required|string|max:100',
         //            'units'    => 'in:celsius,fahrenheit',
         //        ]);
-
+        Log::debug('calling', $inputs);
         $result = $this->tool->handle($inputs);
+        Log::debug('result', $result);
 
         return Response::structured($result);
     }
