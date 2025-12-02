@@ -40,16 +40,22 @@ class SendMail implements Activity
             'mailer'   => JsonSchema::string()->required(),
             'template' => JsonSchema::string()->required(),
             'subject'  => JsonSchema::string()->required(),
-            'to'       => JsonSchema::array()->items(
+
+            'to' => JsonSchema::array()->items(
                 JsonSchema::string()->format('email')->required(),
             ),
+
             'cc' => JsonSchema::array()->items(
                 JsonSchema::string()->format('email')->required(),
             ),
+
             'bcc' => JsonSchema::array()->items(
                 JsonSchema::string()->format('email')->required(),
             ),
-            'data' => JsonSchema::object([]),
+
+            'template_configuration' => JsonSchema::object([
+                'content' => JsonSchema::string(),
+            ]),
         ];
     }
 

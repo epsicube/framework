@@ -6,15 +6,15 @@ namespace UniGaleModules\McpServer;
 
 use Carbon\Laravel\ServiceProvider;
 use Composer\InstalledVersions;
-use Illuminate\Support\Str;
 use Laravel\Mcp\Facades\Mcp;
 use UniGale\Support\Contracts\HasOptions;
 use UniGale\Support\Contracts\Module;
 use UniGale\Support\ModuleIdentity;
 use UniGale\Support\OptionsDefinition;
-use UniGaleModules\McpServer\Console\Commands\ServeCommand;
+use UniGaleModules\McpServer\Facades\Resources;
 use UniGaleModules\McpServer\Facades\Tools;
 use UniGaleModules\McpServer\Mcp\Servers\McpServer;
+use UniGaleModules\McpServer\Registries\ResourcesRegistry;
 use UniGaleModules\McpServer\Registries\ToolsRegistry;
 
 class McpServerModule extends ServiceProvider implements HasOptions, Module
@@ -71,13 +71,16 @@ class McpServerModule extends ServiceProvider implements HasOptions, Module
         });
         $this->app->alias('mcp-tools', Tools::$accessor);
 
+        $this->app->singleton('mcp-resources', function () {
+            return new ResourcesRegistry;
+        });
+        $this->app->alias('mcp-resources', Resources::$accessor);
+
         $this->app->booted(function () {
             Mcp::web('/mcp', McpServer::class);
             Mcp::local('unigale', McpServer::class);
         });
     }
 
-    public function boot(): void {
-
-    }
+    public function boot(): void {}
 }

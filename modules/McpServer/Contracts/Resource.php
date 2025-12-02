@@ -7,13 +7,11 @@ namespace UniGaleModules\McpServer\Contracts;
 use UniGale\Support\Contracts\HasLabel;
 use UniGale\Support\Contracts\Registrable;
 
-interface Tool extends HasLabel, Registrable
+interface Resource extends HasLabel, Registrable
 {
     public function description(): string;
 
-    public function inputSchema(): array;
+    public function content(): mixed;
 
-    public function outputSchema(): array;
-
-    public function handle(array $inputs = []): mixed;
+    public function contentType(): string;
 }

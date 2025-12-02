@@ -1,16 +1,17 @@
 {
-    "mcpServers": {
-        "unigale": {
-            "command": "docker",
-            "args": [
-                "exec",
-                "-i",
-                "unigale-dev-1",
-                "php",
-                "artisan",
-                "mcp:start",
-                "unigale"
-            ]
-        }
+  "mcpServers": {
+    "unigale": {
+      "command": "docker",
+      "args": [
+        "compose",
+        "run",
+        "--rm",
+        "dev",
+        "php",
+        "artisan",
+        "mcp:start",
+        "unigale"
+      ]
     }
+  }
 }
