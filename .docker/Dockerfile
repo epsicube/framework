@@ -67,6 +67,7 @@ RUN mkdir -p $XDG_CONFIG_HOME $XDG_DATA_HOME $XDG_CACHE_HOME && \
 RUN echo "alias testbench='./vendor/bin/testbench'" >> /home/nonroot/.bashrc
 RUN echo "alias artisan='./vendor/bin/testbench'" >> /home/nonroot/.bashrc
 
+ENV HOST="0.0.0.0"
 ENV SERVER_NAME=":80"
 ENV SERVER_ROOT="/app/.laravel/public"
 

@@ -1,23 +1,28 @@
 name: 'unigale'
 services:
-    dev:
-        build:
-            context: .docker
-            args:
-                DOCKER_GID: '${DOCKER_GID:-1000}'
-                DOCKER_UID: '${DOCKER_UID:-1000}'
-                PHP_EXTENSIONS: '${PHP_EXTENSIONS:-bcmath curl intl mbstring opcache pcntl pcov pdo_sqlite readline sockets xdebug xml zip}'
-        ports:
-            - "80:80"
-            - "4321:4321"
-        extra_hosts:
-            - 'host.docker.internal:host-gateway'
-        volumes:
-            - './:/app'
-        networks:
-            - unigale
+  dev:
+    build:
+      context: .docker
+      args:
+        DOCKER_GID: '${DOCKER_GID:-1000}'
+        DOCKER_UID: '${DOCKER_UID:-1000}'
+        PHP_EXTENSIONS: '${PHP_EXTENSIONS:-bcmath curl intl mbstring opcache pcntl pcov pdo_sqlite readline sockets xdebug xml zip}'
+    ports:
+      - "80:80"
+      - "4321:4321" # Documentation
+      - "6274:6274" # Mcp Inspector UI
+      - "6277:6277" # Mcp Inspector Proxy
+    extra_hosts:
+      - 'host.docker.internal:host-gateway'
+    environment:
+      DANGEROUSLY_OMIT_AUTH: true
+    volumes:
+      - './:/app'
+    networks:
+      - unigale
+
 networks:
-    unigale:
-        driver: bridge
+  unigale:
+    driver: bridge
 
 
