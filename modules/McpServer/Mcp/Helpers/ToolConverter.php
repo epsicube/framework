@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace UniGaleModules\McpServer\Mcp\Helpers;
 
 use Illuminate\Contracts\JsonSchema\JsonSchema;
+use Illuminate\Support\Str;
 use Laravel\Mcp\Request;
 use Laravel\Mcp\Response;
 use Laravel\Mcp\ResponseFactory;
@@ -17,7 +18,7 @@ class ToolConverter extends Tool
 
     public function name(): string
     {
-        return $this->identifier;
+        return str($this->identifier)->replace(':','-')->slug()->toString();
     }
 
     public function title(): string

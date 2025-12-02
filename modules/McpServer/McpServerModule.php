@@ -6,6 +6,7 @@ namespace UniGaleModules\McpServer;
 
 use Carbon\Laravel\ServiceProvider;
 use Composer\InstalledVersions;
+use Illuminate\Support\Str;
 use Laravel\Mcp\Facades\Mcp;
 use UniGale\Support\Contracts\HasOptions;
 use UniGale\Support\Contracts\Module;
