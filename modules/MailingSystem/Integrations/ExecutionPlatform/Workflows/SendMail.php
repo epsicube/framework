@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace UniGaleModules\MailingSystem\ExecutionEngine\Workflows;
+namespace UniGaleModules\MailingSystem\Integrations\ExecutionPlatform\Workflows;
 
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Select;
@@ -11,9 +11,9 @@ use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Utilities\Get;
 use UniGaleModules\ExecutionPlatform\Concerns\Workflow;
 use UniGaleModules\ExecutionPlatform\Contracts\HasInputSchema;
-use UniGaleModules\MailingSystem\ExecutionEngine\Activities\SendMail as SendMailActivity;
 use UniGaleModules\MailingSystem\Facades\Mailers;
 use UniGaleModules\MailingSystem\Facades\Templates;
+use UniGaleModules\MailingSystem\Integrations\ExecutionPlatform\Activities\SendMail as SendMailActivity;
 
 class SendMail extends Workflow implements HasInputSchema
 {

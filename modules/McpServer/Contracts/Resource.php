@@ -11,7 +11,7 @@ interface Resource extends HasLabel, Registrable
 {
     public function description(): string;
 
-    public function content(): mixed;
+    public function content(): string;
 
     public function contentType(): string;
 }

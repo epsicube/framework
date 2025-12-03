@@ -2,10 +2,12 @@
 
 declare(strict_types=1);
 
-namespace UniGaleModules\MailingSystem\ExecutionEngine\Activities;
+namespace UniGaleModules\MailingSystem\Integrations\ExecutionPlatform\Activities;
 
 use Illuminate\JsonSchema\JsonSchema;
 use UniGaleModules\ExecutionPlatform\Contracts\Activity;
+use UniGaleModules\MailingSystem\Facades\Mailers;
+use UniGaleModules\MailingSystem\Facades\Templates;
 use UniGaleModules\MailingSystem\Mails\UnigaleMail;
 
 class SendMail implements Activity
@@ -37,8 +39,8 @@ class SendMail implements Activity
     public function inputSchema(): array
     {
         return [
-            'mailer'   => JsonSchema::string()->required(),
-            'template' => JsonSchema::string()->required(),
+            'mailer'   => JsonSchema::string()->enum(array_keys(Mailers::all()))->required(),
+            'template' => JsonSchema::string()->enum(array_keys(Templates::all()))->required(),
             'subject'  => JsonSchema::string()->required(),
 
             'to' => JsonSchema::array()->items(

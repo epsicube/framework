@@ -11,14 +11,12 @@ use UniGale\Support\Contracts\HasIntegrations;
 use UniGale\Support\Contracts\Module;
 use UniGale\Support\Integrations;
 use UniGale\Support\ModuleIdentity;
-use UniGaleModules\ExecutionPlatform\Facades\Activities;
-use UniGaleModules\ExecutionPlatform\Facades\Workflows;
-use UniGaleModules\MailingSystem\ExecutionEngine\Activities\SendMail as SendMailActivity;
-use UniGaleModules\MailingSystem\ExecutionEngine\Workflows\SendMail as SendMailWorkflow;
 use UniGaleModules\MailingSystem\Facades\Mailers;
 use UniGaleModules\MailingSystem\Facades\Templates;
+use UniGaleModules\MailingSystem\Integrations\ExecutionPlatform\ExecutionPlatformIntegration;
 use UniGaleModules\MailingSystem\Mails\Mailer\LaravelMailer;
 use UniGaleModules\MailingSystem\Mails\Templates\Blank;
+use UniGaleModules\MailingSystem\Mails\Templates\Html;
 use UniGaleModules\MailingSystem\Registries\MailersRegistry;
 use UniGaleModules\MailingSystem\Registries\TemplatesRegistry;
 
@@ -59,7 +57,7 @@ class MailingSystemModule extends ServiceProvider implements DeferrableProvider,
 
         $this->app->singleton(Templates::$accessor, function () {
             $registry = new TemplatesRegistry;
-            $registry->register(new Blank);
+            $registry->register(new Blank, new Html);
 
             return $registry;
         });
@@ -74,10 +72,7 @@ class MailingSystemModule extends ServiceProvider implements DeferrableProvider,
     {
         return Integrations::make()->forModule(
             identifier: 'core::execution-platform',
-            whenEnabled: function () {
-                Activities::register(new SendMailActivity);
-                Workflows::register(new SendMailWorkflow);
-            }
+            whenEnabled: [ExecutionPlatformIntegration::class, 'handle']
         );
     }
 }

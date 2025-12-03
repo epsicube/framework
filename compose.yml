@@ -21,6 +21,13 @@ services:
     networks:
       - unigale
 
+  mailpit:
+    image: 'axllent/mailpit:latest'
+    ports:
+      - '8025:8025'
+    networks:
+      - unigale
+
 networks:
   unigale:
     driver: bridge
