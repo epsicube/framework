@@ -120,9 +120,9 @@ class WorkCommand extends Command
      * Unified log method with timestamp and optional key.
      *
      * @param  string  $type  'info'|'warn'|'line'
-     * @param  string  $key  Optional key for prefix, default 'Supervisor'
+     * @param  string  $key  Optional key for prefix, default 'supervisor'
      */
-    protected function log(string $message, string $type = 'info', string $key = 'Supervisor'): void
+    protected function log(string $message, string $type = 'info', string $key = 'supervisor'): void
     {
         $time = date('H:i:s');
         $formatted = "[{$time}] [{$key}] {$message}";
