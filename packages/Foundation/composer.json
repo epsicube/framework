@@ -12,7 +12,7 @@
     "ext-pcntl": "*",
     "ext-posix": "*",
     "php": "^8.3",
-    "laravel/framework": "^12.8",
+    "laravel/framework": "^12.41",
     "unigale/support": "*"
   },
   "autoload": {

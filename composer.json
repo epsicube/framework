@@ -14,7 +14,7 @@
   "require": {
     "ext-intl": "*",
     "php": "^8.3",
-    "laravel/framework": "^12.8",
+    "laravel/framework": "^12.41",
     "laravel/mcp": "^0.4",
     "spatie/mjml-php": "^1.2.5",
     "phiki/phiki": "^2.0.4",
@@ -22,7 +22,7 @@
     "filament/filament": "^v4.0.0-beta5"
   },
   "replace": {
-    "unigale/contracts": "self.version",
+    "unigale/support": "self.version",
     "unigale/foundation": "self.version",
     "unigale/module-accounts-manager": "self.version",
     "unigale/module-administration": "self.version",
