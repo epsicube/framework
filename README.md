@@ -1,14 +1,12 @@
 # Epsicube Framework
 
-A modular and extensible foundation for building Laravel‑based applications.
+[![License](https://img.shields.io/github/license/epsicube/framework?color=blue)](https://github.com/epsicube/framework/blob/main/LICENSE)
 
+Epsicube Framework provides a clean architecture for structuring applications around independent modules and shared packages. 
 
-## Overview
-
-Epsicube Framework provides a clean architecture for structuring applications around independent modules and shared packages. It is designed to improve maintainability, scalability, and reusability by encouraging strict separation of concerns.
+It is designed to improve maintainability, scalability, and reusability by encouraging strict separation of concerns.
 
 For full documentation, please consult **[https://epsicube.dev](https://epsicube.dev)**.
-
 
 ## Features
 
@@ -19,8 +17,19 @@ For full documentation, please consult **[https://epsicube.dev](https://epsicube
 
 ## Contributing
 
-Contributions are welcome. Open an issue or submit a pull request following standard Git workflow practices.
+Contributions are welcome.
 
+1. Fork the repository.
+2. Create a new branch for your feature or bugfix.
+3. Commit your changes.
+4. Push your branch.
+5. Create a pull request.
+
+## Credits
+
+- [COLANT Alan](https://github.com/alancolant)
+- [All Contributors](../../contributors)
+- 
 ## License
 
-Released under the **MIT License**.
+MIT. See the [License File](LICENSE) for more information.
