@@ -5,14 +5,14 @@ import mermaid from 'astro-mermaid';
 
 // https://astro.build/config
 export default defineConfig({
-    site: 'https://unigale.quix-labs.com',
+    site: 'https://epsicube.dev',
     integrations: [
         mermaid({}),
         starlight({
-            title: 'Unigale Framework',
-            social: [{icon: 'github', label: 'GitHub', href: 'https://github.com/unigale/framework'}],
+            title: 'Epsicube Framework',
+            social: [{icon: 'github', label: 'GitHub', href: 'https://github.com/epsicube/framework'}],
             editLink: {
-                baseUrl: 'https://github.com/unigale/framework/edit/main/docs/',
+                baseUrl: 'https://github.com/epsicube/framework/edit/main/docs/',
             },
             sidebar: [
                 {

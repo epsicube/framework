@@ -16,11 +16,11 @@ It includes a native module manager, allowing you to enable or disable modules d
 1. ### Install the package
 
     <Aside type="tip">
-    If you are using `unigale/framework`, this module is included by default, skip this step.
+    If you are using `epsicube/framework`, this module is included by default, skip this step.
     </Aside>
 
     ```bash
-    composer require unigale/module-administration
+    composer require epsicube/module-administration
     ```
 
 2. ### Enable the module
@@ -68,7 +68,7 @@ This allows you to register additional resources, pages, widgets, or apply advan
 ## Example: Adding Custom Filament Resources
 
 ```php
-use UniGaleModules\Administration\Administration;
+use EpsicubeModules\Administration\Administration;
 
 class YourCustomModule extends ServiceProvider implements HasIntegrations, Module
 {

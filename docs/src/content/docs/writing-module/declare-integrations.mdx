@@ -20,11 +20,11 @@ They allow you to register behavior or resources that execute **only when a targ
 <br/>
 <Steps>
 1. ### Implement the Interface
-   Your module must implement the [`UniGale\Support\Contracts\HasIntegrations`](https://github.com/unigale/framework/blob/main/packages/Support/Contracts/HasIntegrations.php) interface.
+   Your module must implement the [`Epsicube\Support\Contracts\HasIntegrations`](https://github.com/epsicube/framework/blob/main/packages/Support/Contracts/HasIntegrations.php) interface.
 
    ```php
-   use UniGale\Support\Contracts\HasIntegrations;
-   use UniGale\Support\Integrations;
+   use Epsicube\Support\Contracts\HasIntegrations;
+   use Epsicube\Support\Integrations;
 
    class YourModule extends ServiceProvider implements HasIntegrations, Module
    {

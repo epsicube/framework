@@ -20,11 +20,11 @@ Options can be managed either via the **CLI** or the **Administration interface*
 <br/>
 <Steps>
 1. ### Implement the Interface
-   Your module must implement the [`UniGale\Support\Contracts\HasOptions`](https://github.com/unigale/framework/blob/main/packages/Support/Contracts/HasOptions.php) interface.
+   Your module must implement the [`Epsicube\Support\Contracts\HasOptions`](https://github.com/epsicube/framework/blob/main/packages/Support/Contracts/HasOptions.php) interface.
 
     ```php
-    use UniGale\Support\Contracts\HasOptions;
-    use UniGale\Support\OptionsDefinition;
+    use Epsicube\Support\Contracts\HasOptions;
+    use Epsicube\Support\OptionsDefinition;
 
     class ExternalApiModule extends ServiceProvider implements HasOptions, Module
     {
@@ -57,7 +57,7 @@ Options can be managed either via the **CLI** or the **Administration interface*
    </Aside>
 
    ```php
-   use UniGale\Support\Facades\Options;
+   use Epsicube\Support\Facades\Options;
 
    // Retrieve all options for a module
    Options::all('your-module-identifier');

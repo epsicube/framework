@@ -7,7 +7,7 @@ draft: true
 
 # Multi-Core Architecture
 
-Unigale can manage multiple “cores” within the same application.
+Epsicube can manage multiple “cores” within the same application.
 This experimental feature allows the primary application to spawn, configure, and control subordinate applications
 dynamically.
 

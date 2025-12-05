@@ -3,7 +3,7 @@ title: "Registries"
 description: "Manage and persist key–value options for modules and global configuration."
 ---
 
-Unigale exposes shared registries for:
+Epsicube exposes shared registries for:
 
 * Modules
 * Integrations

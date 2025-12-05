@@ -8,4 +8,4 @@ The Options Store is responsible for storing and retrieving key–value options 
 
 Developers may implement their own storage drivers to customize how global or module-specific options are persisted.
 
-By default, Unigale uses the `options` database table to store all key–value entries.
+By default, Epsicube uses the `options` database table to store all key–value entries.

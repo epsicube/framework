@@ -27,10 +27,10 @@ The **Execution Platform** enables modules to define and execute **Activities** 
 <Steps>
 1. ### Install the Package
     <Aside type="tip">
-    If you are using `unigale/framework`, this module is included by default, skip this step.
+    If you are using `epsicube/framework`, this module is included by default, skip this step.
     </Aside>
     ```bash
-    composer require unigale/module-execution-platform
+    composer require epsicube/module-execution-platform
     ```
 
 2. ### Enable the Module
@@ -53,15 +53,15 @@ Modules can inject custom Activities and Workflows through **[Integrations](/wri
 When the Execution Platform is active, you can extend its registries:
 
 ```php
-\UniGaleModules\ExecutionPlatform\Facades\Activities::register(...);
-\UniGaleModules\ExecutionPlatform\Facades\Workflows::register(...);
+\EpsicubeModules\ExecutionPlatform\Facades\Activities::register(...);
+\EpsicubeModules\ExecutionPlatform\Facades\Workflows::register(...);
 ```
 
 ### Example: Register a Custom Activity and Workflow
 
 ```php
-use UniGaleModules\ExecutionPlatform\Facades\Activities;
-use UniGaleModules\ExecutionPlatform\Facades\Workflows;
+use EpsicubeModules\ExecutionPlatform\Facades\Activities;
+use EpsicubeModules\ExecutionPlatform\Facades\Workflows;
 
 class MailModule extends ServiceProvider implements HasIntegrations, Module
 {

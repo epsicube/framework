@@ -23,11 +23,11 @@ Dependencies are checked automatically when enabling modules via the **Administr
 <Steps>
 1. ### Implement the Interface
 
-   Your module must implement the [`UniGale\Support\Contracts\HasDependencies`](https://github.com/unigale/framework/blob/main/packages/Support/Contracts/HasDependencies.php) interface.
+   Your module must implement the [`Epsicube\Support\Contracts\HasDependencies`](https://github.com/epsicube/framework/blob/main/packages/Support/Contracts/HasDependencies.php) interface.
 
     ```php
-    use UniGale\Support\Contracts\HasDependencies;
-    use UniGale\Support\Dependencies;
+    use Epsicube\Support\Contracts\HasDependencies;
+    use Epsicube\Support\Dependencies;
 
     class BrandingModule extends ServiceProvider implements HasDependencies, Module
     {

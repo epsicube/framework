@@ -1,9 +1,9 @@
 ---
 title: "Lifecycle"
-description: "Understand the lifecycle phases of Unigale modules and cores."
+description: "Understand the lifecycle phases of Epsicube modules and cores."
 ---
 
-Unigale introduces a multi-stage lifecycle for both modules and cores. Each module goes through the following phases:
+Epsicube introduces a multi-stage lifecycle for both modules and cores. Each module goes through the following phases:
 
 - **Discovered** — Detected and indexed by the framework.
 - **Loaded** — Prepared for registration and booting.

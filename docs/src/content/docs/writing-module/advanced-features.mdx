@@ -5,21 +5,21 @@ sidebar:
     order: 5
 ---
 
-UniGale exposes several advanced utilities for module developers through the
-`UniGale\Support\Facades\Unigale` facade.
+Epsicube exposes several advanced utilities for module developers through the
+`Epsicube\Support\Facades\Epsicube` facade.
 
 ## Register a long-running work command
 
 If your module requires a persistent background process, you can register it, see [Manage processes](/usage/manage-processes/):
 
 ```php
-use UniGale\Support\Facades\Unigale;
+use Epsicube\Support\Facades\Epsicube;
 
 class YourModule extends ServiceProvider
 {
     public function boot(): void
     {
-        Unigale::addWorkCommand('your-unique-key', 'your-module:work');
+        Epsicube::addWorkCommand('your-unique-key', 'your-module:work');
     }
 }
 ```

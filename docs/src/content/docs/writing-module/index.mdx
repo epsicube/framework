@@ -1,7 +1,7 @@
 
 ---
 title: "Write your own"
-description: "Learn how to create your own Unigale module."
+description: "Learn how to create your own Epsicube module."
 sidebar:
   order: 1
 ---
@@ -9,10 +9,10 @@ import { Steps, Aside } from '@astrojs/starlight/components';
 
 ## Module Structure
 
-A Unigale module is a standard **[Laravel Service Provider](https://laravel.com/docs/providers)** that additionally implements the
-[`UniGale\Support\Contracts\Module`](https://github.com/unigale/framework/blob/main/packages/Foundation/Support/Module.php) interface.
+A module is a standard **[Laravel Service Provider](https://laravel.com/docs/providers)** that additionally implements the
+[`Epsicube\Support\Contracts\Module`](https://github.com/epsicube/framework/blob/main/packages/Foundation/Support/Module.php) interface.
 
-This contract provides the metadata Unigale needs to register, identify, and manage your module.
+This contract provides the metadata Epsicube needs to register, identify, and manage your module.
 
 ## How to create a module ?
 <br/>
@@ -36,9 +36,9 @@ This contract provides the metadata Unigale needs to register, identify, and man
 
     ```php
     use Illuminate\Support\ServiceProvider;
-    use UniGale\Support\Contracts\Module;
-    use UniGale\Support\ModuleIdentity;
-    
+    use Epsicube\Support\Contracts\Module;
+    use Epsicube\Support\ModuleIdentity;
+
     class MyCustomModule extends ServiceProvider implements Module
     {
         public function identifier(): string
@@ -67,7 +67,7 @@ This contract provides the metadata Unigale needs to register, identify, and man
 
 3. ### Register the Module
 
-    Unigale does not use Laravel’s default provider registration system.
+    Epsicube does not use Laravel’s default provider registration system.
 
     **Remove** the provider from:
     - `bootstrap/providers.php`
@@ -77,7 +77,7 @@ This contract provides the metadata Unigale needs to register, identify, and man
 
     ```json
     "extra": {
-        "unigale": {
+        "epsicube": {
             "modules": [
                 "App\\Providers\\MyCustomModule"
             ]
@@ -87,7 +87,7 @@ This contract provides the metadata Unigale needs to register, identify, and man
 
     <Aside type="tip">
     When publishing your module as an external package:<br/>
-    • The <code>extra.unigale.modules</code> section will be auto-discovered.<br/>
+    • The <code>extra.epsicube.modules</code> section will be auto-discovered.<br/>
     • Remove your provider from the <code>extra.laravel.providers</code> section to avoid duplicate registration.
     </Aside>
 

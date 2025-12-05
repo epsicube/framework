@@ -15,10 +15,10 @@ This page explains how to start, reload, and keep this worker running in product
 ## Starting the Worker
 
 
-The **`unigale:work`** command starts all module-defined long-running tasks and supervises them continuously.
+The **`epsicube:work`** command starts all module-defined long-running tasks and supervises them continuously.
 
 ```bash
-php artisan unigale:work
+php artisan epsicube:work
 ```
 
 ```text
@@ -31,8 +31,8 @@ php artisan unigale:work
 Once started, the worker continues running until manually stopped or until the terminal is closed.
 
 <Aside>
-By default, `unigale:work` manages both the [Laravel Scheduler](https://laravel.com/docs/scheduling#running-the-scheduler) and the [Queue Worker](https://laravel.com/docs/queues#running-the-queue-worker).
-If you already run scheduling via `crontab`, or if your queue workers are externally supervised, you can safely replace those setups with `unigale:work`.
+By default, `epsicube:work` manages both the [Laravel Scheduler](https://laravel.com/docs/scheduling#running-the-scheduler) and the [Queue Worker](https://laravel.com/docs/queues#running-the-queue-worker).
+If you already run scheduling via `crontab`, or if your queue workers are externally supervised, you can safely replace those setups with `epsicube:work`.
 </Aside>
 
 ## Reloading the Worker
@@ -40,10 +40,10 @@ If you already run scheduling via `crontab`, or if your queue workers are extern
 You can trigger a full reload of all running sub-processes using:
 
 ```bash
-php artisan unigale:reload
+php artisan epsicube:reload
 ```
 
-This broadcasts a restart signal that forces `unigale:work` to gracefully stop and restart each managed task:
+This broadcasts a restart signal that forces `epsicube:work` to gracefully stop and restart each managed task:
 
 ```text
 Broadcasting reload signal.
@@ -56,12 +56,12 @@ This is particularly useful when deploying changes that affect worker-level logi
 To ensure it stays active after crashes, timeouts, or server restarts, you should use a **process monitor**, such as **Supervisor**.
 
 ### Supervisor Configuration
-Supervisor configuration files are typically stored in the `/etc/supervisor/conf.d` directory. Within this directory, you may create any number of configuration files that instruct supervisor how your processes should be monitored. For example, let's create a `unigale-worker.conf` file that starts and monitors `unigale:work` processes:
+Supervisor configuration files are typically stored in the `/etc/supervisor/conf.d` directory. Within this directory, you may create any number of configuration files that instruct supervisor how your processes should be monitored. For example, let's create a `epsicube-worker.conf` file that starts and monitors `epsicube:work` processes:
 
 ```ini
-[program:unigale-worker]
+[program:epsicube-worker]
 process_name=%(program_name)s_%(process_num)02d
-command=php /path/to/your/application/artisan unigale:work
+command=php /path/to/your/application/artisan epsicube:work
 autostart=true
 autorestart=true
 stopasgroup=true
@@ -80,7 +80,7 @@ Once the configuration file has been created, you may update the Supervisor conf
 ```bash
 sudo supervisorctl reread
 sudo supervisorctl update
-sudo supervisorctl start "unigale-worker:*"
+sudo supervisorctl start "epsicube-worker:*"
 ```
 
 For more information on Supervisor, consult the [Supervisor documentation](https://supervisord.org/).

@@ -1,21 +1,21 @@
 ---
 title: Installation
-description: Learn how to install and bootstrap Unigale in your Laravel application.
+description: Learn how to install and bootstrap Epsicube in your Laravel application.
 slug: "getting-started/installation"
 ---
 import { Steps, Aside } from '@astrojs/starlight/components';
 
-**Unigale** is a modular application framework built on top of Laravel.
+**Epsicube** is a modular application framework built on top of Laravel.
 It provides a robust architecture for building extensible systems composed of isolated modules, shared integrations, and
 configurable execution pipelines.
 
-Unigale enhances Laravel's foundation without altering its philosophy, offering additional capabilities such as module
+Epsicube enhances Laravel's foundation without altering its philosophy, offering additional capabilities such as module
 lifecycle management, multi-core orchestration, workflow execution, and centralized configuration.
 
 
 ## Requirements
 
-Unigale follows the requirements of your Laravel version and does not introduce additional PHP extension dependencies.
+Epsicube follows the requirements of your Laravel version and does not introduce additional PHP extension dependencies.
 
 Ensure your environment meets the following:
 
@@ -30,21 +30,21 @@ Ensure your environment meets the following:
 <Steps>
 1. ### Install the framework
 
-    Install Unigale via Composer:
+    Install Epsicube via Composer:
 
     ```bash
-    composer require unigale/framework
+    composer require epsicube/framework
     ```
 
 2. ### Replace the application class
 
-    Unigale uses its own application container, `UnigaleApplication`.
+    Epsicube uses its own application container, `EpsicubeApplication`.
     Update your `bootstrap/app.php` accordingly:
 
     ```php
-    use UniGale\Foundation\UnigaleApplication;
+    use Epsicube\Foundation\EpsicubeApplication;
 
-    return UnigaleApplication::configure(basePath: dirname(__DIR__))
+    return EpsicubeApplication::configure(basePath: dirname(__DIR__))
         ->withRouting()
         ->withMiddleware()
         ->withExceptions()
@@ -53,7 +53,7 @@ Ensure your environment meets the following:
 
 3. ### Run migrations
 
-    Unigale automatically provides additional migrations required for its internal systems.
+    Epsicube automatically provides additional migrations required for its internal systems.
     Apply all pending migrations:
 
     ```bash
@@ -62,7 +62,7 @@ Ensure your environment meets the following:
 
 4. ### Configure long-running tasks
 
-    Unigale provides its own unified worker system through the `unigale:work` command.
+    Epsicube provides its own unified worker system through the `epsicube:work` command.
     This worker supervises long-running processes defined by modules (e.g., schedulers, queues).
 
     Refer to the section **[Configure worker for production](/usage/manage-processes/#setup-for-production)** for detailed instructions.
