@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace UniGale\Support\Contracts;
+namespace Epsicube\Support\Contracts;
 
 /**
  * Contract responsible for persisting and resolving modules activation state.

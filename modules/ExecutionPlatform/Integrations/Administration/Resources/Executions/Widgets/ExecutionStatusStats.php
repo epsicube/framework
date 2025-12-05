@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace UniGaleModules\ExecutionPlatform\Integrations\Administration\Resources\Executions\Widgets;
+namespace EpsicubeModules\ExecutionPlatform\Integrations\Administration\Resources\Executions\Widgets;
 
+use EpsicubeModules\ExecutionPlatform\Enum\ExecutionStatus;
 use Filament\Widgets\ChartWidget;
 use Filament\Widgets\Concerns\InteractsWithPageTable;
 use Illuminate\Contracts\Support\Htmlable;
-use UniGaleModules\ExecutionPlatform\Enum\ExecutionStatus;
 
 class ExecutionStatusStats extends ChartWidget
 {

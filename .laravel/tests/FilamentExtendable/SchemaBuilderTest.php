@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
+use Epsicube\FilamentExtendable\Enums\InsertPosition;
+use Epsicube\Tests\FilamentExtendable\Fixtures\SchemaComponent;
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Components\Group;
 use Filament\Schemas\Schema;
 use modules\FilamentExtendable\Builders\SchemaBuilder;
 use modules\FilamentExtendable\Exceptions\SchemaGroupNotFoundException;
-use UniGale\FilamentExtendable\Enums\InsertPosition;
-use UniGale\Tests\FilamentExtendable\Fixtures\SchemaComponent;
 
 beforeEach(function (): void {
     $this->schema = Schema::make(SchemaComponent::make());

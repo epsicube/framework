@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace UniGaleModules\Hypercore\Integrations\Administration\Resources\Tenants\Pages;
+namespace EpsicubeModules\Hypercore\Integrations\Administration\Resources\Tenants\Pages;
 
+use EpsicubeModules\Hypercore\Integrations\Administration\Resources\Tenants\TenantResource;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\ViewAction;
 use Filament\Resources\Pages\EditRecord;
-use UniGaleModules\Hypercore\Integrations\Administration\Resources\Tenants\TenantResource;
 
 class EditTenant extends EditRecord
 {

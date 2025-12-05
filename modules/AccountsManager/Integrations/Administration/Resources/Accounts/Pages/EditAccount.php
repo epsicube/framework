@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace UniGaleModules\AccountsManager\Integrations\Administration\Resources\Accounts\Pages;
+namespace EpsicubeModules\AccountsManager\Integrations\Administration\Resources\Accounts\Pages;
 
+use EpsicubeModules\AccountsManager\Integrations\Administration\Resources\Accounts\AccountResource;
 use Filament\Actions\DeleteAction;
 use Filament\Resources\Pages\EditRecord;
-use UniGaleModules\AccountsManager\Integrations\Administration\Resources\Accounts\AccountResource;
 
 class EditAccount extends EditRecord
 {

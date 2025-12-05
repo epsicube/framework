@@ -2,17 +2,17 @@
 
 declare(strict_types=1);
 
-namespace UniGaleModules\ExecutionPlatform\Models;
+namespace EpsicubeModules\ExecutionPlatform\Models;
 
 use Carbon\CarbonImmutable;
+use EpsicubeModules\ExecutionPlatform\Enum\ExecutionStatus;
+use EpsicubeModules\ExecutionPlatform\Facades\Workflows;
 use Exception;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use RuntimeException;
 use Throwable;
-use UniGaleModules\ExecutionPlatform\Enum\ExecutionStatus;
-use UniGaleModules\ExecutionPlatform\Facades\Workflows;
 
 /**
  * Execution model

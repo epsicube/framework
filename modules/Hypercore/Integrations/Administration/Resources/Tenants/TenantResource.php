@@ -2,21 +2,21 @@
 
 declare(strict_types=1);
 
-namespace UniGaleModules\Hypercore\Integrations\Administration\Resources\Tenants;
+namespace EpsicubeModules\Hypercore\Integrations\Administration\Resources\Tenants;
 
 use BackedEnum;
+use EpsicubeModules\Hypercore\Integrations\Administration\Resources\Tenants\Pages\CreateTenant;
+use EpsicubeModules\Hypercore\Integrations\Administration\Resources\Tenants\Pages\EditTenant;
+use EpsicubeModules\Hypercore\Integrations\Administration\Resources\Tenants\Pages\ListTenants;
+use EpsicubeModules\Hypercore\Integrations\Administration\Resources\Tenants\Pages\ViewTenant;
+use EpsicubeModules\Hypercore\Integrations\Administration\Resources\Tenants\Schemas\TenantForm;
+use EpsicubeModules\Hypercore\Integrations\Administration\Resources\Tenants\Schemas\TenantInfolist;
+use EpsicubeModules\Hypercore\Integrations\Administration\Resources\Tenants\Tables\TenantsTable;
+use EpsicubeModules\Hypercore\Models\Tenant;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
-use UniGaleModules\Hypercore\Integrations\Administration\Resources\Tenants\Pages\CreateTenant;
-use UniGaleModules\Hypercore\Integrations\Administration\Resources\Tenants\Pages\EditTenant;
-use UniGaleModules\Hypercore\Integrations\Administration\Resources\Tenants\Pages\ListTenants;
-use UniGaleModules\Hypercore\Integrations\Administration\Resources\Tenants\Pages\ViewTenant;
-use UniGaleModules\Hypercore\Integrations\Administration\Resources\Tenants\Schemas\TenantForm;
-use UniGaleModules\Hypercore\Integrations\Administration\Resources\Tenants\Schemas\TenantInfolist;
-use UniGaleModules\Hypercore\Integrations\Administration\Resources\Tenants\Tables\TenantsTable;
-use UniGaleModules\Hypercore\Models\Tenant;
 use UnitEnum;
 
 class TenantResource extends Resource

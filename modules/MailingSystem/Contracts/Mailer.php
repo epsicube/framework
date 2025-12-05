@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace UniGaleModules\MailingSystem\Contracts;
+namespace EpsicubeModules\MailingSystem\Contracts;
 
-use UniGale\Support\Contracts\HasLabel;
-use UniGale\Support\Contracts\Registrable;
+use Epsicube\Support\Contracts\HasLabel;
+use Epsicube\Support\Contracts\Registrable;
 
 interface Mailer extends HasLabel, Registrable
 {

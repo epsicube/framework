@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace UniGaleModules\Hypercore\Integrations\Administration\Resources\Tenants\Pages;
+namespace EpsicubeModules\Hypercore\Integrations\Administration\Resources\Tenants\Pages;
 
+use EpsicubeModules\Hypercore\Integrations\Administration\Resources\Tenants\TenantResource;
 use Filament\Actions\EditAction;
 use Filament\Resources\Pages\ViewRecord;
-use UniGaleModules\Hypercore\Integrations\Administration\Resources\Tenants\TenantResource;
 
 class ViewTenant extends ViewRecord
 {

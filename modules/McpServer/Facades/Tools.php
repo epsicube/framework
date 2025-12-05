@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace UniGaleModules\McpServer\Facades;
+namespace EpsicubeModules\McpServer\Facades;
 
+use EpsicubeModules\McpServer\Contracts\Tool;
+use EpsicubeModules\McpServer\Registries\ToolsRegistry;
 use Illuminate\Support\Facades\Facade;
-use UniGaleModules\McpServer\Contracts\Tool;
-use UniGaleModules\McpServer\Registries\ToolsRegistry;
 
 class Tools extends Facade
 {

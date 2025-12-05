@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace UniGaleModules\AccountsManager\Integrations\Administration\Resources\Accounts\Pages;
+namespace EpsicubeModules\AccountsManager\Integrations\Administration\Resources\Accounts\Pages;
 
+use EpsicubeModules\AccountsManager\Integrations\Administration\Resources\Accounts\AccountResource;
 use Filament\Resources\Pages\CreateRecord;
-use UniGaleModules\AccountsManager\Integrations\Administration\Resources\Accounts\AccountResource;
 
 class CreateAccount extends CreateRecord
 {

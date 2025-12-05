@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace UniGaleModules\Hypercore\Foundation\MaintenanceMode;
+namespace EpsicubeModules\Hypercore\Foundation\MaintenanceMode;
 
+use EpsicubeModules\Hypercore\Models\Tenant;
 use Illuminate\Contracts\Foundation\MaintenanceMode as MaintenanceModeContract;
 use Illuminate\Foundation\FileBasedMaintenanceMode;
-use UniGaleModules\Hypercore\Models\Tenant;
 
 class HypercoreMaintenanceMode extends FileBasedMaintenanceMode implements MaintenanceModeContract
 {

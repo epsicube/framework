@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace UniGaleModules\Hypercore\Concerns;
+namespace EpsicubeModules\Hypercore\Concerns;
 
-use UniGaleModules\Hypercore\Foundation\HypercoreApplier;
-use UniGaleModules\Hypercore\Models\Tenant;
+use EpsicubeModules\Hypercore\Foundation\HypercoreApplier;
+use EpsicubeModules\Hypercore\Models\Tenant;
 
 abstract class HypercoreAdapter
 {

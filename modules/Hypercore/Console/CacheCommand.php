@@ -2,18 +2,18 @@
 
 declare(strict_types=1);
 
-namespace UniGaleModules\Hypercore\Console;
+namespace EpsicubeModules\Hypercore\Console;
 
+use EpsicubeModules\Hypercore\Facades\Hypercore;
+use EpsicubeModules\Hypercore\Models\Tenant;
 use Illuminate\Console\Command;
 use Illuminate\Filesystem\Filesystem;
 use LogicException;
 use Throwable;
-use UniGaleModules\Hypercore\Facades\Hypercore;
-use UniGaleModules\Hypercore\Models\Tenant;
 
 class CacheCommand extends Command
 {
-    protected $signature = 'unigale-tenants:cache';
+    protected $signature = 'epsicube-tenants:cache';
 
     protected $description = 'Create a cache file for faster tenants loading';
 

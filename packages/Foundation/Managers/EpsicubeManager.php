@@ -2,18 +2,18 @@
 
 declare(strict_types=1);
 
-namespace UniGale\Foundation\Managers;
+namespace Epsicube\Foundation\Managers;
 
 use InvalidArgumentException;
 
-class UnigaleManager
+class EpsicubeManager
 {
     /**
      * @var array<string, string>
      */
     protected array $workCommands = [
-        'schedule' => 'schedule:work',
-        'queue'    => 'queue:work',
+        'schedule' => 'schedule:run --no-ansi --whisper', // Do not use schedule:work, this keep zombies after reload
+        //        'queue'    => 'queue:work',
     ];
 
     /**

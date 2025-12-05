@@ -2,22 +2,22 @@
 
 declare(strict_types=1);
 
-namespace UniGaleModules\Administration\Clusters\Options\Pages;
+namespace EpsicubeModules\Administration\Clusters\Options\Pages;
 
+use Epsicube\Support\Facades\Options;
+use EpsicubeModules\Administration\Clusters\Options\OptionsCluster;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
 use Filament\Pages\Page;
 use Filament\Schemas\Concerns\InteractsWithSchemas;
 use Filament\Schemas\Contracts\HasSchemas;
 use Filament\Schemas\Schema;
-use UniGale\Support\Facades\Options;
-use UniGaleModules\Administration\Clusters\Options\OptionsCluster;
 
 class Administration extends Page implements HasSchemas
 {
     use InteractsWithSchemas;
 
-    protected string $view = 'unigale-administration::pages.manage-options';
+    protected string $view = 'epsicube-administration::pages.manage-options';
 
     protected static ?string $cluster = OptionsCluster::class;
 

@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace UniGale\Foundation\Console\Commands;
+namespace Epsicube\Foundation\Console\Commands;
 
+use Epsicube\Support\Facades\Options;
+use Epsicube\Support\OptionsDefinition;
 use Illuminate\Console\Command;
 use Illuminate\Support\Str;
-use UniGale\Support\Facades\Options;
-use UniGale\Support\OptionsDefinition;
 
 use function Laravel\Prompts\table;
 

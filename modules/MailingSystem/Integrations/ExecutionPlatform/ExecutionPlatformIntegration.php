@@ -2,14 +2,14 @@
 
 declare(strict_types=1);
 
-namespace UniGaleModules\MailingSystem\Integrations\ExecutionPlatform;
+namespace EpsicubeModules\MailingSystem\Integrations\ExecutionPlatform;
 
-use UniGaleModules\ExecutionPlatform\Facades\Activities;
-use UniGaleModules\ExecutionPlatform\Facades\Workflows;
-use UniGaleModules\MailingSystem\Integrations\ExecutionPlatform\Activities\ListMailers;
-use UniGaleModules\MailingSystem\Integrations\ExecutionPlatform\Activities\ListTemplates;
-use UniGaleModules\MailingSystem\Integrations\ExecutionPlatform\Activities\SendMail as SendMailActivity;
-use UniGaleModules\MailingSystem\Integrations\ExecutionPlatform\Workflows\SendMail as SendMailWorkflow;
+use EpsicubeModules\ExecutionPlatform\Facades\Activities;
+use EpsicubeModules\ExecutionPlatform\Facades\Workflows;
+use EpsicubeModules\MailingSystem\Integrations\ExecutionPlatform\Activities\ListMailers;
+use EpsicubeModules\MailingSystem\Integrations\ExecutionPlatform\Activities\ListTemplates;
+use EpsicubeModules\MailingSystem\Integrations\ExecutionPlatform\Activities\SendMail as SendMailActivity;
+use EpsicubeModules\MailingSystem\Integrations\ExecutionPlatform\Workflows\SendMail as SendMailWorkflow;
 
 class ExecutionPlatformIntegration
 {

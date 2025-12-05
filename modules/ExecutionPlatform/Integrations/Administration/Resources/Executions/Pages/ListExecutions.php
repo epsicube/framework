@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-namespace UniGaleModules\ExecutionPlatform\Integrations\Administration\Resources\Executions\Pages;
+namespace EpsicubeModules\ExecutionPlatform\Integrations\Administration\Resources\Executions\Pages;
 
+use EpsicubeModules\ExecutionPlatform\Integrations\Administration\Resources\Executions\ExecutionResource;
+use EpsicubeModules\ExecutionPlatform\Integrations\Administration\Resources\Executions\Widgets\ExecutionsOverTime;
+use EpsicubeModules\ExecutionPlatform\Integrations\Administration\Resources\Executions\Widgets\ExecutionStatusStats;
 use Filament\Pages\Concerns\ExposesTableToWidgets;
 use Filament\Resources\Pages\ListRecords;
-use UniGaleModules\ExecutionPlatform\Integrations\Administration\Resources\Executions\ExecutionResource;
-use UniGaleModules\ExecutionPlatform\Integrations\Administration\Resources\Executions\Widgets\ExecutionsOverTime;
-use UniGaleModules\ExecutionPlatform\Integrations\Administration\Resources\Executions\Widgets\ExecutionStatusStats;
 
 class ListExecutions extends ListRecords
 {

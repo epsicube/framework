@@ -2,15 +2,15 @@
 
 declare(strict_types=1);
 
-namespace UniGaleModules\ExecutionPlatform\Integrations\Administration\Resources\Executions\Schemas;
+namespace EpsicubeModules\ExecutionPlatform\Integrations\Administration\Resources\Executions\Schemas;
 
+use EpsicubeModules\ExecutionPlatform\Enum\ExecutionStatus;
+use EpsicubeModules\ExecutionPlatform\Models\Execution;
 use Filament\Infolists\Components\CodeEntry;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 use Filament\Support\Enums\TextSize;
-use UniGaleModules\ExecutionPlatform\Enum\ExecutionStatus;
-use UniGaleModules\ExecutionPlatform\Models\Execution;
 
 class ExecutionInfolist
 {

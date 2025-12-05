@@ -1,5 +1,5 @@
 {
-  "name": "unigale/module-administration",
+  "name": "epsicube/module-administration",
   "type": "library",
   "license": "MIT",
   "authors": [
@@ -13,11 +13,11 @@
     "php": "^8.3",
     "illuminate/support": "^12.8",
     "filament/filament": "^v4.0.0-beta5",
-    "unigale/support": "*"
+    "epsicube/support": "*"
   },
   "autoload": {
     "psr-4": {
-      "UniGaleModules\\Administration\\": "."
+      "EpsicubeModules\\Administration\\": "."
     }
   },
   "config": {
@@ -26,9 +26,9 @@
   "minimum-stability": "dev",
   "prefer-stable": true,
   "extra": {
-    "unigale": {
+    "epsicube": {
       "modules": [
-        "UniGaleModules\\Administration\\AdministrationModule"
+        "EpsicubeModules\\Administration\\AdministrationModule"
       ]
     }
   }

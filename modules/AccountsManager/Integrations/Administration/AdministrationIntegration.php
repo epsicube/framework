@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace UniGaleModules\AccountsManager\Integrations\Administration;
+namespace EpsicubeModules\AccountsManager\Integrations\Administration;
 
+use EpsicubeModules\Administration\Administration;
 use Filament\Http\Middleware\Authenticate;
-use UniGaleModules\Administration\Administration;
 
 class AdministrationIntegration
 {

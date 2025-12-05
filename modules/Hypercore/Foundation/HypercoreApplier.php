@@ -2,14 +2,14 @@
 
 declare(strict_types=1);
 
-namespace UniGaleModules\Hypercore\Foundation;
+namespace EpsicubeModules\Hypercore\Foundation;
 
 use Closure;
+use Epsicube\Foundation\Managers\ModulesManager;
+use Epsicube\Support\Contracts\ActivationDriver;
+use Epsicube\Support\Contracts\HasIntegrations;
+use Epsicube\Support\Contracts\Module;
 use InvalidArgumentException;
-use UniGale\Foundation\Managers\ModulesManager;
-use UniGale\Support\Contracts\ActivationDriver;
-use UniGale\Support\Contracts\HasIntegrations;
-use UniGale\Support\Contracts\Module;
 
 class HypercoreApplier
 {

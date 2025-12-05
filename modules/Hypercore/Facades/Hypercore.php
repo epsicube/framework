@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace UniGaleModules\Hypercore\Facades;
+namespace EpsicubeModules\Hypercore\Facades;
 
+use EpsicubeModules\Hypercore\Console\CacheCommand;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\File;
-use UniGaleModules\Hypercore\Console\CacheCommand;
 
 class Hypercore
 {
@@ -39,7 +39,7 @@ class Hypercore
         try {
             $_SERVER['APP_CACHE_SUFFIX'] = null;
 
-            return app()->bootstrapPath('cache/unigale-tenants.php');
+            return app()->bootstrapPath('cache/epsicube-tenants.php');
         } finally {
             $_SERVER['APP_CACHE_SUFFIX'] = $initial;
         }

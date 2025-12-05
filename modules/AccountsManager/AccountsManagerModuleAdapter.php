@@ -2,15 +2,15 @@
 
 declare(strict_types=1);
 
-namespace UniGaleModules\AccountsManager;
+namespace EpsicubeModules\AccountsManager;
 
+use EpsicubeModules\AccountsManager\Models\Account;
+use EpsicubeModules\Hypercore\Concerns\HypercoreAdapter;
+use EpsicubeModules\Hypercore\Facades\HypercoreActivator;
+use EpsicubeModules\Hypercore\Foundation\HypercoreApplier;
+use EpsicubeModules\Hypercore\Models\Tenant;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Config;
-use UniGaleModules\AccountsManager\Models\Account;
-use UniGaleModules\Hypercore\Concerns\HypercoreAdapter;
-use UniGaleModules\Hypercore\Facades\HypercoreActivator;
-use UniGaleModules\Hypercore\Foundation\HypercoreApplier;
-use UniGaleModules\Hypercore\Models\Tenant;
 
 class AccountsManagerModuleAdapter extends HypercoreAdapter
 {

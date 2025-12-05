@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace UniGaleModules\McpServer\Mcp\Helpers;
+namespace EpsicubeModules\McpServer\Mcp\Helpers;
 
+use EpsicubeModules\McpServer\Contracts\Resource as ResourceContract;
 use Laravel\Mcp\Response;
 use Laravel\Mcp\Server\Resource;
-use UniGaleModules\McpServer\Contracts\Resource as ResourceContract;
 
 class ResourceConverter extends Resource
 {

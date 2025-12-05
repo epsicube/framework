@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace UniGaleModules\AccountsManager\Integrations\Administration\Resources\Accounts\Schemas;
+namespace EpsicubeModules\AccountsManager\Integrations\Administration\Resources\Accounts\Schemas;
 
 use Filament\Schemas\Schema;
 

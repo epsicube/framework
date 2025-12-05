@@ -2,21 +2,21 @@
 
 declare(strict_types=1);
 
-namespace UniGaleModules\ExecutionPlatform;
+namespace EpsicubeModules\ExecutionPlatform;
 
 use Carbon\Laravel\ServiceProvider;
 use Composer\InstalledVersions;
-use UniGale\Support\Contracts\HasIntegrations;
-use UniGale\Support\Contracts\Module;
-use UniGale\Support\Integrations;
-use UniGale\Support\ModuleIdentity;
-use UniGaleModules\ExecutionPlatform\Console\Commands\ListCommand;
-use UniGaleModules\ExecutionPlatform\Facades\Activities;
-use UniGaleModules\ExecutionPlatform\Facades\Workflows;
-use UniGaleModules\ExecutionPlatform\Integrations\Administration\AdministrationIntegration;
-use UniGaleModules\ExecutionPlatform\Integrations\McpServer\McpServerIntegration;
-use UniGaleModules\ExecutionPlatform\Registries\ActivitiesRegistry;
-use UniGaleModules\ExecutionPlatform\Registries\WorkflowsRegistry;
+use Epsicube\Support\Contracts\HasIntegrations;
+use Epsicube\Support\Contracts\Module;
+use Epsicube\Support\Integrations;
+use Epsicube\Support\ModuleIdentity;
+use EpsicubeModules\ExecutionPlatform\Console\Commands\ListCommand;
+use EpsicubeModules\ExecutionPlatform\Facades\Activities;
+use EpsicubeModules\ExecutionPlatform\Facades\Workflows;
+use EpsicubeModules\ExecutionPlatform\Integrations\Administration\AdministrationIntegration;
+use EpsicubeModules\ExecutionPlatform\Integrations\McpServer\McpServerIntegration;
+use EpsicubeModules\ExecutionPlatform\Registries\ActivitiesRegistry;
+use EpsicubeModules\ExecutionPlatform\Registries\WorkflowsRegistry;
 
 class ExecutionPlatformModule extends ServiceProvider implements HasIntegrations, Module
 {
@@ -29,8 +29,8 @@ class ExecutionPlatformModule extends ServiceProvider implements HasIntegrations
     {
         return ModuleIdentity::make(
             name: __('Execution Platform'),
-            version: InstalledVersions::getPrettyVersion('unigale/framework')
-            ?? InstalledVersions::getPrettyVersion('unigale/module-execution-platform'),
+            version: InstalledVersions::getPrettyVersion('epsicube/framework')
+            ?? InstalledVersions::getPrettyVersion('epsicube/module-execution-platform'),
             author: 'Core Team',
             description: __('Provides support for asynchronous workflows and activities, enabling modules to extend these capabilities')
         );

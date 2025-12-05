@@ -1,5 +1,5 @@
 {
-  "name": "unigale/foundation",
+  "name": "epsicube/foundation",
   "type": "library",
   "license": "MIT",
   "authors": [
@@ -13,11 +13,11 @@
     "ext-posix": "*",
     "php": "^8.3",
     "laravel/framework": "^12.41",
-    "unigale/support": "*"
+    "epsicube/support": "*"
   },
   "autoload": {
     "psr-4": {
-      "UniGale\\Foundation": "."
+      "Epsicube\\Foundation": "."
     }
   },
   "config": {

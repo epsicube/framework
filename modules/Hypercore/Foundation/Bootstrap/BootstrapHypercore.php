@@ -2,8 +2,21 @@
 
 declare(strict_types=1);
 
-namespace UniGaleModules\Hypercore\Foundation\Bootstrap;
+namespace EpsicubeModules\Hypercore\Foundation\Bootstrap;
 
+use Epsicube\Foundation\EpsicubeApplication;
+use Epsicube\Foundation\Managers\ModulesManager;
+use Epsicube\Support\Contracts\ActivationDriver;
+use Epsicube\Support\Facades\Manifest;
+use Epsicube\Support\Facades\Modules;
+use EpsicubeModules\Hypercore\Activation\TenantActivationDriver;
+use EpsicubeModules\Hypercore\Concerns\HypercoreAdapter;
+use EpsicubeModules\Hypercore\Facades\HypercoreActivator;
+use EpsicubeModules\Hypercore\Foundation\Detector\DatabaseTenantDetector;
+use EpsicubeModules\Hypercore\Foundation\HypercoreApplier;
+use EpsicubeModules\Hypercore\Foundation\MaintenanceMode\HypercoreMaintenanceMode;
+use EpsicubeModules\Hypercore\HypercoreModuleAdapter;
+use EpsicubeModules\Hypercore\Models\Tenant;
 use Illuminate\Config\Repository;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Contracts\Foundation\CachesConfiguration;
@@ -13,23 +26,10 @@ use Illuminate\Foundation\MaintenanceModeManager;
 use Illuminate\Routing\RouteGroup;
 use Illuminate\Routing\Router;
 use RuntimeException;
-use UniGale\Foundation\Managers\ModulesManager;
-use UniGale\Foundation\UnigaleApplication;
-use UniGale\Support\Contracts\ActivationDriver;
-use UniGale\Support\Facades\Manifest;
-use UniGale\Support\Facades\Modules;
-use UniGaleModules\Hypercore\Activation\TenantActivationDriver;
-use UniGaleModules\Hypercore\Concerns\HypercoreAdapter;
-use UniGaleModules\Hypercore\Facades\HypercoreActivator;
-use UniGaleModules\Hypercore\Foundation\Detector\DatabaseTenantDetector;
-use UniGaleModules\Hypercore\Foundation\HypercoreApplier;
-use UniGaleModules\Hypercore\Foundation\MaintenanceMode\HypercoreMaintenanceMode;
-use UniGaleModules\Hypercore\HypercoreModuleAdapter;
-use UniGaleModules\Hypercore\Models\Tenant;
 
 class BootstrapHypercore
 {
-    public function bootstrap(UnigaleApplication $app): void
+    public function bootstrap(EpsicubeApplication $app): void
     {
         /* Keep using $_SERVER to ensure persistence in nested commands like optimize */
         if (! isset($_SERVER['hypercore::tenant'])) {
@@ -59,7 +59,7 @@ class BootstrapHypercore
         $tenantDriver = new TenantActivationDriver($tenant->id);
         $this->applyTenantAdapters($app, $tenant, $registry, $tenantDriver);
 
-        // Override unigale
+        // Override epsicube
         $registry->setDriver($tenantDriver);
         $tenant->setConnection(HypercoreActivator::centralConnectionName());
 

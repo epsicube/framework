@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace UniGaleModules\MailingSystem\Mails\Mailer;
+namespace EpsicubeModules\MailingSystem\Mails\Mailer;
 
+use EpsicubeModules\MailingSystem\Contracts\Mailer as MailerContract;
 use Illuminate\Contracts\Mail\Mailer;
 use Illuminate\Support\Facades\Mail;
-use UniGaleModules\MailingSystem\Contracts\Mailer as MailerContract;
 
 class LaravelMailer implements MailerContract
 {

@@ -2,16 +2,16 @@
 
 declare(strict_types=1);
 
-namespace UniGaleModules\Hypercore\Foundation\Detector;
+namespace EpsicubeModules\Hypercore\Foundation\Detector;
 
+use EpsicubeModules\Hypercore\Facades\Hypercore;
+use EpsicubeModules\Hypercore\Models\Tenant;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
 use Throwable;
-use UniGaleModules\Hypercore\Facades\Hypercore;
-use UniGaleModules\Hypercore\Models\Tenant;
 
 class DatabaseTenantDetector
 {

@@ -1,5 +1,5 @@
 {
-  "name": "unigale/support",
+  "name": "epsicube/support",
   "type": "library",
   "license": "MIT",
   "authors": [
@@ -14,7 +14,7 @@
   },
   "autoload": {
     "psr-4": {
-      "UniGale\\Support": "."
+      "Epsicube\\Support": "."
     }
   },
   "config": {

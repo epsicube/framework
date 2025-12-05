@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace UniGale\Foundation\Utilities;
+namespace Epsicube\Foundation\Utilities;
 
+use Epsicube\Support\Contracts\ActivationDriver;
+use Epsicube\Support\Contracts\Module;
 use Illuminate\Filesystem\Filesystem;
-use UniGale\Support\Contracts\ActivationDriver;
-use UniGale\Support\Contracts\Module;
 
 class FilesystemActivationDriver implements ActivationDriver
 {

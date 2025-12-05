@@ -1,7 +1,7 @@
 {
   "$schema": "https://getcomposer.org/schema.json",
-  "name": "unigale/framework",
-  "description": "The UniGale framework",
+  "name": "epsicube/framework",
+  "description": "The Epsicube framework",
   "license": "MIT",
   "authors": [
     {
@@ -22,13 +22,13 @@
     "filament/filament": "^v4.0.0-beta5"
   },
   "replace": {
-    "unigale/support": "self.version",
-    "unigale/foundation": "self.version",
-    "unigale/module-accounts-manager": "self.version",
-    "unigale/module-administration": "self.version",
-    "unigale/module-execution-platform": "self.version",
-    "unigale/module-hypercore": "self.version",
-    "unigale/module-mailing-system": "self.version"
+    "epsicube/support": "self.version",
+    "epsicube/foundation": "self.version",
+    "epsicube/module-accounts-manager": "self.version",
+    "epsicube/module-administration": "self.version",
+    "epsicube/module-execution-platform": "self.version",
+    "epsicube/module-hypercore": "self.version",
+    "epsicube/module-mailing-system": "self.version"
   },
   "require-dev": {
     "barryvdh/laravel-debugbar": "*",
@@ -48,13 +48,13 @@
   },
   "autoload": {
     "psr-4": {
-      "UniGale\\": "packages",
-      "UniGaleModules\\": "modules"
+      "Epsicube\\": "packages",
+      "EpsicubeModules\\": "modules"
     }
   },
   "autoload-dev": {
     "psr-4": {
-      "UniGale\\Tests\\": "tests/"
+      "Epsicube\\Tests\\": "tests/"
     }
   },
   "scripts": {
@@ -71,18 +71,18 @@
     ]
   },
   "extra": {
-    "unigale": {
+    "epsicube": {
       "modules": [
-        "UniGaleModules\\AccountsManager\\AccountsManagerModule",
-        "UniGaleModules\\Administration\\AdministrationModule",
-        "UniGaleModules\\ExecutionPlatform\\ExecutionPlatformModule",
-        "UniGaleModules\\Hypercore\\HypercoreModule",
-        "UniGaleModules\\MailingSystem\\MailingSystemModule",
-        "UniGaleModules\\McpServer\\McpServerModule"
+        "EpsicubeModules\\AccountsManager\\AccountsManagerModule",
+        "EpsicubeModules\\Administration\\AdministrationModule",
+        "EpsicubeModules\\ExecutionPlatform\\ExecutionPlatformModule",
+        "EpsicubeModules\\Hypercore\\HypercoreModule",
+        "EpsicubeModules\\MailingSystem\\MailingSystemModule",
+        "EpsicubeModules\\McpServer\\McpServerModule"
       ],
       "hypercore": {
         "adapters": [
-          "UniGaleModules\\AccountsManager\\AccountsManagerModuleAdapter"
+          "EpsicubeModules\\AccountsManager\\AccountsManagerModuleAdapter"
         ]
       }
     }

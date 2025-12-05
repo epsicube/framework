@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace UniGaleModules\ExecutionPlatform\Integrations\McpServer\Proxies;
+namespace EpsicubeModules\ExecutionPlatform\Integrations\McpServer\Proxies;
 
-use UniGaleModules\ExecutionPlatform\Contracts\Workflow;
-use UniGaleModules\McpServer\Contracts\Tool;
+use EpsicubeModules\ExecutionPlatform\Contracts\Workflow;
+use EpsicubeModules\McpServer\Contracts\Tool;
 
 class WorkflowToolProxy implements Tool
 {

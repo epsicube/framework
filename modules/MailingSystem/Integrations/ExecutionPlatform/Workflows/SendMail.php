@@ -2,24 +2,24 @@
 
 declare(strict_types=1);
 
-namespace UniGaleModules\MailingSystem\Integrations\ExecutionPlatform\Workflows;
+namespace EpsicubeModules\MailingSystem\Integrations\ExecutionPlatform\Workflows;
 
+use EpsicubeModules\ExecutionPlatform\Concerns\Workflow;
+use EpsicubeModules\ExecutionPlatform\Contracts\HasInputSchema;
+use EpsicubeModules\MailingSystem\Facades\Mailers;
+use EpsicubeModules\MailingSystem\Facades\Templates;
+use EpsicubeModules\MailingSystem\Integrations\ExecutionPlatform\Activities\SendMail as SendMailActivity;
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Utilities\Get;
-use UniGaleModules\ExecutionPlatform\Concerns\Workflow;
-use UniGaleModules\ExecutionPlatform\Contracts\HasInputSchema;
-use UniGaleModules\MailingSystem\Facades\Mailers;
-use UniGaleModules\MailingSystem\Facades\Templates;
-use UniGaleModules\MailingSystem\Integrations\ExecutionPlatform\Activities\SendMail as SendMailActivity;
 
 class SendMail extends Workflow implements HasInputSchema
 {
     public function identifier(): string
     {
-        return 'unigale-mail::workflow-send-mail';
+        return 'epsicube-mail::workflow-send-mail';
     }
 
     public function label(): string
@@ -121,7 +121,7 @@ class SendMail extends Workflow implements HasInputSchema
 
                     $template = Templates::get($templateName);
 
-                    if (! ($template instanceof \UniGaleModules\MailingSystem\Contracts\HasInputSchema)) {
+                    if (! ($template instanceof \EpsicubeModules\MailingSystem\Contracts\HasInputSchema)) {
                         return [];
                     }
 

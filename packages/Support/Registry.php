@@ -2,14 +2,14 @@
 
 declare(strict_types=1);
 
-namespace UniGale\Support;
+namespace Epsicube\Support;
 
 use Closure;
-use UniGale\Support\Contracts\HasLabel;
-use UniGale\Support\Contracts\Registrable;
-use UniGale\Support\Exceptions\DuplicateItemException;
-use UniGale\Support\Exceptions\UnexpectedItemTypeException;
-use UniGale\Support\Exceptions\UnresolvableItemException;
+use Epsicube\Support\Contracts\HasLabel;
+use Epsicube\Support\Contracts\Registrable;
+use Epsicube\Support\Exceptions\DuplicateItemException;
+use Epsicube\Support\Exceptions\UnexpectedItemTypeException;
+use Epsicube\Support\Exceptions\UnresolvableItemException;
 
 /**
  * @template T of Registrable

@@ -2,21 +2,21 @@
 
 declare(strict_types=1);
 
-namespace UniGale\Foundation\Utilities;
+namespace Epsicube\Foundation\Utilities;
 
 use Illuminate\Filesystem\Filesystem;
 use Illuminate\Support\Collection;
 use RuntimeException;
 
 /**
- * Use composer to extract packages defined themes
+ * Use composer to extract packages defined modules
  * "extra": {
- *     "unigale": {
+ *     "epsicube": {
  *         "modules": ["YourPackage\\ModuleClass"]
  *     }
  * }
  */
-class UnigaleManifest
+class Manifest
 {
     /** @var array The loaded manifest array */
     public array $manifest;
@@ -57,7 +57,7 @@ class UnigaleManifest
         }
 
         return (new Collection($packages))
-            ->mapWithKeys(fn ($package) => [$package['name'] => $package['extra']['unigale'] ?? []])
+            ->mapWithKeys(fn ($package) => [$package['name'] => $package['extra']['epsicube'] ?? []])
             ->filter()
             ->all();
     }

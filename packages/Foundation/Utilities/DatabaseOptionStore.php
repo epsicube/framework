@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace UniGale\Foundation\Utilities;
+namespace Epsicube\Foundation\Utilities;
 
 use Closure;
+use Epsicube\Foundation\Models\Option;
+use Epsicube\Support\Contracts\OptionsStore;
 use Illuminate\Database\QueryException;
-use UniGale\Foundation\Models\Option;
-use UniGale\Support\Contracts\OptionsStore;
 
 class DatabaseOptionStore implements OptionsStore
 {

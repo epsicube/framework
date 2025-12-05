@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace UniGale\Support;
+namespace Epsicube\Support;
 
 use Closure;
 use InvalidArgumentException;

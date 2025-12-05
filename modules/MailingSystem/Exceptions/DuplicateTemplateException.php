@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace UniGaleModules\MailingSystem\Exceptions;
+namespace EpsicubeModules\MailingSystem\Exceptions;
 
 use RuntimeException;
 use Throwable;

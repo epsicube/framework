@@ -2,8 +2,13 @@
 
 declare(strict_types=1);
 
-namespace UniGaleModules\ExecutionPlatform\Integrations\Administration\Resources\Executions\Tables;
+namespace EpsicubeModules\ExecutionPlatform\Integrations\Administration\Resources\Executions\Tables;
 
+use EpsicubeModules\ExecutionPlatform\Enum\ExecutionStatus;
+use EpsicubeModules\ExecutionPlatform\Facades\Workflows;
+use EpsicubeModules\ExecutionPlatform\Integrations\Administration\Actions\CancelExecutionAction;
+use EpsicubeModules\ExecutionPlatform\Integrations\Administration\Actions\ForkExecutionAction;
+use EpsicubeModules\ExecutionPlatform\Integrations\Administration\Actions\RunExecutionAction;
 use Filament\Actions\ActionGroup;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
@@ -15,11 +20,6 @@ use Filament\Tables\Filters\QueryBuilder;
 use Filament\Tables\Filters\QueryBuilder\Constraints\DateConstraint;
 use Filament\Tables\Filters\QueryBuilder\Constraints\SelectConstraint;
 use Filament\Tables\Table;
-use UniGaleModules\ExecutionPlatform\Enum\ExecutionStatus;
-use UniGaleModules\ExecutionPlatform\Facades\Workflows;
-use UniGaleModules\ExecutionPlatform\Integrations\Administration\Actions\CancelExecutionAction;
-use UniGaleModules\ExecutionPlatform\Integrations\Administration\Actions\ForkExecutionAction;
-use UniGaleModules\ExecutionPlatform\Integrations\Administration\Actions\RunExecutionAction;
 
 class ExecutionsTable
 {

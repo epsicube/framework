@@ -2,17 +2,17 @@
 
 declare(strict_types=1);
 
-namespace UniGale\Foundation\Console\Commands;
+namespace Epsicube\Foundation\Console\Commands;
 
+use Epsicube\Support\Facades\Epsicube;
 use Illuminate\Console\Application;
 use Illuminate\Console\Command;
 use Illuminate\Contracts\Cache\Repository as Cache;
 use Symfony\Component\Process\Process;
-use UniGale\Support\Facades\Unigale;
 
 class WorkCommand extends Command
 {
-    protected $signature = 'unigale:work';
+    protected $signature = 'epsicube:work';
 
     protected $aliases = ['u:w'];
 
@@ -30,7 +30,7 @@ class WorkCommand extends Command
 
     public function handle(): void
     {
-        $subCommands = Unigale::workCommands();
+        $subCommands = Epsicube::workCommands();
         if (empty($subCommands)) {
             $this->log('No work commands registered. Supervisor cannot start.', 'warn');
 
@@ -48,7 +48,7 @@ class WorkCommand extends Command
             $this->shouldKeepRunning = false;
         });
 
-        $lastReload = $this->cache->get('unigale:work:reload', 0);
+        $lastReload = $this->cache->get('epsicube:work:reload', 0);
 
         while ($this->shouldKeepRunning) {
             $this->checkProcesses($subCommands);
@@ -90,7 +90,7 @@ class WorkCommand extends Command
 
     protected function checkReload(array $subCommands, int $lastReload): int
     {
-        $reloadTimestamp = $this->cache->get('unigale:work:reload', 0);
+        $reloadTimestamp = $this->cache->get('epsicube:work:reload', 0);
         if ($reloadTimestamp > $lastReload) {
             $this->log('Reload signal detected, restarting all sub-processes…', 'info');
             foreach ($this->processes as $key => $process) {

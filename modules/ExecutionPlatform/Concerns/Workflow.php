@@ -2,15 +2,15 @@
 
 declare(strict_types=1);
 
-namespace UniGaleModules\ExecutionPlatform\Concerns;
+namespace EpsicubeModules\ExecutionPlatform\Concerns;
 
+use EpsicubeModules\ExecutionPlatform\Activities\Execution\MarkAsCanceled;
+use EpsicubeModules\ExecutionPlatform\Activities\Execution\MarkAsCompleted;
+use EpsicubeModules\ExecutionPlatform\Activities\Execution\MarkAsFailed;
+use EpsicubeModules\ExecutionPlatform\Activities\Execution\StartProcessing;
+use EpsicubeModules\ExecutionPlatform\Contracts\Workflow as WorkflowContract;
+use EpsicubeModules\ExecutionPlatform\Exceptions\CanceledException;
 use Throwable;
-use UniGaleModules\ExecutionPlatform\Activities\Execution\MarkAsCanceled;
-use UniGaleModules\ExecutionPlatform\Activities\Execution\MarkAsCompleted;
-use UniGaleModules\ExecutionPlatform\Activities\Execution\MarkAsFailed;
-use UniGaleModules\ExecutionPlatform\Activities\Execution\StartProcessing;
-use UniGaleModules\ExecutionPlatform\Contracts\Workflow as WorkflowContract;
-use UniGaleModules\ExecutionPlatform\Exceptions\CanceledException;
 
 abstract class Workflow implements WorkflowContract
 {

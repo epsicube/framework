@@ -2,21 +2,19 @@
 
 declare(strict_types=1);
 
-namespace UniGaleModules\McpServer\Mcp\Helpers;
+namespace EpsicubeModules\McpServer\Mcp\Helpers;
 
+use EpsicubeModules\McpServer\Contracts\Tool as ToolContract;
 use Illuminate\Contracts\JsonSchema\JsonSchema;
 use Illuminate\Support\Facades\Log;
 use Laravel\Mcp\Request;
 use Laravel\Mcp\Response;
 use Laravel\Mcp\ResponseFactory;
 use Laravel\Mcp\Server\Tool;
-use UniGaleModules\McpServer\Contracts\Tool as ToolContract;
 
 class ToolConverter extends Tool
 {
-    public function __construct(protected string $identifier, protected ToolContract $tool)
-    {
-    }
+    public function __construct(protected string $identifier, protected ToolContract $tool) {}
 
     public function name(): string
     {

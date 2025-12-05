@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace UniGaleModules\MailingSystem\Facades;
+namespace EpsicubeModules\MailingSystem\Facades;
 
+use EpsicubeModules\MailingSystem\Contracts\MailTemplate;
+use EpsicubeModules\MailingSystem\Registries\TemplatesRegistry;
 use Illuminate\Support\Facades\Facade;
-use UniGaleModules\MailingSystem\Contracts\MailTemplate;
-use UniGaleModules\MailingSystem\Registries\TemplatesRegistry;
 
 class Templates extends Facade
 {

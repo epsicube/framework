@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace Database\Seeders;
 
+use EpsicubeModules\AccountsManager\Models\Account;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
-use UniGaleModules\AccountsManager\Models\Account;
 
 class DatabaseSeeder extends Seeder
 {

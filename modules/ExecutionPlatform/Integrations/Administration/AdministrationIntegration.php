@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace UniGaleModules\ExecutionPlatform\Integrations\Administration;
+namespace EpsicubeModules\ExecutionPlatform\Integrations\Administration;
 
-use UniGaleModules\Administration\Administration;
+use EpsicubeModules\Administration\Administration;
 
 class AdministrationIntegration
 {

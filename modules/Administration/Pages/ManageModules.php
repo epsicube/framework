@@ -2,9 +2,14 @@
 
 declare(strict_types=1);
 
-namespace UniGaleModules\Administration\Pages;
+namespace EpsicubeModules\Administration\Pages;
 
 use BackedEnum;
+use Epsicube\Support\Contracts\HasDependencies;
+use Epsicube\Support\Contracts\HasIntegrations;
+use Epsicube\Support\Contracts\Module;
+use Epsicube\Support\Facades\Modules;
+use Epsicube\Support\Facades\Options;
 use Filament\Actions\Action;
 use Filament\Infolists\Components\RepeatableEntry;
 use Filament\Infolists\Components\TextEntry;
@@ -17,18 +22,13 @@ use Filament\Support\Colors\Color;
 use Filament\Support\Enums\Alignment;
 use Filament\Support\Icons\Heroicon;
 use Illuminate\Contracts\Support\Htmlable;
-use UniGale\Support\Contracts\HasDependencies;
-use UniGale\Support\Contracts\HasIntegrations;
-use UniGale\Support\Contracts\Module;
-use UniGale\Support\Facades\Modules;
-use UniGale\Support\Facades\Options;
 use UnitEnum;
 
 class ManageModules extends Page implements HasSchemas
 {
     use InteractsWithSchemas;
 
-    protected string $view = 'unigale-administration::pages.manage-modules';
+    protected string $view = 'epsicube-administration::pages.manage-modules';
 
     protected static string|null|BackedEnum $navigationIcon = Heroicon::OutlinedCube;
 

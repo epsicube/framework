@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace UniGaleModules\ExecutionPlatform\Facades;
+namespace EpsicubeModules\ExecutionPlatform\Facades;
 
+use EpsicubeModules\ExecutionPlatform\Contracts\Workflow;
+use EpsicubeModules\ExecutionPlatform\Registries\WorkflowsRegistry;
 use Illuminate\Support\Facades\Facade;
-use UniGaleModules\ExecutionPlatform\Contracts\Workflow;
-use UniGaleModules\ExecutionPlatform\Registries\WorkflowsRegistry;
 
 class Workflows extends Facade
 {

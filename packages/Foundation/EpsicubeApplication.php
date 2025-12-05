@@ -2,19 +2,19 @@
 
 declare(strict_types=1);
 
-namespace UniGale\Foundation;
+namespace Epsicube\Foundation;
 
+use Epsicube\Foundation\Bootstrap\BootstrapEpsicube;
+use Epsicube\Foundation\Traits\CleanupProvider;
 use Illuminate\Foundation\Application;
-use UniGale\Foundation\Bootstrap\BootstrapUnigale;
-use UniGale\Foundation\Traits\CleanupProvider;
 
-class UnigaleApplication extends Application
+class EpsicubeApplication extends Application
 {
     use CleanupProvider;
 
     public function bootstrapWith(array $bootstrappers): void
     {
-        parent::bootstrapWith(array_merge([BootstrapUnigale::class], $bootstrappers));
+        parent::bootstrapWith(array_merge([BootstrapEpsicube::class], $bootstrappers));
     }
 
     /**

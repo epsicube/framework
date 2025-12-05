@@ -1,5 +1,5 @@
 {
-  "name": "unigale/module-hypercore",
+  "name": "epsicube/module-hypercore",
   "type": "library",
   "license": "MIT",
   "authors": [
@@ -11,15 +11,15 @@
   "require": {
     "php": "^8.3",
     "ext-pcntl": "*",
-    "unigale/foundation": "*",
-    "unigale/support": "*"
+    "epsicube/foundation": "*",
+    "epsicube/support": "*"
   },
   "suggest": {
-    "unigale/module-administration": "Some activities and workflows are registered by this module"
+    "epsicube/module-administration": "Some activities and workflows are registered by this module"
   },
   "autoload": {
     "psr-4": {
-      "UniGaleModules\\Hypercore\\": "."
+      "EpsicubeModules\\Hypercore\\": "."
     }
   },
   "config": {
@@ -28,9 +28,9 @@
   "minimum-stability": "dev",
   "prefer-stable": true,
   "extra": {
-    "unigale": {
+    "epsicube": {
       "modules": [
-        "UniGaleModules\\Hypercore\\HypercoreModule"
+        "EpsicubeModules\\Hypercore\\HypercoreModule"
       ]
     }
   }

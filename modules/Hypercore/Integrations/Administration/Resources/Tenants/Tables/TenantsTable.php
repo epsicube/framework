@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace UniGaleModules\Hypercore\Integrations\Administration\Resources\Tenants\Tables;
+namespace EpsicubeModules\Hypercore\Integrations\Administration\Resources\Tenants\Tables;
 
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;

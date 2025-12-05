@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace UniGaleModules\Hypercore\Options;
+namespace EpsicubeModules\Hypercore\Options;
 
-use UniGale\Foundation\Utilities\DatabaseOptionStore;
+use Epsicube\Foundation\Utilities\DatabaseOptionStore;
 
 class TenantDatabaseOptionStore extends DatabaseOptionStore
 {

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace UniGaleModules\Hypercore\Integrations\Administration\Resources\Tenants\Schemas;
+namespace EpsicubeModules\Hypercore\Integrations\Administration\Resources\Tenants\Schemas;
 
 use Filament\Schemas\Schema;
 

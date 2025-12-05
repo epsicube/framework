@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-namespace UniGaleModules\ExecutionPlatform\Integrations\Administration\Actions;
+namespace EpsicubeModules\ExecutionPlatform\Integrations\Administration\Actions;
 
+use EpsicubeModules\ExecutionPlatform\Enum\ExecutionStatus;
+use EpsicubeModules\ExecutionPlatform\Enum\Icons;
+use EpsicubeModules\ExecutionPlatform\Models\Execution;
 use Filament\Actions\Action;
 use Throwable;
-use UniGaleModules\ExecutionPlatform\Enum\ExecutionStatus;
-use UniGaleModules\ExecutionPlatform\Enum\Icons;
-use UniGaleModules\ExecutionPlatform\Models\Execution;
 
 class RunExecutionAction extends Action
 {

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace UniGaleModules\AccountsManager\Integrations\Administration\Resources\Accounts\Tables;
+namespace EpsicubeModules\AccountsManager\Integrations\Administration\Resources\Accounts\Tables;
 
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;

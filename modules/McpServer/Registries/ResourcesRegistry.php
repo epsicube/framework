@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace UniGaleModules\McpServer\Registries;
+namespace EpsicubeModules\McpServer\Registries;
 
-use UniGale\Support\Registry;
-use UniGaleModules\McpServer\Contracts\Resource as ResourceContract;
+use Epsicube\Support\Registry;
+use EpsicubeModules\McpServer\Contracts\Resource as ResourceContract;
 
 /**
  * @extends Registry<ResourceContract>

@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace UniGale\Support\Contracts;
+namespace Epsicube\Support\Contracts;
 
-use UniGale\Support\OptionsDefinition;
+use Epsicube\Support\OptionsDefinition;
 
 interface HasOptions
 {

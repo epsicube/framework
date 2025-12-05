@@ -2,23 +2,23 @@
 
 declare(strict_types=1);
 
-namespace UniGaleModules\MailingSystem;
+namespace EpsicubeModules\MailingSystem;
 
 use Carbon\Laravel\ServiceProvider;
 use Composer\InstalledVersions;
+use Epsicube\Support\Contracts\HasIntegrations;
+use Epsicube\Support\Contracts\Module;
+use Epsicube\Support\Integrations;
+use Epsicube\Support\ModuleIdentity;
+use EpsicubeModules\MailingSystem\Facades\Mailers;
+use EpsicubeModules\MailingSystem\Facades\Templates;
+use EpsicubeModules\MailingSystem\Integrations\ExecutionPlatform\ExecutionPlatformIntegration;
+use EpsicubeModules\MailingSystem\Mails\Mailer\LaravelMailer;
+use EpsicubeModules\MailingSystem\Mails\Templates\Blank;
+use EpsicubeModules\MailingSystem\Mails\Templates\Html;
+use EpsicubeModules\MailingSystem\Registries\MailersRegistry;
+use EpsicubeModules\MailingSystem\Registries\TemplatesRegistry;
 use Illuminate\Contracts\Support\DeferrableProvider;
-use UniGale\Support\Contracts\HasIntegrations;
-use UniGale\Support\Contracts\Module;
-use UniGale\Support\Integrations;
-use UniGale\Support\ModuleIdentity;
-use UniGaleModules\MailingSystem\Facades\Mailers;
-use UniGaleModules\MailingSystem\Facades\Templates;
-use UniGaleModules\MailingSystem\Integrations\ExecutionPlatform\ExecutionPlatformIntegration;
-use UniGaleModules\MailingSystem\Mails\Mailer\LaravelMailer;
-use UniGaleModules\MailingSystem\Mails\Templates\Blank;
-use UniGaleModules\MailingSystem\Mails\Templates\Html;
-use UniGaleModules\MailingSystem\Registries\MailersRegistry;
-use UniGaleModules\MailingSystem\Registries\TemplatesRegistry;
 
 class MailingSystemModule extends ServiceProvider implements DeferrableProvider, HasIntegrations, Module
 {
@@ -31,8 +31,8 @@ class MailingSystemModule extends ServiceProvider implements DeferrableProvider,
     {
         return ModuleIdentity::make(
             name: __('Mailing System'),
-            version: InstalledVersions::getPrettyVersion('unigale/framework')
-            ?? InstalledVersions::getPrettyVersion('unigale/module-mailing-system'),
+            version: InstalledVersions::getPrettyVersion('epsicube/framework')
+            ?? InstalledVersions::getPrettyVersion('epsicube/module-mailing-system'),
             author: 'Core Team',
             description: __('Mail delivery system, extensible and equipped with outbound message tracking.')
         );
@@ -65,7 +65,7 @@ class MailingSystemModule extends ServiceProvider implements DeferrableProvider,
 
     public function boot(): void
     {
-        $this->loadViewsFrom(__DIR__.'/resources/email-templates', 'unigale-mail');
+        $this->loadViewsFrom(__DIR__.'/resources/email-templates', 'epsicube-mail');
     }
 
     public function integrations(): Integrations

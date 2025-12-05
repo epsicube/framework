@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-namespace UniGale\Foundation\Console\Commands;
+namespace Epsicube\Foundation\Console\Commands;
 
+use Epsicube\Support\Exceptions\DefinitionNotFoundException;
+use Epsicube\Support\Facades\Options;
 use Illuminate\Console\Command;
 use Illuminate\Contracts\Console\PromptsForMissingInput;
 use InvalidArgumentException;
-use UniGale\Support\Exceptions\DefinitionNotFoundException;
-use UniGale\Support\Facades\Options;
 
 use function Laravel\Prompts\error;
 use function Laravel\Prompts\info;

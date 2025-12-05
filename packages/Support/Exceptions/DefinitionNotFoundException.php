@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace UniGale\Support\Exceptions;
+namespace Epsicube\Support\Exceptions;
 
 use RuntimeException;
 use Throwable;

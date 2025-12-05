@@ -2,15 +2,15 @@
 
 declare(strict_types=1);
 
-namespace UniGaleModules\Hypercore\Console;
+namespace EpsicubeModules\Hypercore\Console;
 
+use EpsicubeModules\Hypercore\Facades\Hypercore;
 use Illuminate\Console\Command;
 use Illuminate\Filesystem\Filesystem;
-use UniGaleModules\Hypercore\Facades\Hypercore;
 
 class ClearCommand extends Command
 {
-    protected $signature = 'unigale-tenants:clear';
+    protected $signature = 'epsicube-tenants:clear';
 
     protected $description = 'Remove the tenants cache file';
 

@@ -1,4 +1,4 @@
-name: 'unigale'
+name: 'epsicube'
 services:
   dev:
     build:
@@ -19,17 +19,17 @@ services:
     volumes:
       - './:/app'
     networks:
-      - unigale
+      - epsicube
 
   mailpit:
     image: 'axllent/mailpit:latest'
     ports:
       - '8025:8025'
     networks:
-      - unigale
+      - epsicube
 
 networks:
-  unigale:
+  epsicube:
     driver: bridge
 
 

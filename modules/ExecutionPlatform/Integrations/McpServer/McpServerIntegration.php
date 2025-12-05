@@ -2,15 +2,15 @@
 
 declare(strict_types=1);
 
-namespace UniGaleModules\ExecutionPlatform\Integrations\McpServer;
+namespace EpsicubeModules\ExecutionPlatform\Integrations\McpServer;
 
-use UniGaleModules\ExecutionPlatform\Contracts\Activity;
-use UniGaleModules\ExecutionPlatform\Contracts\Workflow;
-use UniGaleModules\ExecutionPlatform\Facades\Activities;
-use UniGaleModules\ExecutionPlatform\Facades\Workflows;
-use UniGaleModules\ExecutionPlatform\Integrations\McpServer\Proxies\ActivityToolProxy;
-use UniGaleModules\ExecutionPlatform\Integrations\McpServer\Proxies\WorkflowToolProxy;
-use UniGaleModules\McpServer\Facades\Tools;
+use EpsicubeModules\ExecutionPlatform\Contracts\Activity;
+use EpsicubeModules\ExecutionPlatform\Contracts\Workflow;
+use EpsicubeModules\ExecutionPlatform\Facades\Activities;
+use EpsicubeModules\ExecutionPlatform\Facades\Workflows;
+use EpsicubeModules\ExecutionPlatform\Integrations\McpServer\Proxies\ActivityToolProxy;
+use EpsicubeModules\ExecutionPlatform\Integrations\McpServer\Proxies\WorkflowToolProxy;
+use EpsicubeModules\McpServer\Facades\Tools;
 
 class McpServerIntegration
 {

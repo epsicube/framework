@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-namespace UniGaleModules\Hypercore;
+namespace EpsicubeModules\Hypercore;
 
+use EpsicubeModules\Hypercore\Concerns\HypercoreAdapter;
+use EpsicubeModules\Hypercore\Foundation\HypercoreApplier;
+use EpsicubeModules\Hypercore\Models\Tenant;
 use Illuminate\Console\Application as Artisan;
 use Symfony\Component\Console\Input\InputOption;
-use UniGaleModules\Hypercore\Concerns\HypercoreAdapter;
-use UniGaleModules\Hypercore\Foundation\HypercoreApplier;
-use UniGaleModules\Hypercore\Models\Tenant;
 
 class HypercoreModuleAdapter extends HypercoreAdapter
 {

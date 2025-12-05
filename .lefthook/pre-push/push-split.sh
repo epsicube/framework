@@ -24,14 +24,14 @@ function split()
 
 git pull origin "$CURRENT_BRANCH"
 
-remote module-accounts-manager git@github.com:unigale/module-accounts-manager.git
-remote module-administration git@github.com:unigale/module-administration.git
-remote module-execution-platform git@github.com:unigale/module-execution-platform.git
-remote module-hypercore git@github.com:unigale/module-hypercore.git
-remote module-mailing-system git@github.com:unigale/module-mailing-system.git
-remote foundation git@github.com:unigale/foundation.git
-remote support git@github.com:unigale/support.git
-remote docs git@github.com:unigale/docs.git
+remote module-accounts-manager git@github.com:epsicube/module-accounts-manager.git
+remote module-administration git@github.com:epsicube/module-administration.git
+remote module-execution-platform git@github.com:epsicube/module-execution-platform.git
+remote module-hypercore git@github.com:epsicube/module-hypercore.git
+remote module-mailing-system git@github.com:epsicube/module-mailing-system.git
+remote foundation git@github.com:epsicube/foundation.git
+remote support git@github.com:epsicube/support.git
+remote docs git@github.com:epsicube/docs.git
 
 split 'modules/AccountsManager' module-accounts-manager &
 split 'modules/Administration' module-administration &

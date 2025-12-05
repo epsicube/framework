@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace UniGaleModules\MailingSystem\Registries;
+namespace EpsicubeModules\MailingSystem\Registries;
 
-use UniGale\Support\Registry;
-use UniGaleModules\MailingSystem\Contracts\Mailer;
+use Epsicube\Support\Registry;
+use EpsicubeModules\MailingSystem\Contracts\Mailer;
 
 /**
  * @extends Registry<Mailer>

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace UniGale\Tests\FilamentExtendable\Fixtures;
+namespace Epsicube\Tests\FilamentExtendable\Fixtures;
 
 use Filament\Schemas\Concerns\InteractsWithSchemas;
 use Filament\Tables\Concerns\InteractsWithTable;

@@ -2,19 +2,19 @@
 
 declare(strict_types=1);
 
-namespace UniGaleModules\Hypercore;
+namespace EpsicubeModules\Hypercore;
 
 use Carbon\Laravel\ServiceProvider;
 use Composer\InstalledVersions;
-use UniGale\Support\Contracts\HasIntegrations;
-use UniGale\Support\Contracts\InjectBootstrappers;
-use UniGale\Support\Contracts\Module;
-use UniGale\Support\Integrations;
-use UniGale\Support\ModuleIdentity;
-use UniGaleModules\Hypercore\Console\CacheCommand;
-use UniGaleModules\Hypercore\Console\ClearCommand;
-use UniGaleModules\Hypercore\Foundation\Bootstrap\BootstrapHypercore;
-use UniGaleModules\Hypercore\Integrations\Administration\AdministrationIntegration;
+use Epsicube\Support\Contracts\HasIntegrations;
+use Epsicube\Support\Contracts\InjectBootstrappers;
+use Epsicube\Support\Contracts\Module;
+use Epsicube\Support\Integrations;
+use Epsicube\Support\ModuleIdentity;
+use EpsicubeModules\Hypercore\Console\CacheCommand;
+use EpsicubeModules\Hypercore\Console\ClearCommand;
+use EpsicubeModules\Hypercore\Foundation\Bootstrap\BootstrapHypercore;
+use EpsicubeModules\Hypercore\Integrations\Administration\AdministrationIntegration;
 
 class HypercoreModule extends ServiceProvider implements HasIntegrations, InjectBootstrappers, Module
 {
@@ -27,8 +27,8 @@ class HypercoreModule extends ServiceProvider implements HasIntegrations, Inject
     {
         return ModuleIdentity::make(
             name: __('Hyper-Core 🚀'),
-            version: InstalledVersions::getPrettyVersion('unigale/framework')
-                 ?? InstalledVersions::getPrettyVersion('unigale/module-hypercore'),
+            version: InstalledVersions::getPrettyVersion('epsicube/framework')
+                 ?? InstalledVersions::getPrettyVersion('epsicube/module-hypercore'),
             author: 'Core Team',
             description: __('Turn it into a multi-app manager, enabling multi-tenant setups and effortless handling of multiple applications.'),
         );
@@ -53,9 +53,9 @@ class HypercoreModule extends ServiceProvider implements HasIntegrations, Inject
         ]);
 
         $this->optimizes(
-            optimize: 'unigale-tenants:cache',
-            clear: 'unigale-tenants:clear',
-            key: 'unigale-tenants'
+            optimize: 'epsicube-tenants:cache',
+            clear: 'epsicube-tenants:clear',
+            key: 'epsicube-tenants'
         );
     }
 

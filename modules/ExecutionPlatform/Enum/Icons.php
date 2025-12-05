@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace UniGaleModules\ExecutionPlatform\Enum;
+namespace EpsicubeModules\ExecutionPlatform\Enum;
 
 class Icons
 {

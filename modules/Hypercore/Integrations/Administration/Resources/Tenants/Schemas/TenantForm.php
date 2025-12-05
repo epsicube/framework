@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace UniGaleModules\Hypercore\Integrations\Administration\Resources\Tenants\Schemas;
+namespace EpsicubeModules\Hypercore\Integrations\Administration\Resources\Tenants\Schemas;
 
 use DateTimeZone;
 use Filament\Forms\Components\KeyValue;

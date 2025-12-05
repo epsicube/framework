@@ -1,5 +1,5 @@
 {
-  "name": "unigale/module-execution-platform",
+  "name": "epsicube/module-execution-platform",
   "type": "library",
   "license": "MIT",
   "authors": [
@@ -12,16 +12,16 @@
     "php": "^8.3",
     "illuminate/support": "^12.8",
     "illuminate/database": "^12.8",
-    "unigale/support": "*",
+    "epsicube/support": "*",
     "phiki/phiki": "^2.0.4",
     "codeat3/blade-clarity-icons": "^1.8"
   },
   "suggest": {
-    "unigale/module-administration": "Executions can be tracked in administration"
+    "epsicube/module-administration": "Executions can be tracked in administration"
   },
   "autoload": {
     "psr-4": {
-      "UniGaleModules\\ExecutionPlatform\\": "."
+      "EpsicubeModules\\ExecutionPlatform\\": "."
     }
   },
   "config": {
@@ -30,9 +30,9 @@
   "minimum-stability": "dev",
   "prefer-stable": true,
   "extra": {
-    "unigale": {
+    "epsicube": {
       "modules": [
-        "UniGaleModules\\ExecutionPlatform\\ExecutionPlatformModule"
+        "EpsicubeModules\\ExecutionPlatform\\ExecutionPlatformModule"
       ]
     }
   }

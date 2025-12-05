@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace UniGaleModules\Hypercore\Integrations\Administration;
+namespace EpsicubeModules\Hypercore\Integrations\Administration;
 
-use UniGaleModules\Administration\Administration;
+use EpsicubeModules\Administration\Administration;
 
 /** TODO extends Integration
  * Support attributes LoadOn

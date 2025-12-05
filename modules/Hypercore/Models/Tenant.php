@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace UniGaleModules\Hypercore\Models;
+namespace EpsicubeModules\Hypercore\Models;
 
+use EpsicubeModules\Hypercore\Facades\Hypercore;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Encryption\Encrypter;
-use UniGaleModules\Hypercore\Facades\Hypercore;
 
 /**
  * @property-read  int $id

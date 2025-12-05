@@ -2,15 +2,15 @@
 
 declare(strict_types=1);
 
+use Epsicube\FilamentExtendable\Builders\TableBuilder;
+use Epsicube\Tests\FilamentExtendable\Fixtures\SchemaComponent;
+use Epsicube\Tests\FilamentExtendable\Fixtures\TableComponent;
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Schema;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use modules\FilamentExtendable\Builders\SchemaBuilder;
 use modules\FilamentExtendable\Facades\FilamentExtendable;
-use UniGale\FilamentExtendable\Builders\TableBuilder;
-use UniGale\Tests\FilamentExtendable\Fixtures\SchemaComponent;
-use UniGale\Tests\FilamentExtendable\Fixtures\TableComponent;
 
 test('Ensure schema can be extended at runtime', function (): void {
     static $identifier = 'test-schema';

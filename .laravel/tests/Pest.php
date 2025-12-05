@@ -2,6 +2,6 @@
 
 declare(strict_types=1);
 
-use UniGale\Tests\TestCase;
+use Epsicube\Tests\TestCase;
 
 pest()->extend(TestCase::class);

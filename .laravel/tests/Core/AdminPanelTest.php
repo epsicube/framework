@@ -2,18 +2,18 @@
 
 declare(strict_types=1);
 
+use EpsicubeModules\Administration\Administration;
 use Filament\Facades\Filament;
 use Filament\Support\Colors\Color;
-use UniGaleModules\Administration\Administration;
 
 test('registered panel instanceof "AdminPanel"', function () {
-    $panel = Filament::getPanel(config('unigale.administration.id'));
+    $panel = Filament::getPanel(config('epsicube.administration.id'));
     expect($panel)->not->toBeNull()->toBeInstanceOf(Administration::class);
 });
 
 test('admin panel configuration is applied to panel', function (string $configKey, mixed $expected, Closure $extractor) {
-    config()->set("unigale.{$configKey}", $expected);
-    $panel = Filament::getPanel(config('unigale.administration.id'));
+    config()->set("epsicube.{$configKey}", $expected);
+    $panel = Filament::getPanel(config('epsicube.administration.id'));
     expect($panel)->not->toBeNull()->and($extractor($panel))->toBe($expected);
 })->with([
     'id'         => ['central-panel.id', fake()->domainWord(), fn (Administration $panel) => $panel->getId()],
@@ -30,7 +30,7 @@ test('set admin panel configuration using environment variables', function (stri
         $expected = fake()->uuid();
         putenv("{$envKey}={$expected}");
         $this->refreshApplication();
-        expect(config("unigale.{$configKey}"))->toBe($expected);
+        expect(config("epsicube.{$configKey}"))->toBe($expected);
     } finally {
         if ($original === false) {
             putenv($envKey);
@@ -39,22 +39,22 @@ test('set admin panel configuration using environment variables', function (stri
         }
     }
 })->with([
-    'id'         => ['central-panel.id', 'UNIGALE_ADMIN_PANEL_ID'],
-    'path'       => ['central-panel.path', 'UNIGALE_ADMIN_PANEL_PATH'],
-    'domain'     => ['central-panel.domain', 'UNIGALE_ADMIN_PANEL_DOMAIN'],
-    'brand_name' => ['central-panel.brand_name', 'UNIGALE_ADMIN_PANEL_BRAND_NAME'],
+    'id'         => ['central-panel.id', 'epsicube_ADMIN_PANEL_ID'],
+    'path'       => ['central-panel.path', 'epsicube_ADMIN_PANEL_PATH'],
+    'domain'     => ['central-panel.domain', 'epsicube_ADMIN_PANEL_DOMAIN'],
+    'brand_name' => ['central-panel.brand_name', 'epsicube_ADMIN_PANEL_BRAND_NAME'],
 ]);
 
 test('applies the callback passed to Panel::configureUsing', function () {
     $expected = 'Rebranded test panel';
     Administration::configureUsing(fn (Administration $panel) => $panel->brandName($expected));
-    $panel = Filament::getPanel(config('unigale.administration.id'));
+    $panel = Filament::getPanel(config('epsicube.administration.id'));
     expect($panel?->getBrandName())->toBe($expected);
 });
 
 test('configureUsing callback overrides admin panel configuration', function () {
     $expected = 'Callback Brand';
-    config()->set('unigale.administration.brand_name', 'Configured Brand');
+    config()->set('epsicube.administration.brand_name', 'Configured Brand');
     Administration::configureUsing(fn (Administration $panel) => $panel->brandName($expected));
-    expect(Filament::getPanel(config('unigale.administration.id'))?->getBrandName())->toBe($expected);
+    expect(Filament::getPanel(config('epsicube.administration.id'))?->getBrandName())->toBe($expected);
 });

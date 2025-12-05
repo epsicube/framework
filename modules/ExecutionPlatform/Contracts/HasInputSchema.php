@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace UniGaleModules\ExecutionPlatform\Contracts;
+namespace EpsicubeModules\ExecutionPlatform\Contracts;
 
 interface HasInputSchema
 {

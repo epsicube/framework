@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace UniGaleModules\Hypercore\Integrations\Administration\Resources\Tenants\Pages;
+namespace EpsicubeModules\Hypercore\Integrations\Administration\Resources\Tenants\Pages;
 
+use EpsicubeModules\Hypercore\Integrations\Administration\Resources\Tenants\TenantResource;
 use Filament\Actions\CreateAction;
 use Filament\Resources\Pages\ListRecords;
-use UniGaleModules\Hypercore\Integrations\Administration\Resources\Tenants\TenantResource;
 
 class ListTenants extends ListRecords
 {

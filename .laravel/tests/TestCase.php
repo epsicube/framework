@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace UniGale\Tests;
+namespace Epsicube\Tests;
 
 use Illuminate\Foundation\Testing\TestCase as BaseTestCase;
 

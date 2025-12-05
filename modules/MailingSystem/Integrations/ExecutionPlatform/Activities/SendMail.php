@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-namespace UniGaleModules\MailingSystem\Integrations\ExecutionPlatform\Activities;
+namespace EpsicubeModules\MailingSystem\Integrations\ExecutionPlatform\Activities;
 
+use EpsicubeModules\ExecutionPlatform\Contracts\Activity;
+use EpsicubeModules\MailingSystem\Facades\Mailers;
+use EpsicubeModules\MailingSystem\Facades\Templates;
+use EpsicubeModules\MailingSystem\Mails\EpsicubeMail;
 use Illuminate\JsonSchema\JsonSchema;
-use UniGaleModules\ExecutionPlatform\Contracts\Activity;
-use UniGaleModules\MailingSystem\Facades\Mailers;
-use UniGaleModules\MailingSystem\Facades\Templates;
-use UniGaleModules\MailingSystem\Mails\UnigaleMail;
 
 class SendMail implements Activity
 {
@@ -17,7 +17,7 @@ class SendMail implements Activity
      */
     public function identifier(): string
     {
-        return 'unigale-mail::send-mail';
+        return 'epsicube-mail::send-mail';
     }
 
     public function label(): string
@@ -67,7 +67,7 @@ class SendMail implements Activity
      */
     public function handle(array $inputs = []): array
     {
-        $mail = (new UnigaleMail)
+        $mail = (new EpsicubeMail)
             ->mailer(data_get($inputs, 'mailer'))
             ->setTemplate(data_get($inputs, 'template'))
             ->subject(data_get($inputs, 'subject'))

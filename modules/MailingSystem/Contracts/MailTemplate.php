@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace UniGaleModules\MailingSystem\Contracts;
+namespace EpsicubeModules\MailingSystem\Contracts;
 
+use Epsicube\Support\Contracts\HasLabel;
+use Epsicube\Support\Contracts\Registrable;
 use Illuminate\Mail\Mailables\Content;
-use UniGale\Support\Contracts\HasLabel;
-use UniGale\Support\Contracts\Registrable;
 
 interface MailTemplate extends HasLabel, Registrable
 {

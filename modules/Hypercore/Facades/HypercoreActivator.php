@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace UniGaleModules\Hypercore\Facades;
+namespace EpsicubeModules\Hypercore\Facades;
 
-use UniGaleModules\Hypercore\Models\Tenant;
+use EpsicubeModules\Hypercore\Models\Tenant;
 
 class HypercoreActivator
 {

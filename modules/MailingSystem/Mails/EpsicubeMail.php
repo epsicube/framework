@@ -2,17 +2,17 @@
 
 declare(strict_types=1);
 
-namespace UniGaleModules\MailingSystem\Mails;
+namespace EpsicubeModules\MailingSystem\Mails;
 
+use EpsicubeModules\MailingSystem\Facades\Mailers;
+use EpsicubeModules\MailingSystem\Facades\Templates;
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\SentMessage;
 use Illuminate\Queue\SerializesModels;
-use UniGaleModules\MailingSystem\Facades\Mailers;
-use UniGaleModules\MailingSystem\Facades\Templates;
 
-class UnigaleMail extends Mailable
+class EpsicubeMail extends Mailable
 {
     use Queueable, SerializesModels;
 

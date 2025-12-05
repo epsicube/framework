@@ -2,8 +2,13 @@
 
 declare(strict_types=1);
 
-namespace UniGale\Foundation\Bootstrap;
+namespace Epsicube\Foundation\Bootstrap;
 
+use Epsicube\Foundation\EpsicubeApplication;
+use Epsicube\Foundation\Managers\ModulesManager;
+use Epsicube\Foundation\Providers\EpsicubeServiceProvider;
+use Epsicube\Support\Contracts\InjectBootstrappers;
+use Epsicube\Support\Facades\Modules;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Database\DatabaseServiceProvider;
 use Illuminate\Database\Eloquent\Model;
@@ -11,19 +16,14 @@ use Illuminate\Filesystem\FilesystemServiceProvider;
 use Illuminate\Foundation\Bootstrap\LoadConfiguration;
 use Illuminate\Foundation\Bootstrap\RegisterProviders;
 use Illuminate\View\ViewServiceProvider;
-use UniGale\Foundation\Managers\ModulesManager;
-use UniGale\Foundation\Providers\UnigaleServiceProvider;
-use UniGale\Foundation\UnigaleApplication;
-use UniGale\Support\Contracts\InjectBootstrappers;
-use UniGale\Support\Facades\Modules;
 
-class BootstrapUnigale
+class BootstrapEpsicube
 {
     public function bootstrap(Application $app): void
     {
-        $app->register(UnigaleServiceProvider::class); // <- force registering self provider
+        $app->register(EpsicubeServiceProvider::class); // <- force registering self provider
 
-        $app->afterBootstrapping(LoadConfiguration::class, function (UnigaleApplication $app) {
+        $app->afterBootstrapping(LoadConfiguration::class, function (EpsicubeApplication $app) {
             $cleanups = [];
             // Ensure proper error handling is available (omitted without debug for performance)
             if ($app->hasDebugModeEnabled()) {

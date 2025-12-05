@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace UniGaleModules\MailingSystem\Mails\Templates;
+namespace EpsicubeModules\MailingSystem\Mails\Templates;
 
+use EpsicubeModules\MailingSystem\Contracts\MailTemplate;
 use Illuminate\Mail\Mailables\Content;
 use Spatie\Mjml\Mjml;
-use UniGaleModules\MailingSystem\Contracts\MailTemplate;
 
 abstract class MjmlTemplate implements MailTemplate
 {

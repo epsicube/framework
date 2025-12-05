@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-namespace UniGale\Foundation\Console\Commands;
+namespace Epsicube\Foundation\Console\Commands;
 
+use Epsicube\Support\Contracts\Module;
+use Epsicube\Support\Facades\Modules;
 use Illuminate\Console\Command;
 use Illuminate\Contracts\Console\PromptsForMissingInput;
 use Throwable;
-use UniGale\Support\Contracts\Module;
-use UniGale\Support\Facades\Modules;
 
 use function Laravel\Prompts\error;
 use function Laravel\Prompts\multiselect;

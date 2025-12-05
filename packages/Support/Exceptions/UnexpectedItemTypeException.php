@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace UniGale\Support\Exceptions;
+namespace Epsicube\Support\Exceptions;
 
+use Epsicube\Support\Registry;
 use RuntimeException;
 use Throwable;
-use UniGale\Support\Registry;
 
 class UnexpectedItemTypeException extends RuntimeException
 {

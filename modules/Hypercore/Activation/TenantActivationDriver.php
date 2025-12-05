@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace UniGaleModules\Hypercore\Activation;
+namespace EpsicubeModules\Hypercore\Activation;
 
-use UniGale\Support\Contracts\ActivationDriver;
-use UniGale\Support\Contracts\Module;
-use UniGaleModules\Hypercore\Facades\HypercoreActivator;
-use UniGaleModules\Hypercore\Models\Module as ModuleModel;
+use Epsicube\Support\Contracts\ActivationDriver;
+use Epsicube\Support\Contracts\Module;
+use EpsicubeModules\Hypercore\Facades\HypercoreActivator;
+use EpsicubeModules\Hypercore\Models\Module as ModuleModel;
 
 /**
  * Tenant-scoped activation driver: persists activation per tenant_id.

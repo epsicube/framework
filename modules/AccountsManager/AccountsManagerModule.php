@@ -2,16 +2,16 @@
 
 declare(strict_types=1);
 
-namespace UniGaleModules\AccountsManager;
+namespace EpsicubeModules\AccountsManager;
 
 use Composer\InstalledVersions;
+use Epsicube\Support\Contracts\HasIntegrations;
+use Epsicube\Support\Contracts\Module;
+use Epsicube\Support\Integrations;
+use Epsicube\Support\ModuleIdentity;
+use EpsicubeModules\AccountsManager\Integrations\Administration\AdministrationIntegration;
+use EpsicubeModules\AccountsManager\Models\Account;
 use Illuminate\Support\ServiceProvider;
-use UniGale\Support\Contracts\HasIntegrations;
-use UniGale\Support\Contracts\Module;
-use UniGale\Support\Integrations;
-use UniGale\Support\ModuleIdentity;
-use UniGaleModules\AccountsManager\Integrations\Administration\AdministrationIntegration;
-use UniGaleModules\AccountsManager\Models\Account;
 
 class AccountsManagerModule extends ServiceProvider implements HasIntegrations, Module
 {
@@ -26,8 +26,8 @@ class AccountsManagerModule extends ServiceProvider implements HasIntegrations, 
     {
         return ModuleIdentity::make(
             name: __('Accounts Manager'),
-            version: InstalledVersions::getPrettyVersion('unigale/framework')
-            ?? InstalledVersions::getPrettyVersion('unigale/module-accounts-manager'),
+            version: InstalledVersions::getPrettyVersion('epsicube/framework')
+            ?? InstalledVersions::getPrettyVersion('epsicube/module-accounts-manager'),
             author: 'Core Team',
         );
     }

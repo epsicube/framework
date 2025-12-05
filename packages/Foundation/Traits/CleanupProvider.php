@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace UniGale\Foundation\Traits;
+namespace Epsicube\Foundation\Traits;
 
 use Closure;
 

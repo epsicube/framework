@@ -2,18 +2,18 @@
 
 declare(strict_types=1);
 
-namespace UniGaleModules\ExecutionPlatform\Integrations\Administration\Resources\Executions;
+namespace EpsicubeModules\ExecutionPlatform\Integrations\Administration\Resources\Executions;
 
 use BackedEnum;
+use EpsicubeModules\ExecutionPlatform\Enum\Icons;
+use EpsicubeModules\ExecutionPlatform\Integrations\Administration\Resources\Executions\Pages\ListExecutions;
+use EpsicubeModules\ExecutionPlatform\Integrations\Administration\Resources\Executions\Pages\ViewExecution;
+use EpsicubeModules\ExecutionPlatform\Integrations\Administration\Resources\Executions\Schemas\ExecutionInfolist;
+use EpsicubeModules\ExecutionPlatform\Integrations\Administration\Resources\Executions\Tables\ExecutionsTable;
+use EpsicubeModules\ExecutionPlatform\Models\Execution;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Tables\Table;
-use UniGaleModules\ExecutionPlatform\Enum\Icons;
-use UniGaleModules\ExecutionPlatform\Integrations\Administration\Resources\Executions\Pages\ListExecutions;
-use UniGaleModules\ExecutionPlatform\Integrations\Administration\Resources\Executions\Pages\ViewExecution;
-use UniGaleModules\ExecutionPlatform\Integrations\Administration\Resources\Executions\Schemas\ExecutionInfolist;
-use UniGaleModules\ExecutionPlatform\Integrations\Administration\Resources\Executions\Tables\ExecutionsTable;
-use UniGaleModules\ExecutionPlatform\Models\Execution;
 use UnitEnum;
 
 class ExecutionResource extends Resource

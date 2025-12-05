@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace UniGaleModules\ExecutionPlatform\Facades;
+namespace EpsicubeModules\ExecutionPlatform\Facades;
 
+use EpsicubeModules\ExecutionPlatform\Contracts\Activity;
+use EpsicubeModules\ExecutionPlatform\Registries\ActivitiesRegistry;
 use Illuminate\Support\Facades\Facade;
-use UniGaleModules\ExecutionPlatform\Contracts\Activity;
-use UniGaleModules\ExecutionPlatform\Registries\ActivitiesRegistry;
 
 class Activities extends Facade
 {

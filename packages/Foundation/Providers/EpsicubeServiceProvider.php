@@ -2,49 +2,48 @@
 
 declare(strict_types=1);
 
-namespace UniGale\Foundation\Providers;
+namespace Epsicube\Foundation\Providers;
 
 use Carbon\Laravel\ServiceProvider;
+use Epsicube\Foundation\Console\Commands\ModulesDisableCommand;
+use Epsicube\Foundation\Console\Commands\ModulesEnableCommand;
+use Epsicube\Foundation\Console\Commands\ModulesStatusCommand;
+use Epsicube\Foundation\Console\Commands\OptionsListCommand;
+use Epsicube\Foundation\Console\Commands\OptionsSetCommand;
+use Epsicube\Foundation\Console\Commands\OptionsUnsetCommand;
+use Epsicube\Foundation\Console\Commands\ReloadCommand;
+use Epsicube\Foundation\Console\Commands\WorkCommand;
+use Epsicube\Foundation\Managers\EpsicubeManager;
+use Epsicube\Foundation\Managers\ModulesManager;
+use Epsicube\Foundation\Managers\OptionsManager;
+use Epsicube\Foundation\Utilities\DatabaseOptionStore;
+use Epsicube\Foundation\Utilities\FilesystemActivationDriver;
+use Epsicube\Foundation\Utilities\Manifest;
+use Epsicube\Support\Contracts\HasOptions;
+use Epsicube\Support\Contracts\Module;
+use Epsicube\Support\Facades\Epsicube;
+use Epsicube\Support\Facades\Modules;
+use Epsicube\Support\Facades\Options;
 use Illuminate\Filesystem\Filesystem;
 use Illuminate\Support\Env;
-use UniGale\Foundation\Console\Commands\ModulesDisableCommand;
-use UniGale\Foundation\Console\Commands\ModulesEnableCommand;
-use UniGale\Foundation\Console\Commands\ModulesStatusCommand;
-use UniGale\Foundation\Console\Commands\OptionsListCommand;
-use UniGale\Foundation\Console\Commands\OptionsSetCommand;
-use UniGale\Foundation\Console\Commands\OptionsUnsetCommand;
-use UniGale\Foundation\Console\Commands\ReloadCommand;
-use UniGale\Foundation\Console\Commands\WorkCommand;
-use UniGale\Foundation\Managers\ModulesManager;
-use UniGale\Foundation\Managers\OptionsManager;
-use UniGale\Foundation\Managers\UnigaleManager;
-use UniGale\Foundation\Utilities\DatabaseOptionStore;
-use UniGale\Foundation\Utilities\FilesystemActivationDriver;
-use UniGale\Foundation\Utilities\UnigaleManifest;
-use UniGale\Support\Contracts\HasOptions;
-use UniGale\Support\Contracts\Module;
-use UniGale\Support\Facades\Manifest;
-use UniGale\Support\Facades\Modules;
-use UniGale\Support\Facades\Options;
-use UniGale\Support\Facades\Unigale;
 
 /**
  * This service provider is initialized during the application bootstrap phase.
  * Modules are loaded only after all core providers have been fully registered.
  */
-class UnigaleServiceProvider extends ServiceProvider
+class EpsicubeServiceProvider extends ServiceProvider
 {
     public function register(): void
     {
-        $this->app->singleton('foundation-unigale', function () {
-            return new UnigaleManager;
+        $this->app->singleton('foundation-epsicube', function () {
+            return new EpsicubeManager;
         });
 
         $this->app->singleton('foundation-manifest', function () {
-            return new UnigaleManifest(
+            return new Manifest(
                 files: new Filesystem,
                 vendorPath: Env::get('COMPOSER_VENDOR_DIR') ?? base_path('/vendor'),
-                manifestPath: app()->bootstrapPath('cache/unigale.php')
+                manifestPath: app()->bootstrapPath('cache/epsicube.php')
             );
         });
 
@@ -56,7 +55,7 @@ class UnigaleServiceProvider extends ServiceProvider
             $manifestModules = array_map(function (string $moduleClass) {
                 /** @var class-string<Module> $moduleClass */
                 return $this->app->make($moduleClass, ['app' => $this->app]);
-            }, $this->app->get(Manifest::$accessor)->config('modules'));
+            }, $this->app->get(\Epsicube\Support\Facades\Manifest::$accessor)->config('modules'));
 
             $registry->register(...$manifestModules);
 
@@ -74,9 +73,11 @@ class UnigaleServiceProvider extends ServiceProvider
 
             return $manager;
         });
+
+        // TODO merge manifest into Epsicube
         // Keep alias binding to allow remapping and access to initial without triggering callback
-        $this->app->alias('foundation-unigale', Unigale::$accessor);
-        $this->app->alias('foundation-manifest', Manifest::$accessor);
+        $this->app->alias('foundation-epsicube', Epsicube::$accessor);
+        $this->app->alias('foundation-manifest', \Epsicube\Support\Facades\Manifest::$accessor);
         $this->app->alias('foundation-options', Options::$accessor);
         $this->app->alias('foundation-modules', Modules::$accessor);
     }
@@ -94,6 +95,6 @@ class UnigaleServiceProvider extends ServiceProvider
             WorkCommand::class,
         ]);
         $this->loadMigrationsFrom(__DIR__.'/../database/migrations');
-        $this->reloads('unigale:reload', 'unigale');
+        $this->reloads('epsicube:reload', 'epsicube');
     }
 }

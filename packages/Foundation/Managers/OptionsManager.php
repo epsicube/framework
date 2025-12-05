@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace UniGale\Foundation\Managers;
+namespace Epsicube\Foundation\Managers;
 
-use UniGale\Support\Contracts\OptionsStore;
-use UniGale\Support\Exceptions\DefinitionNotFoundException;
-use UniGale\Support\OptionsDefinition;
+use Epsicube\Support\Contracts\OptionsStore;
+use Epsicube\Support\Exceptions\DefinitionNotFoundException;
+use Epsicube\Support\OptionsDefinition;
 
 class OptionsManager
 {

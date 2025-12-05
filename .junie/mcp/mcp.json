@@ -1,6 +1,6 @@
 {
   "mcpServers": {
-    "unigale": {
+    "epsicube": {
       "command": "docker",
       "args": [
         "compose",
@@ -10,7 +10,7 @@
         "php",
         "artisan",
         "mcp:start",
-        "unigale"
+        "epsicube"
       ]
     }
   }

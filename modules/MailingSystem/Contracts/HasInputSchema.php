@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace UniGaleModules\MailingSystem\Contracts;
+namespace EpsicubeModules\MailingSystem\Contracts;
 
 interface HasInputSchema
 {

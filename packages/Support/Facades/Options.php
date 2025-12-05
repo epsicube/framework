@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace UniGale\Support\Facades;
+namespace Epsicube\Support\Facades;
 
+use Epsicube\Foundation\Managers\OptionsManager;
 use Illuminate\Support\Facades\Facade;
-use UniGale\Foundation\Managers\OptionsManager;
 
 class Options extends Facade
 {

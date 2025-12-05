@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace UniGaleModules\McpServer\Facades;
+namespace EpsicubeModules\McpServer\Facades;
 
+use EpsicubeModules\McpServer\Contracts\Resource;
+use EpsicubeModules\McpServer\Registries\ResourcesRegistry;
 use Illuminate\Support\Facades\Facade;
-use UniGaleModules\McpServer\Contracts\Resource;
-use UniGaleModules\McpServer\Registries\ResourcesRegistry;
 
 class Resources extends Facade
 {

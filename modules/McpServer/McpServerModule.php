@@ -2,20 +2,20 @@
 
 declare(strict_types=1);
 
-namespace UniGaleModules\McpServer;
+namespace EpsicubeModules\McpServer;
 
 use Carbon\Laravel\ServiceProvider;
 use Composer\InstalledVersions;
+use Epsicube\Support\Contracts\HasOptions;
+use Epsicube\Support\Contracts\Module;
+use Epsicube\Support\ModuleIdentity;
+use Epsicube\Support\OptionsDefinition;
+use EpsicubeModules\McpServer\Facades\Resources;
+use EpsicubeModules\McpServer\Facades\Tools;
+use EpsicubeModules\McpServer\Mcp\Servers\McpServer;
+use EpsicubeModules\McpServer\Registries\ResourcesRegistry;
+use EpsicubeModules\McpServer\Registries\ToolsRegistry;
 use Laravel\Mcp\Facades\Mcp;
-use UniGale\Support\Contracts\HasOptions;
-use UniGale\Support\Contracts\Module;
-use UniGale\Support\ModuleIdentity;
-use UniGale\Support\OptionsDefinition;
-use UniGaleModules\McpServer\Facades\Resources;
-use UniGaleModules\McpServer\Facades\Tools;
-use UniGaleModules\McpServer\Mcp\Servers\McpServer;
-use UniGaleModules\McpServer\Registries\ResourcesRegistry;
-use UniGaleModules\McpServer\Registries\ToolsRegistry;
 
 class McpServerModule extends ServiceProvider implements HasOptions, Module
 {
@@ -28,8 +28,8 @@ class McpServerModule extends ServiceProvider implements HasOptions, Module
     {
         return ModuleIdentity::make(
             name: __('MCP Server'),
-            version: InstalledVersions::getPrettyVersion('unigale/framework')
-            ?? InstalledVersions::getPrettyVersion('unigale/module-mcp-server'),
+            version: InstalledVersions::getPrettyVersion('epsicube/framework')
+            ?? InstalledVersions::getPrettyVersion('epsicube/module-mcp-server'),
             author: 'Core Team',
             description: __('Integrates MCP capabilities into the application, allowing modules to declare and expose MCP resources.')
         );
@@ -78,7 +78,7 @@ class McpServerModule extends ServiceProvider implements HasOptions, Module
 
         $this->app->booted(function () {
             Mcp::web('/mcp', McpServer::class);
-            Mcp::local('unigale', McpServer::class);
+            Mcp::local('epsicube', McpServer::class);
         });
     }
 

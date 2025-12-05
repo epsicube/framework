@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace UniGale\Foundation\Models;
+namespace Epsicube\Foundation\Models;
 
 use Illuminate\Database\Eloquent\Model;
 

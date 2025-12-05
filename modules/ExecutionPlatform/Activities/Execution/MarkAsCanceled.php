@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace UniGaleModules\ExecutionPlatform\Activities\Execution;
+namespace EpsicubeModules\ExecutionPlatform\Activities\Execution;
 
+use EpsicubeModules\ExecutionPlatform\Contracts\Activity;
+use EpsicubeModules\ExecutionPlatform\Enum\ExecutionStatus;
+use EpsicubeModules\ExecutionPlatform\Models\Execution;
 use RuntimeException;
-use UniGaleModules\ExecutionPlatform\Contracts\Activity;
-use UniGaleModules\ExecutionPlatform\Enum\ExecutionStatus;
-use UniGaleModules\ExecutionPlatform\Models\Execution;
 
 class MarkAsCanceled implements Activity
 {

@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace UniGale\Support\Facades;
+namespace Epsicube\Support\Facades;
 
+use Epsicube\Foundation\Managers\ModulesManager;
 use Illuminate\Support\Facades\Facade;
-use UniGale\Foundation\Managers\ModulesManager;
 
 class Modules extends Facade
 {

@@ -1,5 +1,5 @@
 {
-  "name": "unigale/module-mailing-system",
+  "name": "epsicube/module-mailing-system",
   "type": "library",
   "license": "MIT",
   "authors": [
@@ -11,15 +11,15 @@
   "require": {
     "php": "^8.3",
     "illuminate/support": "^12.8",
-    "unigale/support": "*",
+    "epsicube/support": "*",
     "spatie/mjml-php": "^1.2.5"
   },
   "suggest": {
-    "unigale/module-execution-platform": "Some activities and workflows are registered by this module"
+    "epsicube/module-execution-platform": "Some activities and workflows are registered by this module"
   },
   "autoload": {
     "psr-4": {
-      "UniGaleModules\\MailingSystem\\": "."
+      "EpsicubeModules\\MailingSystem\\": "."
     }
   },
   "config": {
@@ -28,9 +28,9 @@
   "minimum-stability": "dev",
   "prefer-stable": true,
   "extra": {
-    "unigale": {
+    "epsicube": {
       "modules": [
-        "UniGaleModules\\MailingSystem\\MailingSystemModule"
+        "EpsicubeModules\\MailingSystem\\MailingSystemModule"
       ]
     }
   }

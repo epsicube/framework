@@ -1,5 +1,5 @@
 {
-  "name": "unigale/module-mcp-server",
+  "name": "epsicube/module-mcp-server",
   "type": "library",
   "license": "MIT",
   "authors": [
@@ -12,11 +12,11 @@
     "php": "^8.3",
     "illuminate/support": "^12.8",
     "laravel/mcp": "^0.4",
-    "unigale/support": "*"
+    "epsicube/support": "*"
   },
   "autoload": {
     "psr-4": {
-      "UniGaleModules\\McpServer\\": "."
+      "EpsicubeModules\\McpServer\\": "."
     }
   },
   "config": {
@@ -25,9 +25,9 @@
   "minimum-stability": "dev",
   "prefer-stable": true,
   "extra": {
-    "unigale": {
+    "epsicube": {
       "modules": [
-        "UniGaleModules\\McpServer\\McpServerModule"
+        "EpsicubeModules\\McpServer\\McpServerModule"
       ]
     }
   }

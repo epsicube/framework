@@ -2,18 +2,18 @@
 
 declare(strict_types=1);
 
-namespace UniGaleModules\McpServer\Mcp\Servers;
+namespace EpsicubeModules\McpServer\Mcp\Servers;
 
+use Epsicube\Support\Facades\Options;
+use EpsicubeModules\McpServer\Contracts\Resource;
+use EpsicubeModules\McpServer\Contracts\Tool;
+use EpsicubeModules\McpServer\Facades\Resources;
+use EpsicubeModules\McpServer\Facades\Tools;
+use EpsicubeModules\McpServer\Mcp\Helpers\ResourceConverter;
+use EpsicubeModules\McpServer\Mcp\Helpers\ToolConverter;
 use Laravel\Mcp\Server;
 use Laravel\Mcp\Server\Contracts\Transport;
 use Laravel\Mcp\Server\Prompt;
-use UniGale\Support\Facades\Options;
-use UniGaleModules\McpServer\Contracts\Resource;
-use UniGaleModules\McpServer\Contracts\Tool;
-use UniGaleModules\McpServer\Facades\Resources;
-use UniGaleModules\McpServer\Facades\Tools;
-use UniGaleModules\McpServer\Mcp\Helpers\ResourceConverter;
-use UniGaleModules\McpServer\Mcp\Helpers\ToolConverter;
 
 class McpServer extends Server
 {

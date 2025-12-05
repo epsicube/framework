@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace UniGaleModules\MailingSystem\Integrations\ExecutionPlatform\Activities;
+namespace EpsicubeModules\MailingSystem\Integrations\ExecutionPlatform\Activities;
 
+use EpsicubeModules\ExecutionPlatform\Contracts\Activity;
+use EpsicubeModules\MailingSystem\Contracts\MailTemplate;
+use EpsicubeModules\MailingSystem\Facades\Templates;
 use Illuminate\JsonSchema\JsonSchema;
-use UniGaleModules\ExecutionPlatform\Contracts\Activity;
-use UniGaleModules\MailingSystem\Contracts\MailTemplate;
-use UniGaleModules\MailingSystem\Facades\Templates;
 
 class ListTemplates implements Activity
 {
@@ -16,7 +16,7 @@ class ListTemplates implements Activity
      */
     public function identifier(): string
     {
-        return 'unigale-mail::list-templates';
+        return 'epsicube-mail::list-templates';
     }
 
     public function label(): string

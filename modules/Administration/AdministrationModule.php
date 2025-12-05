@@ -2,16 +2,16 @@
 
 declare(strict_types=1);
 
-namespace UniGaleModules\Administration;
+namespace EpsicubeModules\Administration;
 
 use Carbon\Laravel\ServiceProvider;
 use Composer\InstalledVersions;
+use Epsicube\Support\Contracts\HasOptions;
+use Epsicube\Support\Contracts\Module;
+use Epsicube\Support\ModuleIdentity;
+use Epsicube\Support\OptionsDefinition;
 use Filament\FilamentServiceProvider;
 use Filament\PanelRegistry;
-use UniGale\Support\Contracts\HasOptions;
-use UniGale\Support\Contracts\Module;
-use UniGale\Support\ModuleIdentity;
-use UniGale\Support\OptionsDefinition;
 
 class AdministrationModule extends ServiceProvider implements HasOptions, Module
 {
@@ -24,8 +24,8 @@ class AdministrationModule extends ServiceProvider implements HasOptions, Module
     {
         return ModuleIdentity::make(
             name: __('Administration'),
-            version: InstalledVersions::getPrettyVersion('unigale/framework')
-            ?? InstalledVersions::getPrettyVersion('unigale/module-administration'),
+            version: InstalledVersions::getPrettyVersion('epsicube/framework')
+            ?? InstalledVersions::getPrettyVersion('epsicube/module-administration'),
             author: 'Core Team',
             description: __('Provides administrative tools and management features for the system.')
         );
@@ -56,7 +56,7 @@ class AdministrationModule extends ServiceProvider implements HasOptions, Module
     {
         $this->app->booted(function () {
             $callback = function (PanelRegistry $registry) {
-                $registry->register(Administration::make()->id('unigale-administration'));
+                $registry->register(Administration::make()->id('epsicube-administration'));
             };
 
             $this->app->resolving(PanelRegistry::class, $callback);
@@ -74,6 +74,6 @@ class AdministrationModule extends ServiceProvider implements HasOptions, Module
 
     public function boot(): void
     {
-        $this->loadViewsFrom(__DIR__.'/resources/views', 'unigale-administration');
+        $this->loadViewsFrom(__DIR__.'/resources/views', 'epsicube-administration');
     }
 }

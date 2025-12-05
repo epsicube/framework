@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace UniGaleModules\ExecutionPlatform\Registries;
+namespace EpsicubeModules\ExecutionPlatform\Registries;
 
-use UniGale\Support\Registry;
-use UniGaleModules\ExecutionPlatform\Contracts\Workflow;
+use Epsicube\Support\Registry;
+use EpsicubeModules\ExecutionPlatform\Contracts\Workflow;
 
 /**
  * @extends Registry<Workflow>

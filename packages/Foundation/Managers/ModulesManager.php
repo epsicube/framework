@@ -2,18 +2,18 @@
 
 declare(strict_types=1);
 
-namespace UniGale\Foundation\Managers;
+namespace Epsicube\Foundation\Managers;
 
+use Epsicube\Support\Contracts\ActivationDriver;
+use Epsicube\Support\Contracts\HasDependencies;
+use Epsicube\Support\Contracts\HasIntegrations;
+use Epsicube\Support\Contracts\Module;
+use Epsicube\Support\Exceptions\CircularDependencyException;
+use Epsicube\Support\Registry;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Support\ServiceProvider;
 use RuntimeException;
 use Throwable;
-use UniGale\Support\Contracts\ActivationDriver;
-use UniGale\Support\Contracts\HasDependencies;
-use UniGale\Support\Contracts\HasIntegrations;
-use UniGale\Support\Contracts\Module;
-use UniGale\Support\Exceptions\CircularDependencyException;
-use UniGale\Support\Registry;
 
 /**
  * @extends Registry<Module>

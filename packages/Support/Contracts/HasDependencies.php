@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace UniGale\Support\Contracts;
+namespace Epsicube\Support\Contracts;
 
-use UniGale\Support\Dependencies;
+use Epsicube\Support\Dependencies;
 
 /**
  * Optional contract for modules that declare dependencies on other modules.

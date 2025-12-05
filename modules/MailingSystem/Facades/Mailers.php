@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace UniGaleModules\MailingSystem\Facades;
+namespace EpsicubeModules\MailingSystem\Facades;
 
+use EpsicubeModules\MailingSystem\Contracts\Mailer;
+use EpsicubeModules\MailingSystem\Registries\MailersRegistry;
 use Illuminate\Support\Facades\Facade;
-use UniGaleModules\MailingSystem\Contracts\Mailer;
-use UniGaleModules\MailingSystem\Registries\MailersRegistry;
 
 class Mailers extends Facade
 {

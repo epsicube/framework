@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace UniGaleModules\MailingSystem\Mails\Templates;
+namespace EpsicubeModules\MailingSystem\Mails\Templates;
 
+use EpsicubeModules\MailingSystem\Contracts\HasInputSchema;
+use EpsicubeModules\MailingSystem\Contracts\MailTemplate;
 use Filament\Forms\Components\Textarea;
 use Illuminate\Mail\Mailables\Content;
-use UniGaleModules\MailingSystem\Contracts\HasInputSchema;
-use UniGaleModules\MailingSystem\Contracts\MailTemplate;
 
 class Blank implements HasInputSchema, MailTemplate
 {
@@ -24,7 +24,7 @@ class Blank implements HasInputSchema, MailTemplate
     public function content(array $with = []): Content
     {
         return new Content(
-            view: 'unigale-mail::blank',
+            view: 'epsicube-mail::blank',
             with: $with,
         );
     }

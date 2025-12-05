@@ -2,14 +2,14 @@
 
 declare(strict_types=1);
 
+use Epsicube\FilamentExtendable\Builders\TableBuilder;
+use Epsicube\FilamentExtendable\Enums\InsertPosition;
+use Epsicube\Tests\FilamentExtendable\Fixtures\TableComponent;
 use Filament\Tables\Columns\ColumnGroup;
 use Filament\Tables\Columns\Layout\Stack;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use modules\FilamentExtendable\Exceptions\TableGroupNotFoundException;
-use UniGale\FilamentExtendable\Builders\TableBuilder;
-use UniGale\FilamentExtendable\Enums\InsertPosition;
-use UniGale\Tests\FilamentExtendable\Fixtures\TableComponent;
 
 beforeEach(function (): void {
     $this->table = Table::make(TableComponent::make());

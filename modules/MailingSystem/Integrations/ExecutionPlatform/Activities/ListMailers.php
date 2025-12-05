@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace UniGaleModules\MailingSystem\Integrations\ExecutionPlatform\Activities;
+namespace EpsicubeModules\MailingSystem\Integrations\ExecutionPlatform\Activities;
 
+use EpsicubeModules\ExecutionPlatform\Contracts\Activity;
+use EpsicubeModules\MailingSystem\Contracts\Mailer;
+use EpsicubeModules\MailingSystem\Facades\Mailers;
 use Illuminate\JsonSchema\JsonSchema;
-use UniGaleModules\ExecutionPlatform\Contracts\Activity;
-use UniGaleModules\MailingSystem\Contracts\Mailer;
-use UniGaleModules\MailingSystem\Facades\Mailers;
 
 class ListMailers implements Activity
 {
@@ -16,7 +16,7 @@ class ListMailers implements Activity
      */
     public function identifier(): string
     {
-        return 'unigale-mail::list-mailers';
+        return 'epsicube-mail::list-mailers';
     }
 
     public function label(): string

@@ -2,19 +2,19 @@
 
 declare(strict_types=1);
 
-namespace UniGaleModules\AccountsManager\Integrations\Administration\Resources\Accounts;
+namespace EpsicubeModules\AccountsManager\Integrations\Administration\Resources\Accounts;
 
 use BackedEnum;
+use EpsicubeModules\AccountsManager\Integrations\Administration\Resources\Accounts\Pages\CreateAccount;
+use EpsicubeModules\AccountsManager\Integrations\Administration\Resources\Accounts\Pages\EditAccount;
+use EpsicubeModules\AccountsManager\Integrations\Administration\Resources\Accounts\Pages\ListAccounts;
+use EpsicubeModules\AccountsManager\Integrations\Administration\Resources\Accounts\Schemas\AccountForm;
+use EpsicubeModules\AccountsManager\Integrations\Administration\Resources\Accounts\Tables\AccountsTable;
+use EpsicubeModules\AccountsManager\Models\Account;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
-use UniGaleModules\AccountsManager\Integrations\Administration\Resources\Accounts\Pages\CreateAccount;
-use UniGaleModules\AccountsManager\Integrations\Administration\Resources\Accounts\Pages\EditAccount;
-use UniGaleModules\AccountsManager\Integrations\Administration\Resources\Accounts\Pages\ListAccounts;
-use UniGaleModules\AccountsManager\Integrations\Administration\Resources\Accounts\Schemas\AccountForm;
-use UniGaleModules\AccountsManager\Integrations\Administration\Resources\Accounts\Tables\AccountsTable;
-use UniGaleModules\AccountsManager\Models\Account;
 
 class AccountResource extends Resource
 {

@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace UniGaleModules\Hypercore\Integrations\Administration\Resources\Tenants\Pages;
+namespace EpsicubeModules\Hypercore\Integrations\Administration\Resources\Tenants\Pages;
 
+use EpsicubeModules\Hypercore\Integrations\Administration\Resources\Tenants\TenantResource;
 use Filament\Resources\Pages\CreateRecord;
-use UniGaleModules\Hypercore\Integrations\Administration\Resources\Tenants\TenantResource;
 
 class CreateTenant extends CreateRecord
 {

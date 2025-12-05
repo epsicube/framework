@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace UniGaleModules\Administration\Clusters\Options;
+namespace EpsicubeModules\Administration\Clusters\Options;
 
 use BackedEnum;
 use Filament\Clusters\Cluster;
