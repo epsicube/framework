@@ -8,6 +8,7 @@ use Filament\Http\Middleware\AuthenticateSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
 use Filament\Http\Middleware\DispatchServingFilamentEvent;
 use Filament\Panel as FilamentPanel;
+use Filament\Support\Enums\Width;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
 use Illuminate\Cookie\Middleware\EncryptCookies;
 use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
@@ -40,5 +41,6 @@ class Administration extends FilamentPanel
         $this->brandName(Options::get('core::administration', 'brand-name'));
         $this->spa(Options::get('core::administration', 'spa'));
         $this->topNavigation(Options::get('core::administration', 'top-navigation'));
+        $this->maxContentWidth(Width::Full);
     }
 }

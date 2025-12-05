@@ -34,7 +34,7 @@ Dependencies are checked automatically when enabling modules via the **Administr
         // ...
         public function dependencies(): Dependencies
         {
-            return Dependencies::make(['core::execution-platform']);
+            return Dependencies::make('core::execution-platform', 'core::administration');
         }
     }
     ```

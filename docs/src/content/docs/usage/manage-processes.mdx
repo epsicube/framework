@@ -1,0 +1,86 @@
+---
+title: "Manage Processes"
+description: "Manage long-running processes provided by modules."
+sidebar:
+  order: 2
+---
+import { Aside } from '@astrojs/starlight/components';
+
+Modules can register their own long-running tasks (for example: schedulers, workers, ...).
+
+To avoid having to maintain a dedicated supervisor for each module, the system provides a unified command capable of supervising all declared module processes.
+
+This page explains how to start, reload, and keep this worker running in production.
+
+## Starting the Worker
+
+
+The **`unigale:work`** command starts all module-defined long-running tasks and supervises them continuously.
+
+```bash
+php artisan unigale:work
+```
+
+```text
+[12:51:11] [Supervisor] Starting sub-processes…
+[12:51:11] [Supervisor] Starting 'schedule'…
+[12:51:11] [Supervisor] Starting 'queue'…
+[12:51:12] [schedule] INFO  Running scheduled tasks.
+...
+```
+Once started, the worker continues running until manually stopped or until the terminal is closed.
+
+<Aside>
+By default, `unigale:work` manages both the [Laravel Scheduler](https://laravel.com/docs/scheduling#running-the-scheduler) and the [Queue Worker](https://laravel.com/docs/queues#running-the-queue-worker).
+If you already run scheduling via `crontab`, or if your queue workers are externally supervised, you can safely replace those setups with `unigale:work`.
+</Aside>
+
+## Reloading the Worker
+
+You can trigger a full reload of all running sub-processes using:
+
+```bash
+php artisan unigale:reload
+```
+
+This broadcasts a restart signal that forces `unigale:work` to gracefully stop and restart each managed task:
+
+```text
+Broadcasting reload signal.
+```
+
+This is particularly useful when deploying changes that affect worker-level logic.
+
+## Setup for production
+
+To ensure it stays active after crashes, timeouts, or server restarts, you should use a **process monitor**, such as **Supervisor**.
+
+### Supervisor Configuration
+Supervisor configuration files are typically stored in the `/etc/supervisor/conf.d` directory. Within this directory, you may create any number of configuration files that instruct supervisor how your processes should be monitored. For example, let's create a `unigale-worker.conf` file that starts and monitors `unigale:work` processes:
+
+```ini
+[program:unigale-worker]
+process_name=%(program_name)s_%(process_num)02d
+command=php /path/to/your/application/artisan unigale:work
+autostart=true
+autorestart=true
+stopasgroup=true
+killasgroup=true
+user=www-data
+numprocs=1
+redirect_stderr=true
+stdout_logfile=/path/to/your/application/storage/logs/worker.log
+stopwaitsecs=3600
+````
+
+#### Starting supervisor
+
+Once the configuration file has been created, you may update the Supervisor configuration and start the processes using the following commands:
+
+```bash
+sudo supervisorctl reread
+sudo supervisorctl update
+sudo supervisorctl start "unigale-worker:*"
+```
+
+For more information on Supervisor, consult the [Supervisor documentation](https://supervisord.org/).

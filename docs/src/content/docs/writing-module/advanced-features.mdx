@@ -1,0 +1,25 @@
+---
+title: Advanced Features
+description: "Use advanced module capabilities."
+sidebar:
+    order: 5
+---
+
+UniGale exposes several advanced utilities for module developers through the
+`UniGale\Support\Facades\Unigale` facade.
+
+## Register a long-running work command
+
+If your module requires a persistent background process, you can register it, see [Manage processes](/usage/manage-processes/):
+
+```php
+use UniGale\Support\Facades\Unigale;
+
+class YourModule extends ServiceProvider
+{
+    public function boot(): void
+    {
+        Unigale::addWorkCommand('your-unique-key', 'your-module:work');
+    }
+}
+```

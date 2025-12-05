@@ -13,8 +13,11 @@ use UniGale\Foundation\Console\Commands\ModulesStatusCommand;
 use UniGale\Foundation\Console\Commands\OptionsListCommand;
 use UniGale\Foundation\Console\Commands\OptionsSetCommand;
 use UniGale\Foundation\Console\Commands\OptionsUnsetCommand;
+use UniGale\Foundation\Console\Commands\ReloadCommand;
+use UniGale\Foundation\Console\Commands\WorkCommand;
 use UniGale\Foundation\Managers\ModulesManager;
 use UniGale\Foundation\Managers\OptionsManager;
+use UniGale\Foundation\Managers\UnigaleManager;
 use UniGale\Foundation\Utilities\DatabaseOptionStore;
 use UniGale\Foundation\Utilities\FilesystemActivationDriver;
 use UniGale\Foundation\Utilities\UnigaleManifest;
@@ -23,6 +26,7 @@ use UniGale\Support\Contracts\Module;
 use UniGale\Support\Facades\Manifest;
 use UniGale\Support\Facades\Modules;
 use UniGale\Support\Facades\Options;
+use UniGale\Support\Facades\Unigale;
 
 /**
  * This service provider is initialized during the application bootstrap phase.
@@ -32,6 +36,10 @@ class UnigaleServiceProvider extends ServiceProvider
 {
     public function register(): void
     {
+        $this->app->singleton('foundation-unigale', function () {
+            return new UnigaleManager;
+        });
+
         $this->app->singleton('foundation-manifest', function () {
             return new UnigaleManifest(
                 files: new Filesystem,
@@ -67,6 +75,7 @@ class UnigaleServiceProvider extends ServiceProvider
             return $manager;
         });
         // Keep alias binding to allow remapping and access to initial without triggering callback
+        $this->app->alias('foundation-unigale', Unigale::$accessor);
         $this->app->alias('foundation-manifest', Manifest::$accessor);
         $this->app->alias('foundation-options', Options::$accessor);
         $this->app->alias('foundation-modules', Modules::$accessor);
@@ -81,6 +90,8 @@ class UnigaleServiceProvider extends ServiceProvider
             OptionsListCommand::class,
             OptionsSetCommand::class,
             OptionsUnsetCommand::class,
+            ReloadCommand::class,
+            WorkCommand::class,
         ]);
         $this->loadMigrationsFrom(__DIR__.'/../database/migrations');
     }

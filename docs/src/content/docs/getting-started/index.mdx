@@ -59,4 +59,12 @@ Ensure your environment meets the following:
     ```bash
     php artisan migrate
     ```
+
+4. ### Configure long-running tasks
+
+    Unigale provides its own unified worker system through the `unigale:work` command.
+    This worker supervises long-running processes defined by modules (e.g., schedulers, queues).
+
+    Refer to the section **[Configure worker for production](/usage/manage-processes/#setup-for-production)** for detailed instructions.
+
 </Steps>
