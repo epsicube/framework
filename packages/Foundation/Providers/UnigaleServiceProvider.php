@@ -94,5 +94,6 @@ class UnigaleServiceProvider extends ServiceProvider
             WorkCommand::class,
         ]);
         $this->loadMigrationsFrom(__DIR__.'/../database/migrations');
+        $this->reloads('unigale:reload', 'unigale');
     }
 }
