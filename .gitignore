@@ -35,3 +35,4 @@ phpstan.neon
 
 # Custom local
 forks
+internal
