@@ -10,9 +10,14 @@ export default defineConfig({
         mermaid({}),
         starlight({
             title: 'Epsicube Framework',
+            description: 'Modular framework built on Laravel.',
             social: [{icon: 'github', label: 'GitHub', href: 'https://github.com/epsicube/framework'}],
             editLink: {
                 baseUrl: 'https://github.com/epsicube/framework/edit/main/docs/',
+            },
+            logo: {
+                dark: './src/assets/logo_lite_dark.svg',
+                light: './src/assets/logo_lite_light.svg',
             },
             sidebar: [
                 {
