@@ -50,7 +50,7 @@ class BooleanProperty extends BaseProperty
             ->boolean()
             ->required($this->isRequired())
             ->rules($this->accepted ? ['accepted'] : [])
-            ->inline()->inlineLabel()
+            ->inline()->inlineLabel()->grouped()
             ->label($this->getTitle())->hint($this->getDescription())
             ->default($this->getDefault());
     }
