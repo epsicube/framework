@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Epsicube\Schemas\Exporters;
 
+use Closure;
 use Epsicube\Schemas\Contracts\FilamentExportable;
 use Epsicube\Schemas\Contracts\Property;
 use Epsicube\Schemas\Contracts\SchemaExporter;
@@ -17,7 +18,10 @@ class FilamentExporter implements SchemaExporter
 {
     public Operation $operation;
 
-    public function __construct(Operation|string $operation)
+    /**
+     * @param  Closure(Component $component, ?string $name): void |null  $modifyComponentUsing
+     */
+    public function __construct(Operation|string $operation, protected ?Closure $modifyComponentUsing = null)
     {
         $this->operation = is_string($operation) ? Operation::from($operation) : $operation;
     }
@@ -41,7 +45,13 @@ class FilamentExporter implements SchemaExporter
         }
 
         $component = $field->toFilamentComponent($name, $this);
+        if ($name) {
+            $component->statePath($name)->key($name);
+        }
+        if ($this->modifyComponentUsing) {
+            call_user_func($this->modifyComponentUsing, $component, $name);
+        }
 
-        return $name ? $component->statePath($name)->key($name) : $component;
+        return $component;
     }
 }

@@ -9,11 +9,15 @@ use Epsicube\Schemas\Exporters\FilamentExporter;
 use Epsicube\Support\Facades\Modules;
 use Epsicube\Support\Facades\Options;
 use Filament\Actions\Action;
+use Filament\Forms\Components\Field;
+use Filament\Infolists\Components\Entry;
 use Filament\Notifications\Notification;
 use Filament\Pages\Page;
 use Filament\Resources\Concerns\HasTabs;
 use Filament\Schemas\Components\Actions;
+use Filament\Schemas\Components\Component;
 use Filament\Schemas\Components\EmbeddedSchema;
+use Filament\Schemas\Components\Icon;
 use Filament\Schemas\Components\Tabs;
 use Filament\Schemas\Concerns\InteractsWithSchemas;
 use Filament\Schemas\Contracts\HasSchemas;
@@ -39,16 +43,20 @@ class ManageOptions extends Page implements HasSchemas
     #[Url('mode')]
     public Operation $operation = Operation::View;
 
+    public array $stored = [];
+
     public function mount(): void
     {
         $this->loadDefaultActiveTab();
         $this->fillForm();
     }
 
-    protected function fillForm()
+    protected function fillForm(): void
     {
-        $this->form->state(Options::all($this->activeTab));
-        $this->form->fill(Options::allStored($this->activeTab));
+        $this->stored = Options::allStored($this->activeTab);
+
+        $this->form->fill($this->stored); // <- form
+        $this->form->state(Options::all($this->activeTab)); // <- infolist
     }
 
     public function getTabs(): array
@@ -65,9 +73,37 @@ class ManageOptions extends Page implements HasSchemas
 
     public function form(Schema $schema): Schema
     {
-        return $schema->statePath('data')->operation($this->operation->value)->schema(fn () => [
-            Options::getSchema($this->activeTab)->export(new FilamentExporter($this->operation)),
-        ]);
+
+        return $schema->statePath('data')->operation($this->operation->value)->schema(function () {
+            $exporter = new FilamentExporter($this->operation, function (Component $component, ?string $name): void {
+                if ($name === null || ! ($component instanceof Field || $component instanceof Entry)) {
+                    return;
+                }
+                $component->afterContent(function (Component $component) use ($name) {
+                    $isOverride = isset($this->stored[$name]) && $component->getState() !== null;
+
+                    return $isOverride ? [
+                        $this->operation === Operation::Edit
+                            ? Action::make('resetToDefault')
+                                ->label(__('Reset'))
+                                ->icon(Heroicon::OutlinedArrowUturnLeft)
+                                ->color('warning')
+                                ->action(fn () => $component->state(null))
+                            : Icon::make(Heroicon::OutlinedExclamationTriangle)
+                                ->color('warning')
+                                ->tooltip(__('Overridden value')),
+                    ] : [
+                        Icon::make(Heroicon::OutlinedCube)->color('gray')->tooltip(
+                            $this->operation === Operation::Edit
+                           ? __('Leave empty to keep the module default')
+                           : __('Default value provided by the module')
+                        ),
+                    ];
+                });
+            });
+
+            return Options::getSchema($this->activeTab)->export($exporter);
+        });
     }
 
     public function save(): void
@@ -77,6 +113,7 @@ class ManageOptions extends Page implements HasSchemas
         }
 
         Notification::make()->success()->title(__('Saved'))->send();
+        $this->fillForm();
     }
 
     protected function getHeaderActions(): array
