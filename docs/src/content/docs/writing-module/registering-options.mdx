@@ -24,29 +24,28 @@ Options can be managed either via the **CLI** or the **Administration interface*
 
     ```php
     use Epsicube\Support\Contracts\HasOptions;
-    use Epsicube\Support\OptionsDefinition;
+    use Epsicube\Schemas\Properties\StringProperty;
+    use Epsicube\Schemas\Schema;
 
     class ExternalApiModule extends ServiceProvider implements HasOptions, Module
     {
         //...
-        public function options(): OptionsDefinition
+        public function options(Schema $schema): void
         {
-             return OptionsDefinition::make()->add(
-                 key: 'api_token',
-                 type: 'string',
-                 default: fn() => 'XXX-XXXXX-XXX',
-             );
+            $schema->append([
+                'api_token' => StringProperty::make()->title('Api Token')->default('XXX-XXXXX-XXX'),
+            ]);
         }
     }
     ```
 
-2. ### Understand Configuration Parameters
+2. ### Understand Options Schema
 
-   | Parameter  | Description                                                                                 |
-   | ---------- | ------------------------------------------------------------------------------------------- |
-   | `key`      | Unique identifier for the option.                                                           |
-   | `type`     | Data type of the option (e.g., `string`, `integer`, `boolean`).                             |
-   | `default`  | Default value, or a Closure returning the default value.                                    |
+   Each option is defined through a **declarative Schema**, which specifies the field types, default values, and the rules applied when options are read or updated.
+
+   The Schema acts as a centralized layer of description: it formalizes the structure of your configuration and ensures consistent behavior across both the **CLI** and the **Administration interface**.
+
+   For an in-depth overview of available field types, validation mechanisms, and advanced behaviors, refer to the dedicated section: [Defining Schemas](/schemas/defining-schemas).
 
 3. ### Use Your options
    The `Options` facade allows you to **retrieve**, **update**, and **delete** options for your module:

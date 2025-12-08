@@ -4,14 +4,14 @@ declare(strict_types=1);
 
 namespace Epsicube\Foundation\Managers;
 
+use Epsicube\Schemas\Schema;
 use Epsicube\Support\Contracts\OptionsStore;
-use Epsicube\Support\Exceptions\DefinitionNotFoundException;
-use Epsicube\Support\OptionsDefinition;
+use Epsicube\Support\Exceptions\SchemaNotFound;
 
 class OptionsManager
 {
-    /** @var array<string, OptionsDefinition> */
-    protected array $definitions = [];
+    /** @var array<string, Schema> */
+    protected array $schemas = [];
 
     /** @var array<string,mixed> */
     protected array $state = [];
@@ -24,27 +24,26 @@ class OptionsManager
 
     public function __construct(protected OptionsStore $store) {}
 
-    public function registerDefinition(string $group, OptionsDefinition $definition): void
+    public function registerSchema(Schema $schema): void
     {
-        $this->definitions[$group] = $definition;
+        $this->schemas[$schema->identifier()] = $schema;
     }
 
-    public function getDefinition(string $group): OptionsDefinition
+    public function getSchema(string $group): Schema
     {
-        if (! array_key_exists($group, $this->definitions)) {
-            throw new DefinitionNotFoundException($group);
+        if (! isset($this->schemas[$group])) {
+            throw new SchemaNotFound($group);
         }
 
-        return $this->definitions[$group];
+        return $this->schemas[$group];
     }
 
     /**
-     * @return array<string,OptionsDefinition>
+     * @return array<string,Schema>
      */
-    public function definitions(): array
+    public function schemas(): array
     {
-        return $this->definitions;
-
+        return $this->schemas;
     }
 
     public function get(string $group, string $key, bool $ignoreDefault = false): mixed
@@ -58,10 +57,7 @@ class OptionsManager
             return $this->state[$group][$key] ?? null;
         }
 
-        return $this->applyDefaults(
-            group: $group,
-            options: [$key => $this->state[$group][$key] ?? null]
-        )[$key];
+        return $this->getSchema($group)->withDefaults([$key => $this->state[$group][$key] ?? null])[$key];
     }
 
     public function set(string $group, string $key, mixed $value): void
@@ -88,42 +84,22 @@ class OptionsManager
             return $this->state[$group] ?? [];
         }
 
-        $results = $this->applyDefaults(group: $group, options: $this->store->all($group), insertMissing: true);
+        $results = $this->getSchema($group)->withDefaults(values: $this->store->all($group), insertMissing: true);
 
-        $this->state[$group] = array_merge(
-            $this->state[$group] ?? [],
-            $results
+        $this->state[$group] = array_merge($this->state[$group] ?? [], $results);
+
+        $this->loadedKeys[$group] = array_replace(
+            $this->loadedKeys[$group] ?? [],
+            array_fill_keys(array_keys($results), true)
         );
-        foreach ($results as $k => $_) {
-            $this->loadedKeys[$group][$k] = true;
-        }
+
         $this->fullyLoaded[$group] = true;
 
         return $this->state[$group] ?? [];
     }
 
-    /**
-     * Inject default values into an options array according to the group definition.
-     *
-     * @param  array<string,mixed>  $options  The current options loaded from DB or state
-     * @param  bool  $insertMissing  If true, missing defaults are inserted into state + marked as loaded
-     */
-    protected function applyDefaults(string $group, array $options, bool $insertMissing = false, bool $keepUnregistered = false): array
+    public function allStored(string $group): array
     {
-        $definition = $this->getDefinition($group);
-
-        foreach (array_keys($definition->all()) as $key) {
-            if (! array_key_exists($key, $options) && $insertMissing) {
-                $options[$key] = $definition->getDefaultValue($key);
-            }
-            if (array_key_exists($key, $options) && $options[$key] === null) {
-                $options[$key] = $definition->getDefaultValue($key);
-            }
-        }
-        if ($keepUnregistered) {
-            return $options;
-        }
-
-        return array_filter($options, fn ($_, $key) => $definition->has($key), ARRAY_FILTER_USE_BOTH);
+        return $this->store->all($group);
     }
 }

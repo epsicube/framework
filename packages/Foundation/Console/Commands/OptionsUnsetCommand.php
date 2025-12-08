@@ -4,7 +4,8 @@ declare(strict_types=1);
 
 namespace Epsicube\Foundation\Console\Commands;
 
-use Epsicube\Support\Exceptions\DefinitionNotFoundException;
+use Epsicube\Schemas\Contracts\Property;
+use Epsicube\Support\Exceptions\SchemaNotFound;
 use Epsicube\Support\Facades\Options;
 use Illuminate\Console\Command;
 use Illuminate\Contracts\Console\PromptsForMissingInput;
@@ -30,35 +31,29 @@ class OptionsUnsetCommand extends Command implements PromptsForMissingInput
         // Module verification
         $group = $this->argument('group');
         try {
-            $definition = Options::getDefinition($group);
-        } catch (DefinitionNotFoundException $e) {
+            $schema = Options::getSchema($group);
+        } catch (SchemaNotFound $e) {
             error($e->getMessage());
 
             return self::FAILURE;
         }
 
+        $properties = $schema->properties();
         foreach ($this->argument('keys') as $key) {
             // Key verification
-            if (! $definition->has($key)) {
+            if (! isset($properties[$key])) {
                 error("Unknown option '{$key}' for group '{$group}'");
 
                 return self::FAILURE;
             }
 
-            // Current value
+            // Extract current and delete option
             $currentValue = Options::get($group, $key, true);
-            $defaultValue = $definition->getDefaultValue($key);
-
-            // Delete the option
             Options::delete($group, $key);
 
-            // Informative message
             $this->info(sprintf(
-                "Options '%s': '%s' unset, reverting from '%s' to default '%s'",
-                $group,
-                $key,
-                json_encode($currentValue),
-                json_encode($defaultValue)
+                "[%s] option '%s' unset, reverting from '%s' to default",
+                $group, $key, json_encode($currentValue),
             ));
         }
 
@@ -70,13 +65,15 @@ class OptionsUnsetCommand extends Command implements PromptsForMissingInput
         return [
             'group' => fn () => select(
                 label: 'Which group do you want to update?',
-                options: array_keys(Options::definitions()),
+                options: array_keys(Options::schemas()),
                 required: 'You must select at least one group'
             ),
             'keys' => fn () => multiselect(
-                label: 'Which key do you want to unset?',
-                options: array_keys(Options::getDefinition($this->argument('group'))->all()),
-                required: 'You must select at least one key'
+                label: 'Which option(s) do you want to unset?',
+                options: collect(Options::schemas()[$this->argument('group')]->properties())
+                    ->map(fn (Property $property, string $name) => $property->getTitle() ?? $name)
+                    ->all(),
+                required: 'You must select at least one option'
             ),
         ];
     }

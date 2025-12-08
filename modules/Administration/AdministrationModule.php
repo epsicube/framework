@@ -6,10 +6,12 @@ namespace EpsicubeModules\Administration;
 
 use Carbon\Laravel\ServiceProvider;
 use Composer\InstalledVersions;
+use Epsicube\Schemas\Properties\BooleanProperty;
+use Epsicube\Schemas\Properties\StringProperty;
+use Epsicube\Schemas\Schema;
 use Epsicube\Support\Contracts\HasOptions;
 use Epsicube\Support\Contracts\Module;
 use Epsicube\Support\ModuleIdentity;
-use Epsicube\Support\OptionsDefinition;
 use Filament\FilamentServiceProvider;
 use Filament\PanelRegistry;
 
@@ -31,25 +33,14 @@ class AdministrationModule extends ServiceProvider implements HasOptions, Module
         );
     }
 
-    public function options(): OptionsDefinition
+    public function options(Schema $schema): void
     {
-        return OptionsDefinition::make()->add(
-            key: 'enable-modules-manager',
-            type: 'boolean', // <- todo type management
-            default: true
-        )->add(
-            key: 'brand-name',
-            type: 'string', // <- todo type management
-            default: fn () => config('app.name')
-        )->add(
-            key: 'spa',
-            type: 'boolean', // <- todo type management
-            default: false
-        )->add(
-            key: 'top-navigation',
-            type: 'boolean', // <- todo type management
-            default: true
-        );
+        $schema->append([
+            'enable-modules-manager' => BooleanProperty::make()->title('Enable Modules Manager')->default(true),
+            'brand-name'             => StringProperty::make()->title('Brand Name')->default(fn () => config('app.name')),
+            'spa'                    => BooleanProperty::make()->title('Single-Page-Application')->default(true),
+            'top-navigation'         => BooleanProperty::make()->title('Top Navigation')->default(false),
+        ]);
     }
 
     public function register(): void

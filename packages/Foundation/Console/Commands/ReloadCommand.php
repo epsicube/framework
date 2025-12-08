@@ -11,6 +11,8 @@ class ReloadCommand extends Command
 {
     protected $signature = 'epsicube:reload';
 
+    protected $aliases = ['ec:r'];
+
     protected $description = 'Reload the epsicube:work supervisor';
 
     public function __construct(protected Cache $cache)

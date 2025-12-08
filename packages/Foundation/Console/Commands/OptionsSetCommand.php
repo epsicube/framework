@@ -4,16 +4,15 @@ declare(strict_types=1);
 
 namespace Epsicube\Foundation\Console\Commands;
 
-use Epsicube\Support\Exceptions\DefinitionNotFoundException;
+use Epsicube\Schemas\Exporters\LaravelPromptsFormExporter;
+use Epsicube\Support\Exceptions\SchemaNotFound;
 use Epsicube\Support\Facades\Options;
 use Illuminate\Console\Command;
 use Illuminate\Contracts\Console\PromptsForMissingInput;
-use InvalidArgumentException;
 
 use function Laravel\Prompts\error;
 use function Laravel\Prompts\info;
 use function Laravel\Prompts\select;
-use function Laravel\Prompts\text;
 
 class OptionsSetCommand extends Command implements PromptsForMissingInput
 {
@@ -33,8 +32,8 @@ class OptionsSetCommand extends Command implements PromptsForMissingInput
         // Group verification
         $group = $this->argument('group');
         try {
-            $definition = Options::getDefinition($group);
-        } catch (DefinitionNotFoundException $e) {
+            $schema = Options::getSchema($group);
+        } catch (SchemaNotFound $e) {
             error($e->getMessage());
 
             return self::FAILURE;
@@ -42,7 +41,7 @@ class OptionsSetCommand extends Command implements PromptsForMissingInput
 
         // Key verification
         $key = $this->argument('key');
-        if (! $definition->has($key)) {
+        if (! isset($schema->properties()[$key])) {
             error("Unknown option '{$key}' for group '{$group}'");
 
             return self::FAILURE;
@@ -52,26 +51,13 @@ class OptionsSetCommand extends Command implements PromptsForMissingInput
         $currentValue = Options::get($group, $key, true);
         $value = $this->argument('value');
 
-        // TODO ENUM IN DEFINTION FOR TYPES WITH validate, ...
-        $typedValue = $value === 'null' ? null : match ($definition->all()[$key]['type']) {
-            'string' => (string) $value,
-
-            'integer' => filter_var($value, FILTER_VALIDATE_INT, FILTER_NULL_ON_FAILURE)
-                ?? throw new InvalidArgumentException("Value '{$value}' is not a valid integer."),
-
-            'boolean' => filter_var($value, FILTER_VALIDATE_BOOL, FILTER_NULL_ON_FAILURE)
-                ?? throw new InvalidArgumentException("Value '{$value}' is not a valid boolean."),
-
-            default => throw new InvalidArgumentException(
-                "Unsupported type '".$definition->all()[$key]['type']."' for key '{$key}'."
-            ),
-        };
+        // TODO $typedValue using custom resolve/trandform in schema
+        $typedValue = $value;
         Options::set($group, $key, $typedValue);
 
         info(sprintf(
             "Option '%s': '%s' updated from '%s' to '%s'",
-            $group,
-            $key,
+            $group, $key,
             json_encode($currentValue),
             json_encode($typedValue)
         ));
@@ -81,21 +67,30 @@ class OptionsSetCommand extends Command implements PromptsForMissingInput
 
     protected function promptForMissingArgumentsUsing(): array
     {
+        $schemas = Options::schemas();
+
         return [
             'group' => fn () => select(
                 label: 'Which group do you want to update?',
-                options: array_keys(Options::definitions()),
+                options: array_keys($schemas),
                 required: 'You must select at least one group'
             ),
             'key' => fn () => select(
                 label: 'Which key do you want to modify?',
-                options: array_keys(Options::getDefinition($this->argument('group'))->all()),
+                options: array_keys($schemas[$this->argument('group')]->properties()),
                 required: 'You must select at least one key'
             ),
 
-            'value' => fn () => text(
-                label: 'Enter the new value for the selected key:'
-            ),
+            'value' => function () use ($schemas) {
+                $group = $this->argument('group');
+                $key = $this->argument('key');
+
+                $currentValue = Options::get($group, $key, true);
+                $schema = $schemas[$group]->only($key);
+                $inputs = $schema->export(new LaravelPromptsFormExporter([$key => $currentValue]));
+
+                return $inputs[$key] ?? null;
+            },
         ];
     }
 }

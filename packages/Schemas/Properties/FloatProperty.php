@@ -1,0 +1,153 @@
+<?php
+
+declare(strict_types=1);
+
+namespace Epsicube\Schemas\Properties;
+
+use Closure;
+use Epsicube\Schemas\Exporters\FilamentExporter;
+use Epsicube\Schemas\Exporters\JsonSchemaExporter;
+use Epsicube\Schemas\Exporters\LaravelPromptsFormExporter;
+use Exception;
+use Filament\Forms\Components\TextInput;
+use Filament\Infolists\Components\TextEntry;
+use Filament\Schemas\Components\Component;
+use Filament\Support\Enums\Operation;
+
+use function Laravel\Prompts\text;
+
+class FloatProperty extends BaseProperty
+{
+    protected ?float $minimum = null;
+
+    protected ?float $maximum = null;
+
+    protected bool $exclusiveMinimum = false;
+
+    protected bool $exclusiveMaximum = false;
+
+    protected ?float $multipleOf = null;
+
+    public function default(float|null|Closure $default): static
+    {
+        $this->default = $default;
+
+        return $this;
+    }
+
+    public function minimum(float $minimum, bool $exclusive = false): static
+    {
+        $this->minimum = $minimum;
+        $this->exclusiveMinimum = $exclusive;
+
+        return $this;
+    }
+
+    public function maximum(float $maximum, bool $exclusive = false): static
+    {
+
+        $this->maximum = $maximum;
+        $this->exclusiveMaximum = $exclusive;
+
+        return $this;
+    }
+
+    public function multipleOf(int $multiple): static
+    {
+        $this->multipleOf = $multiple;
+
+        return $this;
+    }
+
+    public function toJsonSchema(JsonSchemaExporter $exporter): array
+    {
+        $schema = [
+            'type' => 'number',
+        ];
+
+        if ($this->minimum !== null) {
+            if ($this->exclusiveMinimum) {
+                $schema['exclusiveMinimum'] = $this->minimum;
+            } else {
+                $schema['minimum'] = $this->minimum;
+            }
+        }
+
+        if ($this->maximum !== null) {
+            if ($this->exclusiveMaximum) {
+                $schema['exclusiveMaximum'] = $this->maximum;
+            } else {
+                $schema['maximum'] = $this->maximum;
+            }
+        }
+
+        if ($this->multipleOf !== null && $this->multipleOf > 0) {
+            $schema['multipleOf'] = $this->multipleOf;
+        }
+
+        return $schema;
+    }
+
+    public function toFilamentComponent(string $name, FilamentExporter $exporter): Component
+    {
+        if ($exporter->operation === Operation::View) {
+            return TextEntry::make($name)
+                ->numeric()->inlineLabel()
+                ->label($this->getTitle())->hint($this->getDescription())->default($this->getDefault());
+        }
+
+        return TextInput::make($name)
+            ->numeric()
+            ->maxValue($this->maximum) // Exclusive not possible
+            ->minValue($this->minimum) // Exclusive not possible
+            ->step($this->multipleOf)
+            ->required($this->required)
+            ->label($this->getTitle())->hint($this->getDescription())->default($this->getDefault());
+
+    }
+
+    public function askPrompt(?string $name, mixed $value, LaravelPromptsFormExporter $exporter): ?float
+    {
+        // TODO handling null correctly, is not the inverse of required
+
+        $input = text(
+            label: $this->getTitle() ?? $name,
+            default: $value !== null ? $value : $this->getDefault() ?? '',
+            required: $this->isRequired(),
+            validate: function (string $value) {
+                try {
+                    $value = filter_var($value, FILTER_VALIDATE_FLOAT, FILTER_THROW_ON_FAILURE);
+                } catch (Exception $e) {
+                    return 'Invalid integer value.';
+                }
+
+                if ($this->minimum !== null) {
+                    if ($this->exclusiveMinimum && $value <= $this->minimum) {
+                        return "Value must be greater than {$this->minimum}.";
+                    }
+                    if (! $this->exclusiveMinimum && $value < $this->minimum) {
+                        return "Value must be at least {$this->minimum}.";
+                    }
+                }
+
+                if ($this->maximum !== null) {
+                    if ($this->exclusiveMaximum && $value >= $this->maximum) {
+                        return "Value must be less than {$this->maximum}.";
+                    }
+                    if (! $this->exclusiveMaximum && $value > $this->maximum) {
+                        return "Value must be at most {$this->maximum}.";
+                    }
+                }
+
+                if ($this->multipleOf !== null && $this->multipleOf > 0 && $value % $this->multipleOf !== 0) {
+                    return "Value must be a multiple of {$this->multipleOf}.";
+                }
+
+                return null; // Valid
+            },
+            hint: $this->getDescription() ?? '',
+        );
+
+        return $input === '' ? null : (float) $input;
+    }
+}

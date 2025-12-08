@@ -12,7 +12,7 @@ class EpsicubeManager
      * @var array<string, string>
      */
     protected array $workCommands = [
-        'schedule' => 'schedule:run --no-ansi --whisper', // Do not use schedule:work, this keep zombies after reload
+        'schedule' => 'schedule:work --no-ansi --whisper',
         //        'queue'    => 'queue:work',
     ];
 

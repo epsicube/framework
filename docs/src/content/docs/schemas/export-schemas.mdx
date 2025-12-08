@@ -1,0 +1,95 @@
+---
+title: "Export Schemas"
+description: "Export your Schemas in multiple formats"
+sidebar:
+    order: 3
+---
+
+import { Aside } from '@astrojs/starlight/components';
+
+A **Schema** can be transformed into different formats depending on your needs.
+This is handled by **Exporters** , which take a schema and produce output suitable for a specific format, or use case.
+
+## What is an Exporter?
+
+An **Exporter** is a class responsible for converting a schema into another representation.
+
+- It defines how each property of the schema should be translated.
+- It can apply defaults, validation rules, or UI-specific settings.
+- Multiple exporters can coexist, each targeting a different output (e.g., JSON, forms, CLI prompts).
+
+<Aside type="note">
+An exporter allows a single schema to drive multiple outputs without redefining the schema for each context.
+</Aside>
+
+## Available Exporters
+
+Epsicube’s Schema system includes several **built-in exporters**, each designed to transform a schema into a specific format or usage context. Exporters do not modify the schema—they generate representations compatible with different systems.
+
+---
+
+### JSON Schema
+
+The `JsonSchemaExporter` converts a schema into a **standard JSON Schema** format.
+This is useful for API documentation, validation, or front-end integrations.
+
+**Usage example:**
+
+```php
+use Epsicube\Schemas\Exporters\JsonSchemaExporter;
+
+$json = $schema->export(new JsonSchemaExporter);
+
+// Output as JSON string
+echo json_encode($json, JSON_PRETTY_PRINT);
+````
+
+### FilamentPHP
+
+The `FilamentExporter` converts a schema into **FilamentPHP forms or infolists**, compatible with the Filament admin panel.
+
+**Usage example:**
+
+```php
+use Epsicube\Schemas\Exporters\FilamentExporter;
+use Filament\Support\Enums\Operation;
+
+$form = $schema->export(new FilamentExporter(Operation::Edit)); // Or Operation::Create
+$infolist = $schema->export(new FilamentExporter(Operation::View));
+```
+
+### Laravel Prompts
+
+The `LaravelPromptsFormExporter` generates **interactive CLI prompts** from schema properties.
+This is ideal for building command-line wizards or setup scripts.
+
+**Usage example:**
+
+```php
+use Epsicube\Schemas\Exporters\LaravelPromptsFormExporter;
+
+$cliForm = $schema->export(new LaravelPromptsFormExporter([
+    'username' => 'current' // Inject current values (optional)
+]));
+```
+
+### Laravel Validation Rules
+
+The `LaravelValidationExporter` converts a schema into **Laravel validation rules**.
+
+**Usage example:**
+
+```php
+use Epsicube\Schemas\Exporters\LaravelValidationExporter;
+
+$rules = $schema->export(new LaravelValidationExporter());
+
+// Example usage in a FormRequest
+$request->validate($rules);
+```
+
+## Create custom Exporter
+
+<Aside type="tip">
+You can **create your own exporter** by implementing the standard [`Epsicube\Schemas\Contracts\SchemaExporter`](https://github.com/epsicube/framework/blob/main/packages/Schemas/Contracts/SchemaExporter.php) interface.
+</Aside>

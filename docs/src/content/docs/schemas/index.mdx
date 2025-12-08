@@ -1,0 +1,50 @@
+---
+title: "Overview"
+description: "Learn how to use the Schema to define structured, reusable, and validated data configurations in Epsicube."
+sidebar:
+    order: 1
+---
+import { Steps, Aside } from '@astrojs/starlight/components';
+
+The **Schema** is a feature of Epsicube, providing a robust system to define **structured, validated, and reusable data configurations**.
+
+It is fully integrated into the framework and can be leveraged anywhere in your application—whether for configuration, forms, options, or any structured data.
+
+Using Schema, you can:
+
+- Declare fields with specific types, default values, and constraints.
+- Handle complex or nested data structures in a clean and maintainable way.
+- Validate and transform data consistently across multiple contexts:
+    - Laravel Validation Rules
+    - FilamentPHP Schema (Forms or Infolists)
+    - JSON Schema
+    - CLI prompts (via Laravel Prompts)
+
+
+<Aside title="Information">
+    The Schema is a feature that can be used in any context—configuration, options, forms, API data structures, or custom workflows.
+</Aside>
+
+## Getting Started
+
+<Steps>
+1. ### Install the package
+
+    <Aside type="tip">
+    If you are using `epsicube/framework`, the Schema system is included by default and this step can be skipped.
+    </Aside>
+
+    ```bash
+    composer require epsicube/schemas
+    ```
+
+2. ### Define your first schema
+
+    Schemas are defined using the [`Epsicube\Schemas\Schema`](https://github.com/epsicube/framework/blob/main/packages/Schemas/Schema.php) class and its field definitions..
+    See **[Defining Schemas](/schemas/defining-schemas)** for step-by-step instructions.
+
+3. ### Start using schemas
+
+    Once defined, schemas can be used to validate, transform, and structure data anywhere in your application.
+</Steps>
+

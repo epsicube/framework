@@ -33,6 +33,10 @@ export default defineConfig({
                     autogenerate: {directory: 'writing-module'},
                 },
                 {
+                    label: 'Schemas',
+                    autogenerate: {directory: 'schemas'},
+                },
+                {
                     label: 'Built-In',
                     autogenerate: {directory: 'built-in'},
                 },

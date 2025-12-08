@@ -19,6 +19,7 @@ use Epsicube\Foundation\Managers\OptionsManager;
 use Epsicube\Foundation\Utilities\DatabaseOptionStore;
 use Epsicube\Foundation\Utilities\FilesystemActivationDriver;
 use Epsicube\Foundation\Utilities\Manifest;
+use Epsicube\Schemas\Schema;
 use Epsicube\Support\Contracts\HasOptions;
 use Epsicube\Support\Contracts\Module;
 use Epsicube\Support\Facades\Epsicube;
@@ -67,7 +68,13 @@ class EpsicubeServiceProvider extends ServiceProvider
 
             foreach ($this->app->get(Modules::$accessor)->enabled() as $moduleIdentifier => $module) {
                 if ($module instanceof HasOptions) {
-                    $manager->registerDefinition($moduleIdentifier, $module->options());
+                    $schema = Schema::create(
+                        identifier: $moduleIdentifier,
+                        title: __(':module_name options', ['module_name' => $module->identity()->name]),
+                        description: __('Registered options for :module_name', ['module_name' => $module->identity()->name]),
+                    );
+                    $module->options($schema);
+                    $manager->registerSchema($schema);
                 }
             }
 

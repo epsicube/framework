@@ -25,14 +25,16 @@ php artisan options:list {groups?*}
 
 
 ```text
- ┌──────────────────────┬────────────────────────┬───────┬───────────┬─────────┐
- │ Group                │ Key                    │ Value │ Default   │ Type    │
- ├──────────────────────┼────────────────────────┼───────┼───────────┼─────────┤
- │ core::administration │ enable-modules-manager │ null  │ true      │ boolean │
- │ core::administration │ brand-name             │ null  │ "Laravel" │ string  │
- │ core::administration │ spa                    │ null  │ false     │ boolean │
- │ core::administration │ top-navigation         │ null  │ true      │ boolean │
- └──────────────────────┴────────────────────────┴───────┴───────────┴─────────┘
+ ┌──────────────────────┬─────────────────────────┬───────────────────────────────┬───────┬────────────────────────────────┬─────────┐
+ │ Group                │ Name                    │ Key                           │ Value │ Default                        │ Type    │
+ ├──────────────────────┼─────────────────────────┼───────────────────────────────┼───────┼────────────────────────────────┼─────────┤
+ │ core::administration │ Enable Modules Manager  │ enable-modules-manager        │ null  │ true                           │ Boolean │
+ │ core::administration │ Brand Name              │ brand-name                    │ null  │ "Laravel"                      │ String  │
+ │ core::administration │ Single-Page-Application │ spa                           │ null  │ true                           │ Boolean │
+ │ core::administration │ Top Navigation          │ top-navigation                │ null  │ false                          │ Boolean │
+ │ core::mcp-server     │ Server name             │ name                          │ null  │ "Laravel internal MCP Server"  │ String  │
+ │ core::mcp-server     │ Server version          │ version                       │ null  │ "dev-main"                     │ String  │
+ └──────────────────────┴─────────────────────────┴───────────────────────────────┴───────┴────────────────────────────────┴─────────┘
 ```
 
 ## Set a Specific Option
@@ -50,7 +52,7 @@ php artisan options:set {group} {key} {value}
  └────────────────────────────────────────────────────────────┘
 
  ┌ Which key do you want to modify? ──────────────────────────┐
- │ spa                                                        │
+ │ brand-name                                                 │
  └────────────────────────────────────────────────────────────┘
 
  ┌ Enter the new value for the selected key: ─────────────────┐
@@ -61,7 +63,7 @@ php artisan options:set {group} {key} {value}
 ## Unset a Specific Option
 
 <Aside type="note">
-When an option is unset, the system will revert to the **default value** provided by the definition.
+When an option is unset, the system will revert to the **default value** provided by the schema.
 </Aside>
 
 To unset an option:

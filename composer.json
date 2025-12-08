@@ -22,6 +22,7 @@
     "filament/filament": "^v4.0.0-beta5"
   },
   "replace": {
+    "epsicube/schemas": "self.version",
     "epsicube/support": "self.version",
     "epsicube/foundation": "self.version",
     "epsicube/module-accounts-manager": "self.version",

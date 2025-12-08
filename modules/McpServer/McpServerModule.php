@@ -6,10 +6,12 @@ namespace EpsicubeModules\McpServer;
 
 use Carbon\Laravel\ServiceProvider;
 use Composer\InstalledVersions;
+use Epsicube\Schemas\Enums\StringFormat;
+use Epsicube\Schemas\Properties\StringProperty;
+use Epsicube\Schemas\Schema;
 use Epsicube\Support\Contracts\HasOptions;
 use Epsicube\Support\Contracts\Module;
 use Epsicube\Support\ModuleIdentity;
-use Epsicube\Support\OptionsDefinition;
 use EpsicubeModules\McpServer\Facades\Resources;
 use EpsicubeModules\McpServer\Facades\Tools;
 use EpsicubeModules\McpServer\Mcp\Servers\McpServer;
@@ -35,33 +37,20 @@ class McpServerModule extends ServiceProvider implements HasOptions, Module
         );
     }
 
-    public function options(): OptionsDefinition
+    public function options(Schema $schema): void
     {
-        return OptionsDefinition::make()->add(
-            key: 'name',
-            type: 'string',
-            default: fn () => __(':app_name internal MCP Server', ['app_name' => config('app.name')]),
-        )->add(
-            key: 'version',
-            type: 'string',
-            default: fn () => $this->identity()->version
-        )->add(
-            key: 'instructions',
-            type: 'string',
-            default: fn () => __(<<<'markdown'
-            This server allows you to:
-
-            - Interact with **business processes**.
-            - Retrieve and manage **internal resources**.
-            - Execute a variety of **internal actions**.
-
-            Use this server to:
-
-            1. Streamline operations.
-            2. Automate tasks efficiently.
-            3. Ensure seamless communication within the system.
-            markdown)
-        );
+        $schema->append([
+            'name' => StringProperty::make()
+                ->title('Server name')
+                ->default(fn () => __(':app_name internal MCP Server', ['app_name' => config('app.name')])),
+            'version' => StringProperty::make()
+                ->title('Server version')
+                ->default(fn () => $this->identity()->version),
+            'instructions' => StringProperty::make()
+                ->title('Server instructions')
+                ->format(StringFormat::MARKDOWN)
+                ->default(fn () => file_get_contents(__DIR__.'/resources/stubs/INSTRUCTIONS.md')),
+        ]);
     }
 
     public function register(): void

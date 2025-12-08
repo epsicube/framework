@@ -14,7 +14,7 @@ class WorkCommand extends Command
 {
     protected $signature = 'epsicube:work';
 
-    protected $aliases = ['u:w'];
+    protected $aliases = ['ec:w'];
 
     protected $description = 'Run and supervise all module work commands';
 
