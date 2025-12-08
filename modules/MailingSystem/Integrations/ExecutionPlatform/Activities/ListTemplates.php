@@ -4,10 +4,13 @@ declare(strict_types=1);
 
 namespace EpsicubeModules\MailingSystem\Integrations\ExecutionPlatform\Activities;
 
+use Epsicube\Schemas\Properties\ArrayProperty;
+use Epsicube\Schemas\Properties\ObjectProperty;
+use Epsicube\Schemas\Properties\StringProperty;
+use Epsicube\Schemas\Schema;
 use EpsicubeModules\ExecutionPlatform\Contracts\Activity;
 use EpsicubeModules\MailingSystem\Contracts\MailTemplate;
 use EpsicubeModules\MailingSystem\Facades\Templates;
-use Illuminate\JsonSchema\JsonSchema;
 
 class ListTemplates implements Activity
 {
@@ -34,15 +37,10 @@ class ListTemplates implements Activity
         return new static;
     }
 
-    // TODO custom schema module
-    public function inputSchema(): array
-    {
-        return [];
-    }
+    public function inputSchema(Schema $schema): void {}
 
     public function handle(array $inputs = []): array
     {
-
         return [
             'templates' => array_values(array_map(fn (MailTemplate $t) => [
                 'identifier' => $t->identifier(),
@@ -53,13 +51,13 @@ class ListTemplates implements Activity
     }
 
     // TODO custom schema module
-    public function outputSchema(): array
+    public function outputSchema(Schema $schema): void
     {
-        return [
-            'templates' => JsonSchema::array()->items(JsonSchema::object([
-                'identifier' => JsonSchema::string()->required(),
-                'name'       => JsonSchema::string()->required(),
+        $schema->append([
+            'templates' => ArrayProperty::make()->items(ObjectProperty::make()->properties([
+                'identifier' => StringProperty::make()->required(),
+                'name'       => StringProperty::make()->required(),
             ])),
-        ];
+        ]);
     }
 }

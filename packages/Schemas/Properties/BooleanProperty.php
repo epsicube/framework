@@ -65,7 +65,7 @@ class BooleanProperty extends BaseProperty
         // TODO handling nullable using ternary multi-select
         return confirm(
             label: $this->getTitle() ?? $name,
-            default: is_bool($value) ? $value : $this->getDefault(),
+            default: (is_bool($value) ? $value : $this->getDefault()) ?? false,
             required: $this->accepted,
             hint: $this->getDescription() ?? '',
         );

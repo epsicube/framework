@@ -15,5 +15,5 @@ interface Tool extends HasLabel, Registrable
 
     public function outputSchema(): array;
 
-    public function handle(array $inputs = []): mixed;
+    public function handle(array $input = []): mixed;
 }

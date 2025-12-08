@@ -117,7 +117,7 @@ class FloatProperty extends BaseProperty
 
         $input = text(
             label: $this->getTitle() ?? $name,
-            default: $value !== null ? $value : $this->getDefault() ?? '',
+            default: ($value !== null ? $value : $this->getDefault()) ?? '',
             required: $this->isRequired(),
             validate: function (string $value) {
                 try {

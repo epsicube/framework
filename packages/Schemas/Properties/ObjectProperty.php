@@ -20,7 +20,7 @@ class ObjectProperty extends BaseProperty
     protected bool $accepted = false;
 
     /** @var array<string, Property> */
-    protected array $properties;
+    protected array $properties = [];
 
     protected bool|Property $additionalProperties = false;
 

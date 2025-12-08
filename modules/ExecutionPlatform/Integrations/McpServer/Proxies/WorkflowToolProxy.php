@@ -27,9 +27,9 @@ class WorkflowToolProxy implements Tool
         return $this->workflow->description();
     }
 
-    public function handle(array $inputs = []): ?array
+    public function handle(array $input = []): ?array
     {
         // TODO
-        return $this->workflow->handle($inputs);
+        return $this->workflow->handle($input);
     }
 }

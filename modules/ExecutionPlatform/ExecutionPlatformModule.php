@@ -10,7 +10,9 @@ use Epsicube\Support\Contracts\HasIntegrations;
 use Epsicube\Support\Contracts\Module;
 use Epsicube\Support\Integrations;
 use Epsicube\Support\ModuleIdentity;
-use EpsicubeModules\ExecutionPlatform\Console\Commands\ListCommand;
+use EpsicubeModules\ExecutionPlatform\Console\Commands\ActivitiesListCommand;
+use EpsicubeModules\ExecutionPlatform\Console\Commands\ActivitiesRunCommand;
+use EpsicubeModules\ExecutionPlatform\Console\Commands\WorkflowsListCommand;
 use EpsicubeModules\ExecutionPlatform\Facades\Activities;
 use EpsicubeModules\ExecutionPlatform\Facades\Workflows;
 use EpsicubeModules\ExecutionPlatform\Integrations\Administration\AdministrationIntegration;
@@ -49,7 +51,11 @@ class ExecutionPlatformModule extends ServiceProvider implements HasIntegrations
     public function boot(): void
     {
         $this->loadMigrationsFrom(__DIR__.'/database/migrations');
-        $this->commands([ListCommand::class]);
+        $this->commands([
+            WorkflowsListCommand::class,
+            ActivitiesRunCommand::class,
+            ActivitiesListCommand::class,
+        ]);
     }
 
     public function integrations(): Integrations

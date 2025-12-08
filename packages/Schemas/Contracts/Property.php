@@ -12,5 +12,7 @@ interface Property
 
     public function isRequired(): bool;
 
+    public function isNullable(): bool;
+
     public function getDefault(): mixed;
 }

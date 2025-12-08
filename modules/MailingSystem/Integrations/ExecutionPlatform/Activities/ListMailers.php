@@ -4,10 +4,13 @@ declare(strict_types=1);
 
 namespace EpsicubeModules\MailingSystem\Integrations\ExecutionPlatform\Activities;
 
+use Epsicube\Schemas\Properties\ArrayProperty;
+use Epsicube\Schemas\Properties\ObjectProperty;
+use Epsicube\Schemas\Properties\StringProperty;
+use Epsicube\Schemas\Schema;
 use EpsicubeModules\ExecutionPlatform\Contracts\Activity;
 use EpsicubeModules\MailingSystem\Contracts\Mailer;
 use EpsicubeModules\MailingSystem\Facades\Mailers;
-use Illuminate\JsonSchema\JsonSchema;
 
 class ListMailers implements Activity
 {
@@ -34,15 +37,10 @@ class ListMailers implements Activity
         return new static;
     }
 
-    // TODO custom schema module
-    public function inputSchema(): array
-    {
-        return [];
-    }
+    public function inputSchema(Schema $schema): void {}
 
     public function handle(array $inputs = []): array
     {
-
         return [
             'mailers' => array_values(array_map(fn (Mailer $m) => [
                 'identifier' => $m->identifier(),
@@ -52,13 +50,13 @@ class ListMailers implements Activity
     }
 
     // TODO custom schema module
-    public function outputSchema(): array
+    public function outputSchema(Schema $schema): void
     {
-        return [
-            'mailers' => JsonSchema::array()->items(JsonSchema::object([
-                'identifier' => JsonSchema::string()->required(),
-                'name'       => JsonSchema::string()->required(),
+        $schema->append([
+            'mailers' => ArrayProperty::make()->items(ObjectProperty::make()->properties([
+                'identifier' => StringProperty::make()->required(),
+                'name'       => StringProperty::make()->required(),
             ])),
-        ];
+        ]);
     }
 }

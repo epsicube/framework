@@ -26,16 +26,18 @@ class ActivityToolProxy implements Tool
         return $this->activity->description();
     }
 
+    // TODO
     public function inputSchema(): array
     {
         return $this->activity->inputSchema();
     }
 
-    public function handle(array $inputs = []): ?array
+    public function handle(array $input = []): ?array
     {
-        return $this->activity->handle($inputs);
+        return $this->activity->handle($input);
     }
 
+    // TODO
     public function outputSchema(): array
     {
         return $this->activity->outputSchema();

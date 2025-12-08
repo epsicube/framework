@@ -4,11 +4,15 @@ declare(strict_types=1);
 
 namespace EpsicubeModules\MailingSystem\Integrations\ExecutionPlatform\Activities;
 
+use Epsicube\Schemas\Enums\StringFormat;
+use Epsicube\Schemas\Properties\ArrayProperty;
+use Epsicube\Schemas\Properties\ObjectProperty;
+use Epsicube\Schemas\Properties\StringProperty;
+use Epsicube\Schemas\Schema;
 use EpsicubeModules\ExecutionPlatform\Contracts\Activity;
 use EpsicubeModules\MailingSystem\Facades\Mailers;
 use EpsicubeModules\MailingSystem\Facades\Templates;
 use EpsicubeModules\MailingSystem\Mails\EpsicubeMail;
-use Illuminate\JsonSchema\JsonSchema;
 
 class SendMail implements Activity
 {
@@ -36,35 +40,32 @@ class SendMail implements Activity
     }
 
     // TODO custom schema module
-    public function inputSchema(): array
+    public function inputSchema(Schema $schema): void
     {
-        return [
-            'mailer'   => JsonSchema::string()->enum(array_keys(Mailers::all()))->required(),
-            'template' => JsonSchema::string()->enum(array_keys(Templates::all()))->required(),
-            'subject'  => JsonSchema::string()->required(),
+        $schema->append([
+            'mailer'   => StringProperty::make()->title('Mailer identifier')->required(), // TODO ENUM ->enum(array_keys(Mailers::all()))
+            'template' => StringProperty::make()->title('Template Identifier')->required(), // TODO ENUM ->enum(array_keys(Templates::all()))
+            'subject'  => StringProperty::make()->title('Subject')->required(),
 
-            'to' => JsonSchema::array()->items(
-                JsonSchema::string()->format('email')->required(),
+            'to' => ArrayProperty::make()->items(
+                StringProperty::make()->title('To')->format(StringFormat::EMAIL)->required(),
             ),
 
-            'cc' => JsonSchema::array()->items(
-                JsonSchema::string()->format('email')->required(),
+            'cc' => ArrayProperty::make()->items(
+                StringProperty::make()->title('CC')->format(StringFormat::EMAIL)->required(),
             ),
 
-            'bcc' => JsonSchema::array()->items(
-                JsonSchema::string()->format('email')->required(),
+            'bcc' => ArrayProperty::make()->items(
+                StringProperty::make()->title('BCC')->format(StringFormat::EMAIL)->required(),
             ),
 
-            'template_configuration' => JsonSchema::object([
-                'content' => JsonSchema::string(),
-            ]),
-        ];
+            // TODO dynamique
+            'template_configuration' => ObjectProperty::make()->properties([
+                'content' => StringProperty::make(),
+            ])->title('Template configuration'),
+        ]);
     }
 
-    /**
-     * @param  array{mailer: string, template: string, subject: string, to: list<string>, cc: list<string>, bcc: list<string>, data: array<string,mixed>}  $inputs
-     * @return array{messageId: string}
-     */
     public function handle(array $inputs = []): array
     {
         $mail = (new EpsicubeMail)
@@ -81,11 +82,10 @@ class SendMail implements Activity
         return ['messageId' => $message->getMessageId()];
     }
 
-    // TODO custom schema module
-    public function outputSchema(): array
+    public function outputSchema(Schema $schema): void
     {
-        return [
-            'messageId' => JsonSchema::string()->required(),
-        ];
+        $schema->append([
+            'messageId' => StringProperty::make()->required(),
+        ]);
     }
 }

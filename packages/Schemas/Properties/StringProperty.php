@@ -133,7 +133,7 @@ class StringProperty extends BaseProperty implements JsonSchemaExportable
         // TODO use custom UndefinedValue class because null can be a valid defined value
         $input = text(
             label: $this->getTitle() ?? $name,
-            default: $value !== null ? $value : $this->getDefault(),
+            default: ($value !== null ? $value : $this->getDefault()) ?? '',
             required: $this->isRequired(),
             validate: function (string $value) {
                 // Check minimum length

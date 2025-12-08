@@ -39,6 +39,8 @@ abstract class BaseProperty implements FilamentExportable, JsonSchemaExportable,
 
     protected bool $required = false;
 
+    protected bool $nullable = false;
+
     protected mixed $default = null;
 
     public function getTitle(): ?string
@@ -54,6 +56,11 @@ abstract class BaseProperty implements FilamentExportable, JsonSchemaExportable,
     public function isRequired(): bool
     {
         return $this->required;
+    }
+
+    public function isNullable(): bool
+    {
+        return $this->nullable;
     }
 
     public function getDefault(): mixed
@@ -81,6 +88,13 @@ abstract class BaseProperty implements FilamentExportable, JsonSchemaExportable,
     public function required(bool $required = true): static
     {
         $this->required = $required;
+
+        return $this;
+    }
+
+    public function nullable(bool $nullable = true): static
+    {
+        $this->nullable = $nullable;
 
         return $this;
     }

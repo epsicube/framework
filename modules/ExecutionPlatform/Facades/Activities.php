@@ -23,18 +23,4 @@ class Activities extends Facade
             $registry->register(...$items);
         });
     }
-
-    // TODO using dedicated manager, save state, ...
-    public static function run(string $activityIdentifier, array $input = []): array
-    {
-        /** @var Activity $activity */
-        $activity = static::getFacadeRoot()->get($activityIdentifier);
-
-        // TODO run input schema validation (allow disabling for performance)
-        $result = $activity->handle($input);
-        // TODO run output schema validation (allow disabling for performance)
-
-        // TODO WHY not keep trace of the execution?
-        return $result;
-    }
 }

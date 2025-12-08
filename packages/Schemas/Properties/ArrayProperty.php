@@ -16,6 +16,9 @@ use Filament\Schemas\Components\Component;
 use Filament\Support\Enums\Operation;
 use Filament\Support\Icons\Heroicon;
 
+use function Laravel\Prompts\select;
+use function Laravel\Prompts\warning;
+
 class ArrayProperty extends BaseProperty
 {
     protected ?Property $items = null;
@@ -118,8 +121,71 @@ class ArrayProperty extends BaseProperty
             ->hintIconTooltip($this->getDescription());
     }
 
+    /**
+     * Prompt the user to manage an array of items.
+     *
+     * Supports adding, editing, and deleting items, with optional uniqueness.
+     * Uses the exporter to handle item input.
+     */
     public function askPrompt(?string $name, mixed $value, LaravelPromptsFormExporter $exporter): array
     {
-        // TODO: Implement askPrompt() method.
+        $items = is_array($value) ? array_values($value) : [];
+
+        while (true) {
+            $options = array_merge(array_combine(
+                array_map(fn ($i) => "item_{$i}", array_keys($items)),
+                array_map(fn ($i, $item) => "[{$i}] ".(is_scalar($item) ? (string) $item : json_encode($item)), array_keys($items), $items)
+            ), ['add' => 'Add new item', 'finish' => 'Finish']);
+
+            $choice = select(
+                label: $this->getTitle() ?? $name ?? '',
+                options: $options,
+                default: 'finish',
+                hint: 'Select an item to Edit/Delete or choose Add/Finish'
+            );
+
+            if ($choice === 'finish') {
+                return $items;
+            }
+
+            if ($choice === 'add') {
+                $newItem = $exporter->export($this->items, null, null);
+                if ($this->uniqueItems && in_array($newItem, $items, true)) {
+                    warning('This item already exists and must be unique.');
+
+                    continue;
+                }
+                $items[] = $newItem;
+                info('Item added.');
+
+                continue;
+            }
+
+            $index = (int) str_replace('item_', '', $choice);
+            $action = select(
+                label: "Choose action for item #{$index}",
+                options: ['edit' => 'Edit', 'delete' => 'Delete', 'back' => 'Back'],
+                default: 'back',
+                hint: "Item: {$options[$choice]}"
+            );
+
+            if ($action === 'edit') {
+                $currentValue = $items[$index] ?? null;
+                $edited = $exporter->export($this->items, null, $currentValue);
+
+                if ($this->uniqueItems && in_array($edited, array_values(array_diff_key($items, [$index => null])), true)) {
+                    warning('This item already exists and must be unique.');
+
+                    continue;
+                }
+
+                $items[$index] = $edited;
+                info("Item #{$index} updated.");
+            } elseif ($action === 'delete') {
+                unset($items[$index]);
+                $items = array_values($items);
+                info("Item #{$index} deleted.");
+            }
+        }
     }
 }
