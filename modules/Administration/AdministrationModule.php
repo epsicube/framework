@@ -59,7 +59,7 @@ class AdministrationModule extends ServiceProvider implements HasOptions, Module
             'path' => StringProperty::make()
                 ->title('Path')
                 ->description('Defines the subpath under which the administration panel is served, e.g., /admin or /dashboard.')
-                ->default('/'),
+                ->default('/epsicube'),
 
             'domain' => StringProperty::make()
                 ->title('Domain')
