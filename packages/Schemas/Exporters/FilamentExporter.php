@@ -44,10 +44,7 @@ class FilamentExporter implements SchemaExporter
             throw new RuntimeException('cannot export field that does not implement FilamentExportable');
         }
 
-        $component = $field->toFilamentComponent($name, $this);
-        if ($name) {
-            $component->statePath($name)->key($name);
-        }
+        $component = $field->toFilamentComponent($name ?? '_', $this); // <- TODO only used for array, but all fields requires $name
         if ($this->modifyComponentUsing) {
             call_user_func($this->modifyComponentUsing, $component, $name);
         }

@@ -36,10 +36,34 @@ class AdministrationModule extends ServiceProvider implements HasOptions, Module
     public function options(Schema $schema): void
     {
         $schema->append([
-            'enable-modules-manager' => BooleanProperty::make()->title('Enable Modules Manager')->default(true),
-            'brand-name'             => StringProperty::make()->title('Brand Name')->default(fn () => config('app.name')),
-            'spa'                    => BooleanProperty::make()->title('Single-Page-Application')->default(true),
-            'top-navigation'         => BooleanProperty::make()->title('Top Navigation')->default(false),
+            'enable-modules-manager' => BooleanProperty::make()
+                ->title('Enable Modules Manager')
+                ->description('Activates the integrated module management system, allowing you to enable, disable, or configure application modules.')
+                ->default(true),
+
+            'brand-name' => StringProperty::make()
+                ->title('Brand Name')
+                ->description('Specifies the display name used across the administration interface.')
+                ->default(fn () => config('app.name')),
+
+            'spa' => BooleanProperty::make()
+                ->title('Single-Page Application')
+                ->description('Enables SPA mode for enhanced navigation performance and reduced page reloads.')
+                ->default(true),
+
+            'top-navigation' => BooleanProperty::make()
+                ->title('Top Navigation')
+                ->description('Displays the primary navigation bar at the top instead of the sidebar.')
+                ->default(false),
+
+            'path' => StringProperty::make()
+                ->title('Path')
+                ->description('Defines the subpath under which the administration panel is served, e.g., /admin or /dashboard.')
+                ->default('/'),
+
+            'domain' => StringProperty::make()
+                ->title('Domain')
+                ->description('Restricts the administration panel to a specific domain. Leave empty to allow access from any domain.'),
         ]);
     }
 

@@ -12,6 +12,7 @@ use Filament\Forms\Components\ToggleButtons;
 use Filament\Infolists\Components\IconEntry;
 use Filament\Schemas\Components\Component;
 use Filament\Support\Enums\Operation;
+use Filament\Support\Icons\Heroicon;
 
 use function Laravel\Prompts\confirm;
 
@@ -43,16 +44,20 @@ class BooleanProperty extends BaseProperty
         if ($exporter->operation === Operation::View) {
             return IconEntry::make($name)
                 ->boolean()->inlineLabel()
-                ->label($this->getTitle())->hint($this->getDescription())->default($this->getDefault());
+                ->label($this->getTitle())->default($this->getDefault())
+                ->hintIcon(Heroicon::OutlinedInformationCircle)->hintColor('info')
+                ->hintIconTooltip($this->getDescription());
         }
 
+        // Don't use toggle because cannot handle null state
         return ToggleButtons::make($name)
-            ->boolean()
             ->required($this->isRequired())
             ->rules($this->accepted ? ['accepted'] : [])
-            ->inline()->inlineLabel()->grouped()
-            ->label($this->getTitle())->hint($this->getDescription())
-            ->default($this->getDefault());
+            ->boolean()->grouped()
+            ->inline()
+            ->label($this->getTitle())->default($this->getDefault())
+            ->hintIcon(Heroicon::OutlinedInformationCircle)->hintColor('info')
+            ->hintIconTooltip($this->getDescription());
     }
 
     public function askPrompt(?string $name, mixed $value, LaravelPromptsFormExporter $exporter): ?bool

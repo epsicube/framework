@@ -19,6 +19,7 @@ use Filament\Forms\Components\TimePicker;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Schemas\Components\Component;
 use Filament\Support\Enums\Operation;
+use Filament\Support\Icons\Heroicon;
 
 use function Laravel\Prompts\text;
 
@@ -101,7 +102,9 @@ class StringProperty extends BaseProperty implements JsonSchemaExportable
                 StringFormat::DATE      => TextEntry::make($name)->date(),
                 StringFormat::DATE_TIME => TextEntry::make($name)->dateTime(),
                 default                 => TextEntry::make($name)
-            })->inlineLabel()->label($this->getTitle())->hint($this->getDescription());
+            })->inlineLabel()->label($this->getTitle())
+                ->hintIcon(Heroicon::OutlinedInformationCircle)->hintColor('info')
+                ->hintIconTooltip($this->getDescription());
         }
 
         return (match ($this->format) {
@@ -110,7 +113,7 @@ class StringProperty extends BaseProperty implements JsonSchemaExportable
             StringFormat::TIME      => TimePicker::make($name),
             StringFormat::MARKDOWN  => MarkdownEditor::make($name)->fileAttachments(false),
             StringFormat::HTML      => RichEditor::make($name)->fileAttachments(false),
-            default                 => TextInput::make($name)
+            default                 => TextInput::make($name ?? 'test')
                 ->minLength($this->minLength)
                 ->maxLength($this->maxLength)
                 ->when(! empty($this->pattern), fn (TextInput $component) => $component->regex($this->pattern))
@@ -119,7 +122,9 @@ class StringProperty extends BaseProperty implements JsonSchemaExportable
                 ->ipv4($this->format === StringFormat::IPV4)
                 ->ipv6($this->format === StringFormat::IPV6)
                 ->uuid($this->format === StringFormat::UUID)
-        })->required($this->isRequired())->label($this->getTitle())->hint($this->getDescription())->default($this->getDefault());
+        })->required($this->isRequired())->label($this->getTitle())->default($this->getDefault())
+            ->hintIcon(Heroicon::OutlinedInformationCircle)->hintColor('info')
+            ->hintIconTooltip($this->getDescription());
     }
 
     public function askPrompt(?string $name, mixed $value, LaravelPromptsFormExporter $exporter): ?string

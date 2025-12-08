@@ -75,7 +75,6 @@ class ManageOptions extends Page implements HasSchemas
 
     public function form(Schema $schema): Schema
     {
-
         return $schema->statePath('data')->operation($this->operation->value)->schema(function () {
             $optionsSchema = Options::getSchema($this->activeTab);
 

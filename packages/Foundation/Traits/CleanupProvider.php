@@ -5,9 +5,10 @@ declare(strict_types=1);
 namespace Epsicube\Foundation\Traits;
 
 use Closure;
+use Illuminate\Foundation\Application;
 
 /**
- * @mixin \Illuminate\Foundation\Application
+ * @mixin Application
  */
 trait CleanupProvider
 {

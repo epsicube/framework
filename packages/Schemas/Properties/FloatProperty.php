@@ -13,6 +13,7 @@ use Filament\Forms\Components\TextInput;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Schemas\Components\Component;
 use Filament\Support\Enums\Operation;
+use Filament\Support\Icons\Heroicon;
 
 use function Laravel\Prompts\text;
 
@@ -93,7 +94,9 @@ class FloatProperty extends BaseProperty
         if ($exporter->operation === Operation::View) {
             return TextEntry::make($name)
                 ->numeric()->inlineLabel()
-                ->label($this->getTitle())->hint($this->getDescription())->default($this->getDefault());
+                ->label($this->getTitle())->default($this->getDefault())
+                ->hintIcon(Heroicon::OutlinedInformationCircle)->hintColor('info')
+                ->hintIconTooltip($this->getDescription());
         }
 
         return TextInput::make($name)
@@ -102,7 +105,9 @@ class FloatProperty extends BaseProperty
             ->minValue($this->minimum) // Exclusive not possible
             ->step($this->multipleOf)
             ->required($this->required)
-            ->label($this->getTitle())->hint($this->getDescription())->default($this->getDefault());
+            ->label($this->getTitle())->default($this->getDefault())
+            ->hintIcon(Heroicon::OutlinedInformationCircle)->hintColor('info')
+            ->hintIconTooltip($this->getDescription());
 
     }
 
