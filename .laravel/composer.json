@@ -32,10 +32,6 @@
     {
       "type": "path",
       "url": "../"
-    },
-    {
-      "type": "path",
-      "url": "../internal/**"
     }
   ],
   "autoload": {
