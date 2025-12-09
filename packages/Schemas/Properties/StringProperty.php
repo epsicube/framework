@@ -10,6 +10,7 @@ use Epsicube\Schemas\Enums\StringFormat;
 use Epsicube\Schemas\Exporters\FilamentExporter;
 use Epsicube\Schemas\Exporters\JsonSchemaExporter;
 use Epsicube\Schemas\Exporters\LaravelPromptsFormExporter;
+use Epsicube\Schemas\Exporters\LaravelValidationExporter;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\MarkdownEditor;
@@ -19,7 +20,6 @@ use Filament\Forms\Components\TimePicker;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Schemas\Components\Component;
 use Filament\Support\Enums\Operation;
-use Filament\Support\Icons\Heroicon;
 
 use function Laravel\Prompts\text;
 
@@ -102,12 +102,10 @@ class StringProperty extends BaseProperty implements JsonSchemaExportable
                 StringFormat::DATE      => TextEntry::make($name)->date(),
                 StringFormat::DATE_TIME => TextEntry::make($name)->dateTime(),
                 default                 => TextEntry::make($name)
-            })->inlineLabel()->label($this->getTitle())
-                ->hintIcon(Heroicon::OutlinedInformationCircle)->hintColor('info')
-                ->hintIconTooltip($this->getDescription());
+            })->inlineLabel();
         }
 
-        return (match ($this->format) {
+        return match ($this->format) {
             StringFormat::DATE      => DatePicker::make($name),
             StringFormat::DATE_TIME => DateTimePicker::make($name),
             StringFormat::TIME      => TimePicker::make($name),
@@ -122,9 +120,7 @@ class StringProperty extends BaseProperty implements JsonSchemaExportable
                 ->ipv4($this->format === StringFormat::IPV4)
                 ->ipv6($this->format === StringFormat::IPV6)
                 ->uuid($this->format === StringFormat::UUID)
-        })->required($this->isRequired())->label($this->getTitle())->default($this->getDefault())
-            ->hintIcon(Heroicon::OutlinedInformationCircle)->hintColor('info')
-            ->hintIconTooltip($this->getDescription());
+        };
     }
 
     public function askPrompt(?string $name, mixed $value, LaravelPromptsFormExporter $exporter): ?string
@@ -159,5 +155,43 @@ class StringProperty extends BaseProperty implements JsonSchemaExportable
         );
 
         return $input === '' ? null : $input;
+    }
+
+    public function resolveValidationRules(mixed $value, LaravelValidationExporter $exporter): array
+    {
+        $rules = ['string'];
+
+        if ($this->minLength !== null) {
+            $rules[] = "min:{$this->minLength}";
+        }
+
+        if ($this->maxLength !== null) {
+            $rules[] = "max:{$this->maxLength}";
+        }
+
+        if (! empty($this->pattern)) {
+            $isDelimited = preg_match('/^\/.+\/[a-zA-Z]*$/', $this->pattern) === 1;
+            $regex = $isDelimited ? $this->pattern : '/'.str_replace('/', '\/', $this->pattern).'/u';
+            $rules[] = "regex:{$regex}";
+        }
+
+        if (! empty($this->format)) {
+            $formatRules = match ($this->format) {
+                StringFormat::EMAIL     => ['email'],
+                StringFormat::URL       => ['url'],
+                StringFormat::IPV4      => ['ipv4'],
+                StringFormat::IPV6      => ['ipv6'],
+                StringFormat::UUID      => ['uuid'],
+                StringFormat::DATE      => ['date'],
+                StringFormat::DATE_TIME => ['date'],
+                StringFormat::TIME      => ['date', 'date_format:H:i:s'],
+                // Unsupported formats like hostname, phone, duration are intentionally skipped for now.
+                default => [],
+            };
+
+            $rules = array_merge($rules, $formatRules);
+        }
+
+        return $rules;
     }
 }

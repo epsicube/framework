@@ -9,6 +9,7 @@ use Epsicube\Schemas\Contracts\Property;
 use Epsicube\Schemas\Exporters\FilamentExporter;
 use Epsicube\Schemas\Exporters\JsonSchemaExporter;
 use Epsicube\Schemas\Exporters\LaravelPromptsFormExporter;
+use Epsicube\Schemas\Exporters\LaravelValidationExporter;
 use Filament\Schemas\Components\Component;
 use Filament\Schemas\Components\Section;
 use RuntimeException;
@@ -94,8 +95,11 @@ class ObjectProperty extends BaseProperty
         // TODO required section
 
         return Section::make($this->getTitle() ?? $name)
-            ->description($this->getDescription())
-            ->schema($components)->default($this->getDefault());
+            ->when(
+                $this->getDescription(),
+                fn (Section $component) => $component->description($this->getDescription())
+            )
+            ->schema($components);
     }
 
     public function askPrompt(?string $name, mixed $value, LaravelPromptsFormExporter $exporter): mixed
@@ -109,5 +113,35 @@ class ObjectProperty extends BaseProperty
         // TODO required section
 
         return $form->submit();
+    }
+
+    public function resolveValidationRules(mixed $value, LaravelValidationExporter $exporter): array
+    {
+        $rules = ['array'];
+        foreach ($this->properties as $name => $property) {
+            $childValue = is_array($value) ? ($value[$name] ?? null) : null;
+            $exporter->exportChild($property, $name, $childValue);
+        }
+
+        // additionalProperties = Property → validation typed
+        if ($this->additionalProperties instanceof Property && is_array($value)) {
+            foreach ($value as $key => $childValue) {
+                if (! array_key_exists($key, $this->properties)) {
+                    $exporter->exportChild($this->additionalProperties, $key, $childValue);
+                }
+            }
+        }
+
+        // additionalProperties = true → always keep
+        elseif ($this->additionalProperties === true && is_array($value)) {
+            foreach ($value as $key => $childValue) {
+                if (! array_key_exists($key, $this->properties)) {
+                    // rule ensure laravel validated keep the property
+                    $exporter->setChildRules($key, ['present']);
+                }
+            }
+        }
+
+        return $rules;
     }
 }

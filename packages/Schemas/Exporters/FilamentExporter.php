@@ -10,8 +10,11 @@ use Epsicube\Schemas\Contracts\Property;
 use Epsicube\Schemas\Contracts\SchemaExporter;
 use Epsicube\Schemas\Properties\ObjectProperty;
 use Epsicube\Schemas\Schema;
+use Filament\Forms\Components\Field;
+use Filament\Infolists\Components\Entry;
 use Filament\Schemas\Components\Component;
 use Filament\Support\Enums\Operation;
+use Filament\Support\Icons\Heroicon;
 use RuntimeException;
 
 class FilamentExporter implements SchemaExporter
@@ -19,7 +22,7 @@ class FilamentExporter implements SchemaExporter
     public Operation $operation;
 
     /**
-     * @param  Closure(Component $component, ?string $name): void |null  $modifyComponentUsing
+     * @param  Closure(Property $property, ?string $name, Component $component): void |null  $modifyComponentUsing
      */
     public function __construct(Operation|string $operation, protected ?Closure $modifyComponentUsing = null)
     {
@@ -38,15 +41,44 @@ class FilamentExporter implements SchemaExporter
         )->statePath(null);
     }
 
-    public function export(Property $field, ?string $name): Component
+    public function export(Property $property, ?string $name): Component
     {
-        if (! ($field instanceof FilamentExportable)) {
+        if (! ($property instanceof FilamentExportable)) {
             throw new RuntimeException('cannot export field that does not implement FilamentExportable');
         }
 
-        $component = $field->toFilamentComponent($name ?? '_', $this); // <- TODO only used for array, but all fields requires $name
+        $component = $property->toFilamentComponent($name ?? '_', $this); // <- TODO only used for array, but all fields requires $name
+
+        // Globally apply default
+        if ($property->hasDefault()) {
+            $component->default($property->getDefault());
+        }
+
+        // Globally apply required (when possible)
+        if ($component instanceof Field) {
+            $component->required($property->isRequired());
+            // $component->nullable($property->isNullable());
+            // Don't do this because filament consider nullable like non-required
+        }
+
+        // Globally apply label (when possible)
+        if (($component instanceof Field || $component instanceof Entry) && ! $component->hasCustomLabel()) {
+            $component->label($property->getTitle());
+        }
+
+        // Globally apply description (when possible)
+        if (($component instanceof Field || $component instanceof Entry) && $description = $property->getDescription()) {
+
+            if ($this->operation === Operation::Edit) {
+                $component->helperText($description);
+            } else {
+                $component->hintIcon(Heroicon::OutlinedInformationCircle)->hintColor('info')->hintIconTooltip($description);
+            }
+
+        }
+
         if ($this->modifyComponentUsing) {
-            call_user_func($this->modifyComponentUsing, $component, $name);
+            call_user_func($this->modifyComponentUsing, $property, $name, $component);
         }
 
         return $component;

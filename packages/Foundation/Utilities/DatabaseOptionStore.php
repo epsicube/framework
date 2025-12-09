@@ -6,7 +6,9 @@ namespace Epsicube\Foundation\Utilities;
 
 use Closure;
 use Epsicube\Foundation\Models\Option;
+use Epsicube\Foundation\Types\UndefinedValue;
 use Epsicube\Support\Contracts\OptionsStore;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Database\QueryException;
 
 class DatabaseOptionStore implements OptionsStore
@@ -16,11 +18,13 @@ class DatabaseOptionStore implements OptionsStore
      */
     public function get(string $key, string $group): mixed
     {
-        return $this->withExceptionHandling(fn () => Option::query()
-            ->where('group', $group)
-            ->where('key', $key)
-            ->value('value') ?? null
-        ) ?? null;
+        return $this->withExceptionHandling(function () use ($key, $group) {
+            try {
+                return Option::query()->where('group', $group)->where('key', $key)->soleValue('value');
+            } catch (ModelNotFoundException) {
+                return new UndefinedValue;
+            }
+        });
     }
 
     /**

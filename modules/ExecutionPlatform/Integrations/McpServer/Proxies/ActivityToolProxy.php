@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace EpsicubeModules\ExecutionPlatform\Integrations\McpServer\Proxies;
 
+use Epsicube\Schemas\Schema;
 use EpsicubeModules\ExecutionPlatform\Contracts\Activity;
 use EpsicubeModules\McpServer\Contracts\Tool;
 
@@ -26,10 +27,9 @@ class ActivityToolProxy implements Tool
         return $this->activity->description();
     }
 
-    // TODO
-    public function inputSchema(): array
+    public function inputSchema(Schema $schema): void
     {
-        return $this->activity->inputSchema();
+        $this->activity->inputSchema($schema);
     }
 
     public function handle(array $input = []): ?array
@@ -37,9 +37,8 @@ class ActivityToolProxy implements Tool
         return $this->activity->handle($input);
     }
 
-    // TODO
-    public function outputSchema(): array
+    public function outputSchema(Schema $schema): void
     {
-        return $this->activity->outputSchema();
+        $this->activity->outputSchema($schema);
     }
 }

@@ -9,12 +9,12 @@ use Epsicube\Schemas\Contracts\Property;
 use Epsicube\Schemas\Exporters\FilamentExporter;
 use Epsicube\Schemas\Exporters\JsonSchemaExporter;
 use Epsicube\Schemas\Exporters\LaravelPromptsFormExporter;
+use Epsicube\Schemas\Exporters\LaravelValidationExporter;
 use Filament\Forms\Components\Field;
 use Filament\Forms\Components\Repeater;
 use Filament\Infolists\Components\RepeatableEntry;
 use Filament\Schemas\Components\Component;
 use Filament\Support\Enums\Operation;
-use Filament\Support\Icons\Heroicon;
 
 use function Laravel\Prompts\select;
 use function Laravel\Prompts\warning;
@@ -97,28 +97,20 @@ class ArrayProperty extends BaseProperty
         }
 
         if ($exporter->operation === Operation::View) {
-            return RepeatableEntry::make($name)
-                ->schema([$component])->inlineLabel()
-                ->label($this->getTitle())->default($this->getDefault())
-                ->hintIcon(Heroicon::OutlinedInformationCircle)->hintColor('info')
-                ->hintIconTooltip($this->getDescription());
+            return RepeatableEntry::make($name)->schema([$component])->inlineLabel();
         }
 
         // TODO filament unique items, using custom rule
         // TODO filament bug using simple re-hydration
         // Switch to other than repeater
         return Repeater::make($name)
-            ->required($this->isRequired())
             ->when(
                 $component instanceof Field,
                 fn (Repeater $field) => $field->simple($component),
                 fn (Repeater $field) => $field->schema([$component]),
             )
             ->minItems($this->minItems)
-            ->maxItems($this->maxItems)
-            ->label($this->getTitle())->default($this->getDefault())
-            ->hintIcon(Heroicon::OutlinedInformationCircle)->hintColor('info')
-            ->hintIconTooltip($this->getDescription());
+            ->maxItems($this->maxItems);
     }
 
     /**
@@ -187,5 +179,34 @@ class ArrayProperty extends BaseProperty
                 info("Item #{$index} deleted.");
             }
         }
+    }
+
+    public function resolveValidationRules(mixed $value, LaravelValidationExporter $exporter): array
+    {
+        $rules = [
+            'array',
+            'list',
+        ];
+
+        if ($this->minItems !== null) {
+            $rules[] = 'min:'.$this->minItems;
+        }
+
+        if ($this->maxItems !== null) {
+            $rules[] = 'max:'.$this->maxItems;
+        }
+
+        if ($this->uniqueItems) {
+            $rules[] = 'distinct';
+        }
+
+        // Loop over each instead of using .* to get index on error
+        if (is_array($value) && $this->items instanceof Property) {
+            foreach ($value as $i => $itemValue) {
+                $exporter->exportChild($this->items, (string) $i, $itemValue);
+            }
+        }
+
+        return $rules;
     }
 }

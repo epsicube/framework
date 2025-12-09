@@ -7,12 +7,15 @@ namespace Epsicube\Schemas\Properties;
 use Closure;
 use Epsicube\Schemas\Contracts\FilamentExportable;
 use Epsicube\Schemas\Contracts\JsonSchemaExportable;
+use Epsicube\Schemas\Contracts\LaravelRulesExportable;
 use Epsicube\Schemas\Contracts\PromptExportable;
 use Epsicube\Schemas\Contracts\Property;
+use Epsicube\Schemas\Exceptions\UndefinedDefaultException;
 use Epsicube\Schemas\Exporters\FilamentExporter;
 use Epsicube\Schemas\Exporters\JsonSchemaExporter;
 use Epsicube\Schemas\Exporters\LaravelPromptsFormExporter;
 use Epsicube\Schemas\Exporters\LaravelValidationExporter;
+use ReflectionProperty;
 
 /**
  * BaseField provides the core functionality for all native fields in Epsicube Schema.
@@ -23,16 +26,8 @@ use Epsicube\Schemas\Exporters\LaravelValidationExporter;
  * - @see LaravelValidationExporter
  * - @see LaravelPromptsFormExporter
  */
-abstract class BaseProperty implements FilamentExportable, JsonSchemaExportable, PromptExportable, Property
+abstract class BaseProperty implements FilamentExportable, JsonSchemaExportable, LaravelRulesExportable, PromptExportable, Property
 {
-    public static function make(): static
-    {
-        return new static;
-    }
-
-    // ------------------------------
-    // Interface properties with hooks
-    // ------------------------------
     protected ?string $title = null;
 
     protected ?string $description = null;
@@ -41,7 +36,22 @@ abstract class BaseProperty implements FilamentExportable, JsonSchemaExportable,
 
     protected bool $nullable = false;
 
-    protected mixed $default = null;
+    /**
+     * @var ReflectionProperty Used to detect if default provided because isset return false when value is null
+     */
+    protected ReflectionProperty $reflectionDefault;
+
+    protected mixed $default;
+
+    public function __construct()
+    {
+        $this->reflectionDefault = new ReflectionProperty(static::class, 'default');
+    }
+
+    public static function make(): static
+    {
+        return new static;
+    }
 
     public function getTitle(): ?string
     {
@@ -65,7 +75,16 @@ abstract class BaseProperty implements FilamentExportable, JsonSchemaExportable,
 
     public function getDefault(): mixed
     {
+        if (! $this->hasDefault()) {
+            throw UndefinedDefaultException::forProperty($this);
+        }
+
         return $this->default instanceof Closure ? call_user_func($this->default) : $this->default;
+    }
+
+    public function hasDefault(): bool
+    {
+        return $this->reflectionDefault->isInitialized($this);
     }
 
     // ------------------------------

@@ -8,11 +8,11 @@ use Closure;
 use Epsicube\Schemas\Exporters\FilamentExporter;
 use Epsicube\Schemas\Exporters\JsonSchemaExporter;
 use Epsicube\Schemas\Exporters\LaravelPromptsFormExporter;
+use Epsicube\Schemas\Exporters\LaravelValidationExporter;
 use Filament\Forms\Components\ToggleButtons;
 use Filament\Infolists\Components\IconEntry;
 use Filament\Schemas\Components\Component;
 use Filament\Support\Enums\Operation;
-use Filament\Support\Icons\Heroicon;
 
 use function Laravel\Prompts\confirm;
 
@@ -42,22 +42,14 @@ class BooleanProperty extends BaseProperty
     public function toFilamentComponent(string $name, FilamentExporter $exporter): Component
     {
         if ($exporter->operation === Operation::View) {
-            return IconEntry::make($name)
-                ->boolean()->inlineLabel()
-                ->label($this->getTitle())->default($this->getDefault())
-                ->hintIcon(Heroicon::OutlinedInformationCircle)->hintColor('info')
-                ->hintIconTooltip($this->getDescription());
+            return IconEntry::make($name)->boolean()->inlineLabel();
         }
 
         // Don't use toggle because cannot handle null state
         return ToggleButtons::make($name)
-            ->required($this->isRequired())
             ->rules($this->accepted ? ['accepted'] : [])
             ->boolean()->grouped()
-            ->inline()
-            ->label($this->getTitle())->default($this->getDefault())
-            ->hintIcon(Heroicon::OutlinedInformationCircle)->hintColor('info')
-            ->hintIconTooltip($this->getDescription());
+            ->inline();
     }
 
     public function askPrompt(?string $name, mixed $value, LaravelPromptsFormExporter $exporter): ?bool
@@ -69,5 +61,16 @@ class BooleanProperty extends BaseProperty
             required: $this->accepted,
             hint: $this->getDescription() ?? '',
         );
+    }
+
+    public function resolveValidationRules(mixed $value, LaravelValidationExporter $exporter): array
+    {
+        $rules = ['boolean'];
+
+        if ($this->accepted) {
+            $rules[] = 'accepted';
+        }
+
+        return $rules;
     }
 }

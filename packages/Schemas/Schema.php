@@ -6,7 +6,8 @@ namespace Epsicube\Schemas;
 
 use Epsicube\Schemas\Contracts\Property;
 use Epsicube\Schemas\Contracts\SchemaExporter;
-use RuntimeException;
+use Epsicube\Schemas\Exceptions\DuplicatePropertyException;
+use LogicException;
 
 class Schema
 {
@@ -51,17 +52,32 @@ class Schema
         return $this->properties;
     }
 
+    public function property(string $name): ?Property
+    {
+        return $this->properties[$name] ?? null;
+    }
+
     /**
      * @param  array<string, Property>  $properties
      * @return $this
+     *
+     * @throws DuplicatePropertyException
+     * @throws LogicException
      */
-    public function append(array $properties): Schema
+    public function append(array $properties): static
     {
         foreach ($properties as $name => $property) {
             if (isset($this->properties[$name])) {
-                // TODO Custom error
-                throw new RuntimeException("Property '{$name}' already exists.");
+                throw DuplicatePropertyException::forSchema($this, $name);
             }
+
+            // Consistency check: required vs default
+            if ($property->isRequired() && $property->hasDefault()) {
+                throw new LogicException(
+                    sprintf("Property '%s' is marked as required but has a default value defined.", $name)
+                );
+            }
+
             $this->properties[$name] = $property;
         }
 
@@ -83,41 +99,5 @@ class Schema
             description: $this->description(),
             properties: $filtered
         );
-    }
-
-    /**
-     * Apply default values to an options array according to this schema.
-     *
-     * @param  array<string,mixed>  $values
-     * @param  bool  $insertMissing  If true, missing keys are added with default values.
-     * @param  bool  $keepExtraKeys  If false, values not present in the schema are removed.
-     */
-    public function withDefaults(array $values, bool $insertMissing = false, bool $keepExtraKeys = false): array
-    {
-        $result = $values;
-
-        // TODO recursive + sanitize across field
-        /**
-         * Implementation test
-         * $property->sanitize(mixed $value)
-         */
-        foreach ($this->properties as $name => $property) {
-            if (! array_key_exists($name, $result) && $insertMissing) {
-                $result[$name] = $property->getDefault();
-
-                continue;
-            }
-
-            if (array_key_exists($name, $result) && $result[$name] === null) {
-                $result[$name] = $property->getDefault();
-            }
-        }
-
-        // Remove keys not defined in the schema (unless allowed)
-        if (! $keepExtraKeys) {
-            $result = array_intersect_key($result, $this->properties);
-        }
-
-        return $result;
     }
 }

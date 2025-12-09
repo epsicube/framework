@@ -63,7 +63,9 @@ class AdministrationModule extends ServiceProvider implements HasOptions, Module
 
             'domain' => StringProperty::make()
                 ->title('Domain')
-                ->description('Restricts the administration panel to a specific domain. Leave empty to allow access from any domain.'),
+                ->description('Restricts the administration panel to a specific domain. Leave empty to allow access from any domain.')
+                ->nullable()
+                ->default(null),
         ]);
     }
 

@@ -29,11 +29,9 @@ use Filament\Support\Enums\IconPosition;
 use Filament\Support\Enums\Operation;
 use Filament\Support\Enums\Size;
 use Filament\Support\Icons\Heroicon;
-use Illuminate\Support\HtmlString;
-use Illuminate\Support\Str;
 use Livewire\Attributes\Url;
 
-class ManageOptions extends Page implements HasSchemas
+class ManageOptionsBackup extends Page implements HasSchemas
 {
     use HasTabs, InteractsWithSchemas;
 
@@ -125,7 +123,7 @@ class ManageOptions extends Page implements HasSchemas
                             $isCustom = $this->useCustom[$name] ?? false;
 
                             return Action::make('toggleDefault')
-                                ->label($isCustom ? new HtmlString(Str::replace(' ', '&nbsp;', __('Restore default'))) : __('Edit'))
+                                ->label($isCustom ? __('Reset') : __('Edit'))
                                 ->icon($isCustom ? Heroicon::OutlinedArrowUturnLeft : Heroicon::OutlinedPencilSquare)
                                 ->color($isCustom ? 'warning' : 'gray')
                                 ->tooltip(__('Click to toggle between default value and custom input'))
@@ -216,7 +214,6 @@ class ManageOptions extends Page implements HasSchemas
                         $this->fillForm();
                     }),
             ])->buttonGroup(),
-
         ];
     }
 
@@ -226,21 +223,12 @@ class ManageOptions extends Page implements HasSchemas
             $this->getTabsContentComponent(),
             EmbeddedSchema::make('form'),
             Actions::make([
-                Action::make('resetAllFields')
-                    ->label(__('Undo all changes'))
-                    ->color('primary')
-                    ->visible(fn () => $this->operation === Operation::Edit)
-                    ->icon(Heroicon::OutlinedArrowPath)
-                    ->outlined()
-                    ->size(Size::Small)
-                    ->action(fn () => $this->fillForm()),
-
                 Action::make('save')
                     ->label(__('Save'))
                     ->visible(fn () => $this->operation === Operation::Edit)
                     ->keyBindings(['mod+s'])
                     ->action('save'),
-            ])->alignJustify(),
+            ]),
         ]);
     }
 }

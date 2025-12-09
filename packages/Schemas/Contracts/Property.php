@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Epsicube\Schemas\Contracts;
 
+use Epsicube\Schemas\Exceptions\UndefinedDefaultException;
+
 interface Property
 {
     public function getTitle(): ?string;
@@ -14,5 +16,10 @@ interface Property
 
     public function isNullable(): bool;
 
+    public function hasDefault(): bool;
+
+    /**
+     * @throws UndefinedDefaultException
+     */
     public function getDefault(): mixed;
 }

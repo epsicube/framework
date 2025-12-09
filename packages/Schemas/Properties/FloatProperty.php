@@ -8,12 +8,12 @@ use Closure;
 use Epsicube\Schemas\Exporters\FilamentExporter;
 use Epsicube\Schemas\Exporters\JsonSchemaExporter;
 use Epsicube\Schemas\Exporters\LaravelPromptsFormExporter;
+use Epsicube\Schemas\Exporters\LaravelValidationExporter;
 use Exception;
 use Filament\Forms\Components\TextInput;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Schemas\Components\Component;
 use Filament\Support\Enums\Operation;
-use Filament\Support\Icons\Heroicon;
 
 use function Laravel\Prompts\text;
 
@@ -92,23 +92,14 @@ class FloatProperty extends BaseProperty
     public function toFilamentComponent(string $name, FilamentExporter $exporter): Component
     {
         if ($exporter->operation === Operation::View) {
-            return TextEntry::make($name)
-                ->numeric()->inlineLabel()
-                ->label($this->getTitle())->default($this->getDefault())
-                ->hintIcon(Heroicon::OutlinedInformationCircle)->hintColor('info')
-                ->hintIconTooltip($this->getDescription());
+            return TextEntry::make($name)->numeric()->inlineLabel();
         }
 
         return TextInput::make($name)
             ->numeric()
             ->maxValue($this->maximum) // Exclusive not possible
             ->minValue($this->minimum) // Exclusive not possible
-            ->step($this->multipleOf)
-            ->required($this->required)
-            ->label($this->getTitle())->default($this->getDefault())
-            ->hintIcon(Heroicon::OutlinedInformationCircle)->hintColor('info')
-            ->hintIconTooltip($this->getDescription());
-
+            ->step($this->multipleOf);
     }
 
     public function askPrompt(?string $name, mixed $value, LaravelPromptsFormExporter $exporter): ?float
@@ -154,5 +145,39 @@ class FloatProperty extends BaseProperty
         );
 
         return $input === '' ? null : (float) $input;
+    }
+
+    public function resolveValidationRules(mixed $value, LaravelValidationExporter $exporter): array
+    {
+        $rules = ['numeric'];
+
+        if ($this->minimum !== null) {
+            if ($this->exclusiveMinimum) {
+                $rules[] = function (string $attribute, $value, callable $fail): void {
+                    if ((float) $value <= $this->minimum) {
+                        $fail(__('The :attribute must be greater than :value.', ['value' => $this->minimum]));
+                    }
+                };
+            } else {
+                $rules[] = "min:{$this->minimum}";
+            }
+        }
+        if ($this->maximum !== null) {
+            if ($this->exclusiveMaximum) {
+                $rules[] = function (string $attribute, $value, callable $fail): void {
+                    if ((float) $value >= $this->maximum) {
+                        $fail(__('The :attribute must be less than :value.', ['value' => $this->maximum]));
+                    }
+                };
+            } else {
+                $rules[] = "max:{$this->maximum}";
+            }
+        }
+
+        if ($this->multipleOf !== null && $this->multipleOf > 0) {
+            $rules[] = "multiple_of:{$this->multipleOf}";
+        }
+
+        return $rules;
     }
 }

@@ -7,11 +7,11 @@ namespace Epsicube\Support\Exceptions;
 use Epsicube\Schemas\Schema;
 use RuntimeException;
 
-class OptionNotRegisteredException extends RuntimeException
+class UnresolvableOptionException extends RuntimeException
 {
     public static function forSchema(Schema $schema, string $name): self
     {
-        $message = sprintf("Option '%s' not registered in schema '%s'.", $name, $schema->identifier());
+        $message = sprintf("No value provided for property '%s' in group '%s' and no default is defined.", $name, $schema->identifier());
 
         return new static($message);
     }

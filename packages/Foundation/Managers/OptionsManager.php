@@ -4,9 +4,14 @@ declare(strict_types=1);
 
 namespace Epsicube\Foundation\Managers;
 
+use Epsicube\Foundation\Types\UndefinedValue;
+use Epsicube\Schemas\Contracts\Property;
 use Epsicube\Schemas\Schema;
 use Epsicube\Support\Contracts\OptionsStore;
+use Epsicube\Support\Exceptions\MissingRequiredOptionsException;
+use Epsicube\Support\Exceptions\OptionNotRegisteredException;
 use Epsicube\Support\Exceptions\SchemaNotFound;
+use Epsicube\Support\Exceptions\UnresolvableOptionException;
 
 class OptionsManager
 {
@@ -46,18 +51,45 @@ class OptionsManager
         return $this->schemas;
     }
 
-    public function get(string $group, string $key, bool $ignoreDefault = false): mixed
+    // TODO command use third option withDefault, change that by exposing store
+    /**
+     * Get an option value for a schema group and key.
+     *
+     * Loads the value from the store if not already loaded.
+     * Returns the stored value if present (even if null),
+     * otherwise falls back to the property default if defined.
+     *
+     * @throws OptionNotRegisteredException if the property is not defined in the schema
+     * @throws UnresolvableOptionException if the property has no stored value and no default
+     */
+    public function get(string $group, string $key): mixed
     {
         if (! array_key_exists($key, $this->loadedKeys[$group] ?? [])) {
             $value = $this->store->get($key, $group);
-            $this->state[$group][$key] = $value;
+            if (! $value instanceof UndefinedValue) {
+                $this->state[$group][$key] = $value;
+            }
             $this->loadedKeys[$group][$key] = true;
         }
-        if ($ignoreDefault) {
-            return $this->state[$group][$key] ?? null;
+
+        // Return stored value if exists (even if null)
+        if (array_key_exists($key, $this->state[$group] ?? [])) {
+            return $this->state[$group][$key];
         }
 
-        return $this->getSchema($group)->withDefaults([$key => $this->state[$group][$key] ?? null])[$key];
+        // Retrieve property from schema
+        $schema = $this->getSchema($group);
+
+        if (! $property = $schema->property($key)) {
+            throw OptionNotRegisteredException::forSchema($schema, $key);
+        }
+
+        // Fallback on default if defined
+        if (! $property->hasDefault()) {
+            throw UnresolvableOptionException::forSchema($schema, $key);
+        }
+
+        return $property->getDefault();
     }
 
     public function set(string $group, string $key, mixed $value): void
@@ -78,28 +110,53 @@ class OptionsManager
         $this->store->delete($key, $group);
     }
 
+    /**
+     * Retrieve all options for a group, applying defaults and enforcing required fields.
+     *
+     * @return array<string, mixed>
+     *
+     * @throws MissingRequiredOptionsException if any required property is missing
+     */
     public function all(string $group): array
     {
-        if ($this->fullyLoaded[$group] ?? false) {
-            return $this->state[$group] ?? [];
-        }
+        $schema = $this->getSchema($group);
 
-        $results = $this->getSchema($group)->withDefaults(values: $this->store->all($group), insertMissing: true);
+        // Required keys
+        $requiredKeys = array_keys(array_filter(
+            $schema->properties(),
+            fn (Property $property) => $property->isRequired()
+        ));
 
-        $this->state[$group] = array_merge($this->state[$group] ?? [], $results);
-
-        $this->loadedKeys[$group] = array_replace(
-            $this->loadedKeys[$group] ?? [],
-            array_fill_keys(array_keys($results), true)
+        $defaults = array_map(
+            fn (Property $property) => $property->getDefault(),
+            array_filter($schema->properties(), fn (Property $property) => $property->hasDefault())
         );
 
+        $stored = array_filter(
+            $this->store->all($group),
+            fn (mixed $v) => ! ($v instanceof UndefinedValue)
+        );
+
+        $all = array_merge($defaults, $stored);
+        $missingRequired = array_diff($requiredKeys, array_keys($all));
+        if (! empty($missingRequired)) {
+            throw MissingRequiredOptionsException::forSchema($schema, $missingRequired);
+        }
+
+        // Merge into existing state and loadedKeys
+        $this->state[$group] = array_merge($this->state[$group] ?? [], $all);
+        $this->loadedKeys[$group] = array_replace(
+            $this->loadedKeys[$group] ?? [],
+            array_fill_keys(array_keys($all), true)
+        );
         $this->fullyLoaded[$group] = true;
 
-        return $this->state[$group] ?? [];
+        return $all;
     }
 
-    public function allStored(string $group): array
+    // Expose store
+    public function store(): OptionsStore
     {
-        return $this->store->all($group);
+        return $this->store;
     }
 }
