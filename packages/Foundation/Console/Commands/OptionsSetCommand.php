@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Epsicube\Foundation\Console\Commands;
 
-use Epsicube\Schemas\Exporters\LaravelPromptsFormExporter;
+use Epsicube\Schemas\Types\UndefinedValue;
 use Epsicube\Support\Exceptions\SchemaNotFound;
 use Epsicube\Support\Facades\Options;
 use Illuminate\Console\Command;
@@ -84,10 +84,14 @@ class OptionsSetCommand extends Command implements PromptsForMissingInput
             'value' => function () use ($schemas) {
                 $group = $this->argument('group');
                 $key = $this->argument('key');
-
-                $currentValue = Options::get($group, $key, true);
                 $schema = $schemas[$group]->only($key);
-                $inputs = $schema->export(new LaravelPromptsFormExporter([$key => $currentValue]));
+
+                $currentValue = Options::store()->get($key, $group);
+                if ($currentValue instanceof UndefinedValue) {
+                    $inputs = $schema->toExecutedPrompts();
+                } else {
+                    $inputs = $schema->toExecutedPrompts([$key => $currentValue]);
+                }
 
                 return $inputs[$key] ?? null;
             },

@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace Epsicube\Foundation\Managers;
 
-use Epsicube\Foundation\Types\UndefinedValue;
 use Epsicube\Schemas\Contracts\Property;
 use Epsicube\Schemas\Schema;
+use Epsicube\Schemas\Types\UndefinedValue;
 use Epsicube\Support\Contracts\OptionsStore;
 use Epsicube\Support\Exceptions\MissingRequiredOptionsException;
 use Epsicube\Support\Exceptions\OptionNotRegisteredException;

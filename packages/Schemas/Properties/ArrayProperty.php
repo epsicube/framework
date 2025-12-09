@@ -10,6 +10,7 @@ use Epsicube\Schemas\Exporters\FilamentExporter;
 use Epsicube\Schemas\Exporters\JsonSchemaExporter;
 use Epsicube\Schemas\Exporters\LaravelPromptsFormExporter;
 use Epsicube\Schemas\Exporters\LaravelValidationExporter;
+use Epsicube\Schemas\Types\UndefinedValue;
 use Filament\Forms\Components\Field;
 use Filament\Forms\Components\Repeater;
 use Filament\Infolists\Components\RepeatableEntry;
@@ -141,7 +142,7 @@ class ArrayProperty extends BaseProperty
             }
 
             if ($choice === 'add') {
-                $newItem = $exporter->export($this->items, null, null);
+                $newItem = $exporter->export($this->items, 'New Item', new UndefinedValue);
                 if ($this->uniqueItems && in_array($newItem, $items, true)) {
                     warning('This item already exists and must be unique.');
 
@@ -162,8 +163,7 @@ class ArrayProperty extends BaseProperty
             );
 
             if ($action === 'edit') {
-                $currentValue = $items[$index] ?? null;
-                $edited = $exporter->export($this->items, null, $currentValue);
+                $edited = $exporter->export($this->items, "Item #{$index}", $items[$index]);
 
                 if ($this->uniqueItems && in_array($edited, array_values(array_diff_key($items, [$index => null])), true)) {
                     warning('This item already exists and must be unique.');

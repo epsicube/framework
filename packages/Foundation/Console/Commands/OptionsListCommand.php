@@ -51,16 +51,31 @@ class OptionsListCommand extends Command
             );
         }
 
-        $rows = collect($schemas)->map(fn (Schema $schema, string $group) => collect($schema->properties())->map(
-            fn (Property $property, string $key) => [
-                $fmt($group, 'fg=cyan;options=bold'),
-                $fmt($property->getTitle() ?? $key, 'fg=yellow'),
-                $fmt($key, 'fg=blue'),
-                $fmt(Str::limit(json_encode(Options::get($group, $key, true)), 50), 'fg=white'),
-                $fmt(Str::limit(json_encode($property->getDefault()), 50), 'fg=magenta'),
-                $fmt(Str::beforeLast(class_basename($property), 'Property'), 'fg=green'),
-            ]
-        )->all())->flatten(1)->all();
+        $rows = collect($schemas)->map(function (Schema $schema, string $group) use ($fmt) {
+            $storedValues = Options::store()->all($group);
+
+            return collect($schema->properties())->map(
+                fn (Property $property, string $key) => [
+                    $fmt($group, 'fg=cyan;options=bold'),
+                    $fmt($property->getTitle() ?? $key, 'fg=yellow'),
+                    $fmt($key, 'fg=blue'),
+
+                    array_key_exists($key, $storedValues)
+                        ? $fmt(Str::limit(json_encode($storedValues[$key]), 50), 'fg=white')
+                        : $fmt('Not provided', 'fg=gray'),
+
+                    $property->hasDefault()
+                        ? $fmt(Str::limit(json_encode($property->getDefault()), 50), 'fg=magenta')
+                        : $fmt('Not provided', 'fg=gray'),
+
+                    $fmt(
+                        ($property->isNullable() ? '?' : '')
+                            .Str::beforeLast(class_basename($property), 'Property'),
+                        'fg=green'
+                    ),
+                ]
+            )->all();
+        })->flatten(1)->all();
 
         table($headers, $rows);
 

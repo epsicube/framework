@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace EpsicubeModules\ExecutionPlatform\Console\Commands;
 
 use Carbon\CarbonInterval;
-use Epsicube\Schemas\Exporters\LaravelPromptsFormExporter;
 use EpsicubeModules\ExecutionPlatform\Contracts\Activity;
 use EpsicubeModules\ExecutionPlatform\Facades\Activities;
 use Illuminate\Console\Command;
@@ -36,7 +35,7 @@ class ActivitiesRunCommand extends Command implements PromptsForMissingInput
         }
 
         $inputSchema = Activities::inputSchema($identifier);
-        $input = $inputSchema->export(new LaravelPromptsFormExporter);
+        $input = $inputSchema->toExecutedPrompts();
 
         $startedAt = microtime(true);
         $result = spin(

@@ -50,12 +50,12 @@ class FilamentExporter implements SchemaExporter
         $component = $property->toFilamentComponent($name ?? '_', $this); // <- TODO only used for array, but all fields requires $name
 
         // Globally apply default
-        if ($property->hasDefault()) {
+        if ($property->hasDefault() && $this->operation !== Operation::View) {
             $component->default($property->getDefault());
         }
 
         // Globally apply required (when possible)
-        if ($component instanceof Field) {
+        if ($component instanceof Field && ! $property->isNullable()) {
             $component->required($property->isRequired());
             // $component->nullable($property->isNullable());
             // Don't do this because filament consider nullable like non-required

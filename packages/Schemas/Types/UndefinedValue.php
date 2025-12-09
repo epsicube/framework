@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Epsicube\Foundation\Types;
+namespace Epsicube\Schemas\Types;
 
 use JsonSerializable;
 use LogicException;

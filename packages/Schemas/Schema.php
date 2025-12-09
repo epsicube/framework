@@ -7,6 +7,10 @@ namespace Epsicube\Schemas;
 use Epsicube\Schemas\Contracts\Property;
 use Epsicube\Schemas\Contracts\SchemaExporter;
 use Epsicube\Schemas\Exceptions\DuplicatePropertyException;
+use Epsicube\Schemas\Exporters\JsonSchemaExporter;
+use Epsicube\Schemas\Exporters\LaravelPromptsFormExporter;
+use Epsicube\Schemas\Exporters\LaravelValidationExporter;
+use Illuminate\Support\Facades\Validator;
 use LogicException;
 
 class Schema
@@ -99,5 +103,46 @@ class Schema
             description: $this->description(),
             properties: $filtered
         );
+    }
+
+    public function withDefaults(array $data): array
+    {
+        $defaults = array_map(
+            fn (Property $property) => $property->getDefault(),
+            array_filter($this->properties(), fn (Property $property) => $property->hasDefault())
+        );
+
+        return array_merge($defaults, $data);
+    }
+
+    public function toJsonSchema(): array
+    {
+        return $this->export(new JsonSchemaExporter);
+    }
+
+    public function toExecutedPrompts(?array $data = null): array
+    {
+        return $this->export(new LaravelPromptsFormExporter($data));
+    }
+
+    public function toValidationRules(?array $data = null, ?array $prepend = null): array
+    {
+        return $this->export(new LaravelValidationExporter($data ?? [], $prepend ?? []));
+    }
+
+    /**
+     * Validate input data against the schema and return validated values
+     * with defaults applied.
+     *
+     * @param  array<string, mixed>  $data  Input data
+     * @param  bool  $bail  Whether to stop validation on first error
+     * @return array<string, mixed> Validated data
+     */
+    public function validated(array $data, bool $bail = false): array
+    {
+        $all = $this->withDefaults($data);
+        $rules = $this->toValidationRules($all, $bail ? ['bail'] : []);
+
+        return Validator::make($all, $rules)->validated();
     }
 }

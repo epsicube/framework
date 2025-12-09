@@ -66,12 +66,25 @@ class ManageOptions extends Page implements HasSchemas
         $this->form->state(null);
         $this->form->fill(null);
 
+        $schema = Options::getSchema($this->activeTab);
+
         // Stored values only (custom values)
         $this->stored = Options::store()->all($this->activeTab);
-        $this->useCustom = array_fill_keys(array_keys($this->stored), true);
+        $this->useCustom = array_reduce(
+            array_keys($schema->properties()),
+            function ($carry, $name) use ($schema) {
+                $property = $schema->properties()[$name];
+                $carry[$name] = array_key_exists($name, $this->stored) || ! $property->hasDefault();
 
-        $this->form->state($this->stored);
-        $this->form->fill($this->stored);
+                return $carry;
+            },
+            []
+        );
+
+        $state = $schema->withDefaults($this->stored);
+
+        $this->form->state($state);
+        $this->form->fill($state);
     }
 
     public function updatedActiveTab(): void
@@ -92,9 +105,7 @@ class ManageOptions extends Page implements HasSchemas
             ->statePath('data')
             ->operation($this->operation->value)
             ->schema(function () {
-                $schema = Options::getSchema($this->activeTab);
-
-                return $schema->export(
+                return Options::getSchema($this->activeTab)->export(
                     new FilamentExporter($this->operation, function (Property $property, ?string $name, Component $component): void {
                         if ($name === null || ! $property->hasDefault()) {
                             return;
@@ -145,22 +156,6 @@ class ManageOptions extends Page implements HasSchemas
 
                         // Field disabled logic: respects toggle AND view mode
                         $component->disabled(fn () => ! ($this->useCustom[$name] ?? false));
-
-                        // Determines displayed state dynamically based on mode and default toggle
-                        $component->formatStateUsing(function ($state) use ($name, $property) {
-                            // In view mode: always show effective resolved value
-                            if ($this->operation === Operation::View) {
-                                return array_key_exists($name, $this->stored)
-                                    ? $this->stored[$name]
-                                    : $property->getDefault();
-                            }
-
-                            // In edit mode: resolve default or custom state
-                            return ($this->useCustom[$name] ?? false)
-                                ? (array_key_exists($name, $this->stored) ? $this->stored[$name] : $state)
-                                : $property->getDefault();
-                        });
-
                         // Always dehydrated: save() loop is authoritative
                         $component->dehydrated(true);
                     })

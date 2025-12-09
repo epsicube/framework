@@ -9,13 +9,14 @@ use Epsicube\Schemas\Exporters\FilamentExporter;
 use Epsicube\Schemas\Exporters\JsonSchemaExporter;
 use Epsicube\Schemas\Exporters\LaravelPromptsFormExporter;
 use Epsicube\Schemas\Exporters\LaravelValidationExporter;
-use Exception;
+use Epsicube\Schemas\Schema;
+use Epsicube\Schemas\Types\UndefinedValue;
 use Filament\Forms\Components\TextInput;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Schemas\Components\Component;
 use Filament\Support\Enums\Operation;
-
-use function Laravel\Prompts\text;
+use Illuminate\Validation\ValidationException;
+use Laravel\Prompts\TextPrompt;
 
 class FloatProperty extends BaseProperty
 {
@@ -92,7 +93,7 @@ class FloatProperty extends BaseProperty
     public function toFilamentComponent(string $name, FilamentExporter $exporter): Component
     {
         if ($exporter->operation === Operation::View) {
-            return TextEntry::make($name)->numeric()->inlineLabel();
+            return TextEntry::make($name)->numeric()->inlineLabel()->placeholder(__('No selection'));
         }
 
         return TextInput::make($name)
@@ -104,47 +105,51 @@ class FloatProperty extends BaseProperty
 
     public function askPrompt(?string $name, mixed $value, LaravelPromptsFormExporter $exporter): ?float
     {
-        // TODO handling null correctly, is not the inverse of required
+        $default = ($value instanceof UndefinedValue)
+            ? ($this->hasDefault() ? $this->getDefault() : null)
+            : $value;
 
-        $input = text(
+        $prompt = new TextPrompt(
             label: $this->getTitle() ?? $name,
-            default: ($value !== null ? $value : $this->getDefault()) ?? '',
-            required: $this->isRequired(),
-            validate: function (string $value) {
+            default: (string) $default,
+            validate: function (string $raw) {
+                // Accept empty input if nullable
+                if ($raw === '' && $this->isNullable()) {
+                    return null;
+                }
+
+                $value = filter_var($raw, FILTER_VALIDATE_FLOAT);
+                if ($value === false) {
+                    return 'Value must be a valid float';
+                }
+
+                $s = Schema::create('', properties: ['input' => $this]);
                 try {
-                    $value = filter_var($value, FILTER_VALIDATE_FLOAT, FILTER_THROW_ON_FAILURE);
-                } catch (Exception $e) {
-                    return 'Invalid integer value.';
+                    $s->validated(['input' => $value]);
+                } catch (ValidationException $e) {
+                    return implode("\n  ⚠ ", $e->errors()['input']);
                 }
 
-                if ($this->minimum !== null) {
-                    if ($this->exclusiveMinimum && $value <= $this->minimum) {
-                        return "Value must be greater than {$this->minimum}.";
-                    }
-                    if (! $this->exclusiveMinimum && $value < $this->minimum) {
-                        return "Value must be at least {$this->minimum}.";
-                    }
-                }
-
-                if ($this->maximum !== null) {
-                    if ($this->exclusiveMaximum && $value >= $this->maximum) {
-                        return "Value must be less than {$this->maximum}.";
-                    }
-                    if (! $this->exclusiveMaximum && $value > $this->maximum) {
-                        return "Value must be at most {$this->maximum}.";
-                    }
-                }
-
-                if ($this->multipleOf !== null && $this->multipleOf > 0 && $value % $this->multipleOf !== 0) {
-                    return "Value must be a multiple of {$this->multipleOf}.";
-                }
-
-                return null; // Valid
+                return null;
             },
-            hint: $this->getDescription() ?? '',
+            hint: $this->getDescription() ?? ''
         );
 
-        return $input === '' ? null : (float) $input;
+        $isNull = false;
+        if ($this->isNullable()) {
+            $prompt->placeholder = ' — Press CTRL+Del or Enter to set null —';
+
+            $prompt->on('key', function ($key) use (&$prompt, &$isNull) {
+                if ($key === "\e[3;5~") { // Ctrl + Delete
+                    $isNull = true;
+                    $prompt->state = 'submit';
+                }
+            });
+        }
+
+        $input = $prompt->prompt();
+
+        return $isNull ? null : ($input === '' && $this->isNullable() ? null : (float) $input);
     }
 
     public function resolveValidationRules(mixed $value, LaravelValidationExporter $exporter): array

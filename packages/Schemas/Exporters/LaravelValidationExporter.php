@@ -10,12 +10,11 @@ use Epsicube\Schemas\Contracts\Property;
 use Epsicube\Schemas\Contracts\SchemaExporter;
 use Epsicube\Schemas\Properties\ObjectProperty;
 use Epsicube\Schemas\Schema;
-use Illuminate\Contracts\Validation\ValidationRule;
 use RuntimeException;
 
 class LaravelValidationExporter implements SchemaExporter
 {
-    /** @var array<string, array<int, string|ValidationRule|Closure>> */
+    /** @var array<string, array<int, string|Closure>> */
     protected array $rules = [];
 
     /** @var list<string> */
@@ -32,6 +31,8 @@ class LaravelValidationExporter implements SchemaExporter
             ->title($schema->title())
             ->properties($schema->properties())
             ->description($schema->description())
+            ->required(false) // avoid injecting property on root
+            ->nullable(false) // avoid injecting property on root
             ->additionalProperties(false);
 
         $root->resolveValidationRules($this->data, $this);
@@ -50,8 +51,9 @@ class LaravelValidationExporter implements SchemaExporter
         $prepend = $this->prepend;
 
         if ($field->isRequired()) {
-            $prepend[] = 'required';
+            $prepend[] = 'present'; // don't use required, fails when null
         }
+
         if ($field->isNullable()) {
             $prepend[] = 'nullable';
         }

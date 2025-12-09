@@ -30,20 +30,47 @@ class JsonSchemaExporter implements SchemaExporter
             throw new RuntimeException('cannot export field that does not implement JsonSchemaExportable');
         }
 
-        $schema = [];
+        $schema = $field->toJsonSchema($this);
 
-        if ($field->getTitle() !== null) {
+        if ($field->getTitle() !== null && ! isset($schema['title'])) {
             $schema['title'] = $field->getTitle();
         }
 
-        if ($field->getDescription() !== null) {
+        if ($field->getDescription() !== null && ! isset($schema['description'])) {
             $schema['description'] = $field->getDescription();
         }
 
-        if ($field->getDefault() !== null) {
+        if ($field->hasDefault() && ! isset($schema['default'])) {
             $schema['default'] = $field->getDefault();
         }
 
-        return array_merge($schema, $field->toJsonSchema($this));
+        if ($field->isNullable()) {
+            // 1. Enum → add null
+            if (! empty($schema['enum']) && is_array($schema['enum']) && ! in_array(null, $schema['enum'], true)) {
+                $schema['enum'][] = null;
+            }
+
+            // 2. Const → convert to enum with null
+            elseif (isset($schema['const'])) {
+                $schema['enum'] = [$schema['const'], null];
+                unset($schema['const']);
+            }
+
+            // 3. Type → add "null"
+            elseif (isset($schema['type'])) {
+                if (is_string($schema['type'])) {
+                    $schema['type'] = [$schema['type'], 'null'];
+                } elseif (is_array($schema['type']) && ! in_array('null', $schema['type'], true)) {
+                    $schema['type'][] = 'null';
+                }
+            }
+
+            // 4. Nothing → just allow null
+            else {
+                $schema['type'] = ['null'];
+            }
+        }
+
+        return $schema;
     }
 }

@@ -11,6 +11,8 @@ use Epsicube\Schemas\Exporters\FilamentExporter;
 use Epsicube\Schemas\Exporters\JsonSchemaExporter;
 use Epsicube\Schemas\Exporters\LaravelPromptsFormExporter;
 use Epsicube\Schemas\Exporters\LaravelValidationExporter;
+use Epsicube\Schemas\Schema;
+use Epsicube\Schemas\Types\UndefinedValue;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\MarkdownEditor;
@@ -20,8 +22,8 @@ use Filament\Forms\Components\TimePicker;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Schemas\Components\Component;
 use Filament\Support\Enums\Operation;
-
-use function Laravel\Prompts\text;
+use Illuminate\Validation\ValidationException;
+use Laravel\Prompts\TextPrompt;
 
 class StringProperty extends BaseProperty implements JsonSchemaExportable
 {
@@ -102,7 +104,7 @@ class StringProperty extends BaseProperty implements JsonSchemaExportable
                 StringFormat::DATE      => TextEntry::make($name)->date(),
                 StringFormat::DATE_TIME => TextEntry::make($name)->dateTime(),
                 default                 => TextEntry::make($name)
-            })->inlineLabel();
+            })->placeholder(__('Empty'))->inlineLabel();
         }
 
         return match ($this->format) {
@@ -125,36 +127,42 @@ class StringProperty extends BaseProperty implements JsonSchemaExportable
 
     public function askPrompt(?string $name, mixed $value, LaravelPromptsFormExporter $exporter): ?string
     {
-        // TODO handling null correctly, is not the inverse of required
-        // TODO use custom UndefinedValue class because null can be a valid defined value
-        $input = text(
+
+        $default = ($value instanceof UndefinedValue)
+            ? ($this->hasDefault() ? $this->getDefault() : null)
+            : $value;
+
+        $prompt = new TextPrompt(
             label: $this->getTitle() ?? $name,
-            default: ($value !== null ? $value : $this->getDefault()) ?? '',
-            required: $this->isRequired(),
+            default: (string) $default,
             validate: function (string $value) {
-                // Check minimum length
-                if ($this->minLength !== null && mb_strlen($value) < $this->minLength) {
-                    return "Value must be at least {$this->minLength} characters long.";
+                $s = Schema::create('', properties: ['input' => $this]);
+                try {
+                    $s->validated(['input' => $value]);
+                } catch (ValidationException $e) {
+                    return implode("\n  ⚠ ", $e->errors()['input']);
                 }
-
-                // Check maximum length
-                if ($this->maxLength !== null && mb_strlen($value) > $this->maxLength) {
-                    return "Value must be at most {$this->maxLength} characters long.";
-                }
-
-                // Check regex pattern
-                if (! empty($this->pattern) && ! preg_match('/'.$this->pattern.'/', $value)) {
-                    return 'Value does not match the required pattern.';
-                }
-
-                // TODO HANDLING FORMAT USING VALIDATOR
 
                 return null;
             },
             hint: $this->getDescription() ?? '',
         );
 
-        return $input === '' ? null : $input;
+        $isNull = false;
+        if ($this->isNullable()) {
+            $prompt->placeholder = ' — Press CTRL+Del to set null, or Enter for empty —';
+            $prompt->on('key', function ($key) use (&$prompt, &$isNull) {
+                // Use CTRL_DELETE to set null
+                if ($key === "\e[3;5~") {
+                    $isNull = true;
+                    $prompt->state = 'submit';
+                }
+            });
+        }
+
+        $input = $prompt->prompt();
+
+        return $isNull ? null : $input;
     }
 
     public function resolveValidationRules(mixed $value, LaravelValidationExporter $exporter): array

@@ -4,10 +4,14 @@ declare(strict_types=1);
 
 namespace Epsicube\Support\Contracts;
 
+use Epsicube\Schemas\Types\UndefinedValue;
+
 interface OptionsStore
 {
     /**
      * Retrieve a single option value or return the default.
+     *
+     * @return mixed|UndefinedValue
      */
     public function get(string $key, string $group): mixed;
 

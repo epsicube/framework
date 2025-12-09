@@ -6,7 +6,7 @@ namespace Epsicube\Foundation\Utilities;
 
 use Closure;
 use Epsicube\Foundation\Models\Option;
-use Epsicube\Foundation\Types\UndefinedValue;
+use Epsicube\Schemas\Types\UndefinedValue;
 use Epsicube\Support\Contracts\OptionsStore;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Database\QueryException;
@@ -32,6 +32,7 @@ class DatabaseOptionStore implements OptionsStore
      */
     public function set(string $key, mixed $value, string $group): void
     {
+        // Value null are stored as empty string (laravel json cast behaviour)
         Option::query()->updateOrCreate(
             ['key' => $key, 'group' => $group],
             ['value' => $value]

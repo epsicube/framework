@@ -10,6 +10,7 @@ use Epsicube\Schemas\Exporters\FilamentExporter;
 use Epsicube\Schemas\Exporters\JsonSchemaExporter;
 use Epsicube\Schemas\Exporters\LaravelPromptsFormExporter;
 use Epsicube\Schemas\Exporters\LaravelValidationExporter;
+use Epsicube\Schemas\Types\UndefinedValue;
 use Filament\Schemas\Components\Component;
 use Filament\Schemas\Components\Section;
 use RuntimeException;
@@ -106,7 +107,8 @@ class ObjectProperty extends BaseProperty
     {
         $form = form();
         foreach ($this->properties as $name => $field) {
-            $form->add(fn () => $exporter->export($field, $name, $value[$name] ?? null), name: $name);
+            $initialValue = (is_array($value) && array_key_exists($name, $value)) ? $value[$name] : new UndefinedValue;
+            $form->add(fn () => $exporter->export($field, $name, $initialValue), name: $name);
         }
 
         // TODO additionalProperties
@@ -138,6 +140,15 @@ class ObjectProperty extends BaseProperty
                 if (! array_key_exists($key, $this->properties)) {
                     // rule ensure laravel validated keep the property
                     $exporter->setChildRules($key, ['present']);
+                }
+            }
+        }
+        // additionalProperties = null → always prohibits
+        elseif ($this->additionalProperties === false && is_array($value)) {
+            foreach ($value as $key => $childValue) {
+                if (! array_key_exists($key, $this->properties)) {
+                    // rule ensure laravel validated keep the property
+                    $exporter->setChildRules($key, ['prohibited']);
                 }
             }
         }

@@ -13,12 +13,20 @@
 - administration default url '/epsicube'
 - best practice structure module
 - expliquer que chaque migration doit etre associé à un core specifique (concept interne)
+- AU niveau du schema required nullable default
+  - required (impose la présence du champ)
+  - default (ne pas pas etre combiner avec required)
+  - nullable veut dire: accepte une valeur null (si required, il faut absolument envoyer la valeur null)
+  - gestion UndefinedValue sur askPrompt (l'idéal c'est d'unset la propriété du tableau en amont quand inexistante)
+
+- OptionStore:
+  - notion de UndefinedValue pour get() pour trigger le fallback schema
 
 ## Modules
 
 ### Administration
 
-- support du type null/undefined pour les schemas, avec reset
+- ~~support du type null/undefined pour les schemas, avec reset~~
 
 ### Mailing system
 
@@ -29,7 +37,7 @@
 ### MCP server
 
 - renommer vers un truc plus global (eg: AI Manager)
-- validation auto sur base de schema des input (moins utile pour output)
+- ~~validation auto sur base de schema des input (moins utile pour output)~~
 - [IDEA] generate specific agent with only custom tools
 
 ### Execution platform
@@ -44,11 +52,11 @@
 ## Schemas
 
 - gestion des enums avec resolver, type enum ( couplé à un type ?? )
-- gerer correctement le type null et Undefined
-- implementer le support de nullable (pas la même chose que required, voir Undefined)
+- ~~gerer correctement le type null et Undefined~~
+- ~~implementer le support de nullable (pas la même chose que required, voir Undefined)~~
 - corriger FilamentExporter 'repeater' 'repeatableEntry' qui ne fonctionne pas en mode simple, 
   - utiliser quelque chose de custom via modal/table
-- cacher hintIcon sur filament quand pas de description
+~~- cacher hintIcon sur filament quand pas de description~~
 - method standard pour recuperer une donnée validée, avec les default, ...
   - mettre en jeu sur execution, mcp tools, ...
 
