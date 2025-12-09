@@ -42,7 +42,6 @@ class ToolConverter extends Tool
         $schema = Schema::create('_');
         $this->tool->inputSchema($schema);
         $rules = $schema->export(new LaravelValidationExporter($inputs));
-        dd($rules);
         $request->validate($rules);
 
         Log::debug('calling', $inputs);
