@@ -170,9 +170,7 @@ class ManageOptions extends Page implements HasSchemas
 
     public function save(): void
     {
-        $state = $this->form->getState();
-        //        dump($state, $this->useCustom, $this->stored);
-        foreach ($state as $key => $value) {
+        foreach ($this->form->getState() as $key => $value) {
 
             // If user selected custom value → persist it
             if ($this->useCustom[$key] ?? false) {
