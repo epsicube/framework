@@ -40,6 +40,9 @@ use Epsicube\Schemas\Exporters\JsonSchemaExporter;
 
 $json = $schema->export(new JsonSchemaExporter);
 
+// Or use the shortcut
+$json = $schema->toJsonSchema();
+
 // Output as JSON string
 echo json_encode($json, JSON_PRETTY_PRINT);
 ````
@@ -68,25 +71,57 @@ This is ideal for building command-line wizards or setup scripts.
 ```php
 use Epsicube\Schemas\Exporters\LaravelPromptsFormExporter;
 
-$cliForm = $schema->export(new LaravelPromptsFormExporter([
+$resultData = $schema->export(new LaravelPromptsFormExporter([
     'username' => 'current' // Inject current values (optional)
 ]));
+
+// Or use the shortcut
+$resultData = $schema->toExecutedPrompts([
+    'username' => 'current' // Inject current values (optional)
+]);
 ```
+
 
 ### Laravel Validation Rules
 
-The `LaravelValidationExporter` converts a schema into **Laravel validation rules**.
+The `LaravelValidationExporter` converts a schema into **Laravel validation rules** that can be used directly in `$request->validate()` or FormRequest classes.
 
 **Usage example:**
 
 ```php
 use Epsicube\Schemas\Exporters\LaravelValidationExporter;
 
+// Export validation rules
 $rules = $schema->export(new LaravelValidationExporter());
+
+// Or use the shortcut
+$rules = $schema->toValidationRules();
 
 // Example usage in a FormRequest
 $request->validate($rules);
 ```
+
+#### Notes
+
+1. **Data parameter**
+   When exporting rules, it is **preferable to pass the current data as the first argument**, for example `$request->all()`.
+   This is required because some validation rules are **dynamic** and will only be applied if necessary, based on the provided data.
+
+   ```php
+   $rules = $schema->toValidationRules($request->all());
+   ```
+
+2. **Optional second parameter (`$prepend`)**
+   You can provide an optional array of rules to **prepend** to all fields, for example `['bail']` to stop validation on the first failure:
+
+   ```php
+   $rules = $schema->toValidationRules($request->all(), ['bail']);
+   ```
+
+<Aside class="tip">
+User shortcut: `$schema->validated($data)` when you can
+This method takes a payload, injects any missing default values defined in the schema, validates the data according to the rules, and returns the validated dataset.
+</Aside>
 
 ## Create custom Exporter
 
