@@ -41,6 +41,7 @@ class ActivitiesRegistry extends Registry
         $activity = $this->get($identifier);
         $schema = $this->inputSchema($identifier);
         $validated = $schema->validated($input);
+
         return $activity->handle($validated);
     }
 }

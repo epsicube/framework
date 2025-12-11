@@ -13,7 +13,6 @@ use EpsicubeModules\ExecutionPlatform\Contracts\Activity;
 use EpsicubeModules\MailingSystem\Facades\Mailers;
 use EpsicubeModules\MailingSystem\Facades\Templates;
 use EpsicubeModules\MailingSystem\Mails\EpsicubeMail;
-use Illuminate\Database\Schema\Blueprint;
 
 class SendMail implements Activity
 {

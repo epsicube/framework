@@ -23,9 +23,7 @@ class LaravelValidatorExporter implements SchemaExporter
     /** @var list<string> */
     protected array $pathStack = [];
 
-    public function __construct(protected array $data = [], protected array $messages = [], protected array $attributes = [], protected array $prepend = [])
-    {
-    }
+    public function __construct(protected array $data = [], protected array $messages = [], protected array $attributes = [], protected array $prepend = []) {}
 
     public function exportSchema(Schema $schema): ValidatorContract
     {
@@ -42,7 +40,6 @@ class LaravelValidatorExporter implements SchemaExporter
 
         $root->resolveValidationRules($this->data, $this);
 
-
         // Customize the resolver temporarily to handle empty string
         Validator::resolver(function ($translator, $data, $rules, $messages) {
             return new CustomValidator($translator, $data, $rules, $messages);
@@ -58,7 +55,7 @@ class LaravelValidatorExporter implements SchemaExporter
 
     public function exportChild(Property $field, string $path, mixed $value = null): void
     {
-        if (!($field instanceof LaravelRulesExportable)) {
+        if (! ($field instanceof LaravelRulesExportable)) {
             throw new RuntimeException(
                 'Cannot export field that does not implement LaravelRulesExportable'
             );
@@ -66,7 +63,7 @@ class LaravelValidatorExporter implements SchemaExporter
 
         $prepend = $this->prepend;
 
-        if (!$field->isOptional()) {
+        if (! $field->isOptional()) {
             $prepend[] = 'present'; // don't use required, fails when null
         }
 

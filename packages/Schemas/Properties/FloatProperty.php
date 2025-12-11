@@ -112,7 +112,7 @@ class FloatProperty extends BaseProperty
         $prompt = new TextPrompt(
             label: $this->getTitle() ?? $name,
             default: (string) $default,
-            validate: function (string $raw)use($name) {
+            validate: function (string $raw) use ($name) {
                 // Accept empty input if nullable
                 if ($raw === '' && $this->isNullable()) {
                     return null;

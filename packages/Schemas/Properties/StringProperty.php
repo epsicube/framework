@@ -135,7 +135,7 @@ class StringProperty extends BaseProperty implements JsonSchemaExportable
         $prompt = new TextPrompt(
             label: $this->getTitle() ?? $name,
             default: (string) $default,
-            validate: function (string $value)use($name) {
+            validate: function (string $value) use ($name) {
                 $s = Schema::create('', properties: [$name => $this]);
                 try {
                     $s->toValidator([$name => $value])->validate();
@@ -167,7 +167,7 @@ class StringProperty extends BaseProperty implements JsonSchemaExportable
 
     public function resolveValidationRules(mixed $value, LaravelValidatorExporter $exporter): array
     {
-        $rules = ['string','sometimes'];
+        $rules = ['string', 'sometimes'];
 
         if ($this->minLength !== null) {
             $rules[] = "min:{$this->minLength}";
@@ -199,6 +199,7 @@ class StringProperty extends BaseProperty implements JsonSchemaExportable
 
             $rules = array_merge($rules, $formatRules);
         }
+
         return $rules;
     }
 }

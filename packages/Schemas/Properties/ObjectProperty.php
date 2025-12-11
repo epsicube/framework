@@ -67,7 +67,7 @@ class ObjectProperty extends BaseProperty
         foreach ($this->properties as $name => $field) {
             $schema['properties'][$name] = $exporter->export($field);
 
-            if (!$field->isOptional()) {
+            if (! $field->isOptional()) {
                 $required[] = $name;
             }
         }

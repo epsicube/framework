@@ -114,7 +114,7 @@ class IntegerProperty extends BaseProperty
 
         $prompt = new TextPrompt(
             label: $this->getTitle() ?? $name,
-            default: (string)$default,
+            default: (string) $default,
             validate: function (string $raw) use ($name) {
                 // Accept empty input if nullable
                 if ($raw === '' && $this->isNullable()) {
@@ -151,7 +151,7 @@ class IntegerProperty extends BaseProperty
 
         $input = $prompt->prompt();
 
-        return $isNull ? null : ($input === '' && $this->isNullable() ? null : (int)$input);
+        return $isNull ? null : ($input === '' && $this->isNullable() ? null : (int) $input);
     }
 
     public function resolveValidationRules(mixed $value, LaravelValidatorExporter $exporter): array
@@ -161,7 +161,7 @@ class IntegerProperty extends BaseProperty
         if ($this->minimum !== null) {
             if ($this->exclusiveMinimum) {
                 $rules[] = function (string $attribute, $value, callable $fail): void {
-                    if ((int)$value <= $this->minimum) {
+                    if ((int) $value <= $this->minimum) {
                         $fail(__('The :attribute must be greater than :value.', ['value' => $this->minimum]));
                     }
                 };
@@ -172,7 +172,7 @@ class IntegerProperty extends BaseProperty
         if ($this->maximum !== null) {
             if ($this->exclusiveMaximum) {
                 $rules[] = function (string $attribute, $value, callable $fail): void {
-                    if ((int)$value >= $this->maximum) {
+                    if ((int) $value >= $this->maximum) {
                         $fail(__('The :attribute must be less than :value.', ['value' => $this->maximum]));
                     }
                 };
