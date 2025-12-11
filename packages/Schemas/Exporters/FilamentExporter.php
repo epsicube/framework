@@ -56,7 +56,7 @@ class FilamentExporter implements SchemaExporter
 
         // Globally apply required (when possible)
         if ($component instanceof Field && ! $property->isNullable()) {
-            $component->required($property->isRequired());
+            $component->required(!$property->isOptional());
             // $component->nullable($property->isNullable());
             // Don't do this because filament consider nullable like non-required
         }

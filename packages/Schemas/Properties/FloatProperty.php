@@ -8,7 +8,7 @@ use Closure;
 use Epsicube\Schemas\Exporters\FilamentExporter;
 use Epsicube\Schemas\Exporters\JsonSchemaExporter;
 use Epsicube\Schemas\Exporters\LaravelPromptsFormExporter;
-use Epsicube\Schemas\Exporters\LaravelValidationExporter;
+use Epsicube\Schemas\Exporters\LaravelValidatorExporter;
 use Epsicube\Schemas\Schema;
 use Epsicube\Schemas\Types\UndefinedValue;
 use Filament\Forms\Components\TextInput;
@@ -112,7 +112,7 @@ class FloatProperty extends BaseProperty
         $prompt = new TextPrompt(
             label: $this->getTitle() ?? $name,
             default: (string) $default,
-            validate: function (string $raw) {
+            validate: function (string $raw)use($name) {
                 // Accept empty input if nullable
                 if ($raw === '' && $this->isNullable()) {
                     return null;
@@ -123,11 +123,11 @@ class FloatProperty extends BaseProperty
                     return 'Value must be a valid float';
                 }
 
-                $s = Schema::create('', properties: ['input' => $this]);
+                $s = Schema::create('', properties: [$name => $this]);
                 try {
-                    $s->validated(['input' => $value]);
+                    $s->toValidator([$name => $value])->validate();
                 } catch (ValidationException $e) {
-                    return implode("\n  ⚠ ", $e->errors()['input']);
+                    return implode("\n  ⚠ ", $e->errors()[$name]);
                 }
 
                 return null;
@@ -152,7 +152,7 @@ class FloatProperty extends BaseProperty
         return $isNull ? null : ($input === '' && $this->isNullable() ? null : (float) $input);
     }
 
-    public function resolveValidationRules(mixed $value, LaravelValidationExporter $exporter): array
+    public function resolveValidationRules(mixed $value, LaravelValidatorExporter $exporter): array
     {
         $rules = ['numeric'];
 

@@ -42,13 +42,16 @@ class McpServerModule extends ServiceProvider implements HasOptions, Module
         $schema->append([
             'name' => StringProperty::make()
                 ->title('Server name')
+                ->optional()
                 ->default(fn () => __(':app_name internal MCP Server', ['app_name' => config('app.name')])),
             'version' => StringProperty::make()
                 ->title('Server version')
+                ->optional()
                 ->default(fn () => $this->identity()->version),
             'instructions' => StringProperty::make()
                 ->title('Server instructions')
                 ->format(StringFormat::MARKDOWN)
+                ->optional()
                 ->default(fn () => file_get_contents(__DIR__.'/resources/stubs/INSTRUCTIONS.md')),
         ]);
     }

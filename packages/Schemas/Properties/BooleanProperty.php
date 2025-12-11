@@ -8,7 +8,7 @@ use Closure;
 use Epsicube\Schemas\Exporters\FilamentExporter;
 use Epsicube\Schemas\Exporters\JsonSchemaExporter;
 use Epsicube\Schemas\Exporters\LaravelPromptsFormExporter;
-use Epsicube\Schemas\Exporters\LaravelValidationExporter;
+use Epsicube\Schemas\Exporters\LaravelValidatorExporter;
 use Epsicube\Schemas\Filament\NullableBooleanStateCast;
 use Epsicube\Schemas\Types\UndefinedValue;
 use Filament\Forms\Components\ToggleButtons;
@@ -124,7 +124,7 @@ class BooleanProperty extends BaseProperty
 
     }
 
-    public function resolveValidationRules(mixed $value, LaravelValidationExporter $exporter): array
+    public function resolveValidationRules(mixed $value, LaravelValidatorExporter $exporter): array
     {
         $rules = ['boolean'];
 

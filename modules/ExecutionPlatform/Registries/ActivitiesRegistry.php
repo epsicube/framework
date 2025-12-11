@@ -39,12 +39,8 @@ class ActivitiesRegistry extends Registry
     public function run(string $identifier, array $input = []): ?array
     {
         $activity = $this->get($identifier);
-
-        // TODO run input schema validation (allow disabling for performance)
-        $result = $activity->handle($input);
-        // TODO run output schema validation (allow disabling for performance)
-
-        // TODO WHY not keep trace of the execution?
-        return $result;
+        $schema = $this->inputSchema($identifier);
+        $validated = $schema->validated($input);
+        return $activity->handle($validated);
     }
 }

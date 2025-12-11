@@ -89,16 +89,16 @@ The `LaravelValidationExporter` converts a schema into **Laravel validation rule
 **Usage example:**
 
 ```php
-use Epsicube\Schemas\Exporters\LaravelValidationExporter;
+use Epsicube\Schemas\Exporters\LaravelValidatorExporter;
 
 // Export validation rules
-$rules = $schema->export(new LaravelValidationExporter());
+$validator = $schema->export(new LaravelValidatorExporter());
 
 // Or use the shortcut
-$rules = $schema->toValidationRules();
+$validator = $schema->toValidator();
 
 // Example usage in a FormRequest
-$request->validate($rules);
+$validator->validate($request->all());
 ```
 
 #### Notes
@@ -108,14 +108,14 @@ $request->validate($rules);
    This is required because some validation rules are **dynamic** and will only be applied if necessary, based on the provided data.
 
    ```php
-   $rules = $schema->toValidationRules($request->all());
+   $rules = $schema->toValidator($request->all());
    ```
 
-2. **Optional second parameter (`$prepend`)**
+2. **Optional parameter (`$prepend`)**
    You can provide an optional array of rules to **prepend** to all fields, for example `['bail']` to stop validation on the first failure:
 
    ```php
-   $rules = $schema->toValidationRules($request->all(), ['bail']);
+   $rules = $schema->toValidator($request->all(), prepend: ['bail']);
    ```
 
 <Aside class="tip">

@@ -124,7 +124,7 @@ class OptionsManager
         // Required keys
         $requiredKeys = array_keys(array_filter(
             $schema->properties(),
-            fn (Property $property) => $property->isRequired()
+            fn (Property $property) => !$property->isOptional()
         ));
 
         $defaults = array_map(

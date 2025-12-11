@@ -14,7 +14,7 @@ use Epsicube\Schemas\Exceptions\UndefinedDefaultException;
 use Epsicube\Schemas\Exporters\FilamentExporter;
 use Epsicube\Schemas\Exporters\JsonSchemaExporter;
 use Epsicube\Schemas\Exporters\LaravelPromptsFormExporter;
-use Epsicube\Schemas\Exporters\LaravelValidationExporter;
+use Epsicube\Schemas\Exporters\LaravelValidatorExporter;
 use ReflectionProperty;
 
 /**
@@ -23,7 +23,7 @@ use ReflectionProperty;
  * Each native field supports the following exporters:
  * - @see FilamentExporter
  * - @see JsonSchemaExporter
- * - @see LaravelValidationExporter
+ * - @see LaravelValidatorExporter
  * - @see LaravelPromptsFormExporter
  */
 abstract class BaseProperty implements FilamentExportable, JsonSchemaExportable, LaravelRulesExportable, PromptExportable, Property
@@ -32,7 +32,7 @@ abstract class BaseProperty implements FilamentExportable, JsonSchemaExportable,
 
     protected ?string $description = null;
 
-    protected bool $required = false;
+    protected bool $optional = false;
 
     protected bool $nullable = false;
 
@@ -63,9 +63,9 @@ abstract class BaseProperty implements FilamentExportable, JsonSchemaExportable,
         return $this->description;
     }
 
-    public function isRequired(): bool
+    public function isOptional(): bool
     {
-        return $this->required;
+        return $this->optional;
     }
 
     public function isNullable(): bool
@@ -104,9 +104,10 @@ abstract class BaseProperty implements FilamentExportable, JsonSchemaExportable,
         return $this;
     }
 
-    public function required(bool $required = true): static
+    // TODO rename optional (inverse logic), by default false (means must be to be present)
+    public function optional(bool $optional = true): static
     {
-        $this->required = $required;
+        $this->optional = $optional;
 
         return $this;
     }

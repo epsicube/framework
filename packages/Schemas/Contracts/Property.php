@@ -12,7 +12,7 @@ interface Property
 
     public function getDescription(): ?string;
 
-    public function isRequired(): bool;
+    public function isOptional(): bool;
 
     public function isNullable(): bool;
 

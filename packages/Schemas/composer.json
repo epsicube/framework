@@ -11,6 +11,7 @@
   "require": {
     "php": "^8.3",
     "epsicube/support": "*",
+    "illuminate/contracts": "^11.0|^12.0",
     "illuminate/validation": "^11.0|^12.0"
   },
   "autoload": {

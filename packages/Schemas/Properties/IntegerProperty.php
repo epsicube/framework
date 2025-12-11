@@ -8,7 +8,7 @@ use Closure;
 use Epsicube\Schemas\Exporters\FilamentExporter;
 use Epsicube\Schemas\Exporters\JsonSchemaExporter;
 use Epsicube\Schemas\Exporters\LaravelPromptsFormExporter;
-use Epsicube\Schemas\Exporters\LaravelValidationExporter;
+use Epsicube\Schemas\Exporters\LaravelValidatorExporter;
 use Epsicube\Schemas\Schema;
 use Epsicube\Schemas\Types\UndefinedValue;
 use Filament\Forms\Components\TextInput;
@@ -114,8 +114,8 @@ class IntegerProperty extends BaseProperty
 
         $prompt = new TextPrompt(
             label: $this->getTitle() ?? $name,
-            default: (string) $default,
-            validate: function (string $raw) {
+            default: (string)$default,
+            validate: function (string $raw) use ($name) {
                 // Accept empty input if nullable
                 if ($raw === '' && $this->isNullable()) {
                     return null;
@@ -126,11 +126,11 @@ class IntegerProperty extends BaseProperty
                     return 'Value must be a valid integer';
                 }
 
-                $s = Schema::create('', properties: ['input' => $this]);
+                $s = Schema::create('', properties: [$name => $this]);
                 try {
-                    $s->validated(['input' => $value]);
+                    $s->toValidator([$name => $value])->validate();
                 } catch (ValidationException $e) {
-                    return implode("\n  ⚠ ", $e->errors()['input']);
+                    return implode("\n  ⚠ ", $e->errors()[$name]);
                 }
 
                 return null;
@@ -151,17 +151,17 @@ class IntegerProperty extends BaseProperty
 
         $input = $prompt->prompt();
 
-        return $isNull ? null : ($input === '' && $this->isNullable() ? null : (int) $input);
+        return $isNull ? null : ($input === '' && $this->isNullable() ? null : (int)$input);
     }
 
-    public function resolveValidationRules(mixed $value, LaravelValidationExporter $exporter): array
+    public function resolveValidationRules(mixed $value, LaravelValidatorExporter $exporter): array
     {
         $rules = ['integer'];
 
         if ($this->minimum !== null) {
             if ($this->exclusiveMinimum) {
                 $rules[] = function (string $attribute, $value, callable $fail): void {
-                    if ((int) $value <= $this->minimum) {
+                    if ((int)$value <= $this->minimum) {
                         $fail(__('The :attribute must be greater than :value.', ['value' => $this->minimum]));
                     }
                 };
@@ -172,7 +172,7 @@ class IntegerProperty extends BaseProperty
         if ($this->maximum !== null) {
             if ($this->exclusiveMaximum) {
                 $rules[] = function (string $attribute, $value, callable $fail): void {
-                    if ((int) $value >= $this->maximum) {
+                    if ((int)$value >= $this->maximum) {
                         $fail(__('The :attribute must be less than :value.', ['value' => $this->maximum]));
                     }
                 };

@@ -13,6 +13,7 @@ use EpsicubeModules\ExecutionPlatform\Contracts\Activity;
 use EpsicubeModules\MailingSystem\Facades\Mailers;
 use EpsicubeModules\MailingSystem\Facades\Templates;
 use EpsicubeModules\MailingSystem\Mails\EpsicubeMail;
+use Illuminate\Database\Schema\Blueprint;
 
 class SendMail implements Activity
 {
@@ -43,20 +44,20 @@ class SendMail implements Activity
     public function inputSchema(Schema $schema): void
     {
         $schema->append([
-            'mailer'   => StringProperty::make()->title('Mailer identifier')->required(), // TODO ENUM ->enum(array_keys(Mailers::all()))
-            'template' => StringProperty::make()->title('Template Identifier')->required(), // TODO ENUM ->enum(array_keys(Templates::all()))
-            'subject'  => StringProperty::make()->title('Subject')->required(),
+            'mailer'   => StringProperty::make()->title('Mailer identifier'), // TODO ENUM ->enum(array_keys(Mailers::all()))
+            'template' => StringProperty::make()->title('Template Identifier'), // TODO ENUM ->enum(array_keys(Templates::all()))
+            'subject'  => StringProperty::make()->title('Subject')->minLength(2),
 
             'to' => ArrayProperty::make()->items(
-                StringProperty::make()->title('To')->format(StringFormat::EMAIL)->required(),
-            ),
+                StringProperty::make()->title('To')->format(StringFormat::EMAIL),
+            )->minItems(1),
 
             'cc' => ArrayProperty::make()->items(
-                StringProperty::make()->title('CC')->format(StringFormat::EMAIL)->required(),
+                StringProperty::make()->title('CC')->format(StringFormat::EMAIL),
             ),
 
             'bcc' => ArrayProperty::make()->items(
-                StringProperty::make()->title('BCC')->format(StringFormat::EMAIL)->required(),
+                StringProperty::make()->title('BCC')->format(StringFormat::EMAIL),
             ),
 
             // TODO dynamique
@@ -85,7 +86,7 @@ class SendMail implements Activity
     public function outputSchema(Schema $schema): void
     {
         $schema->append([
-            'messageId' => StringProperty::make()->required(),
+            'messageId' => StringProperty::make(),
         ]);
     }
 }

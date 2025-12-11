@@ -8,11 +8,14 @@ use Closure;
 use Epsicube\Schemas\Contracts\LaravelRulesExportable;
 use Epsicube\Schemas\Contracts\Property;
 use Epsicube\Schemas\Contracts\SchemaExporter;
+use Epsicube\Schemas\Overrides\CustomValidator;
 use Epsicube\Schemas\Properties\ObjectProperty;
 use Epsicube\Schemas\Schema;
+use Illuminate\Contracts\Validation\Validator as ValidatorContract;
+use Illuminate\Support\Facades\Validator;
 use RuntimeException;
 
-class LaravelValidationExporter implements SchemaExporter
+class LaravelValidatorExporter implements SchemaExporter
 {
     /** @var array<string, array<int, string|Closure>> */
     protected array $rules = [];
@@ -20,9 +23,11 @@ class LaravelValidationExporter implements SchemaExporter
     /** @var list<string> */
     protected array $pathStack = [];
 
-    public function __construct(protected array $data = [], protected array $prepend = []) {}
+    public function __construct(protected array $data = [], protected array $messages = [], protected array $attributes = [], protected array $prepend = [])
+    {
+    }
 
-    public function exportSchema(Schema $schema): mixed
+    public function exportSchema(Schema $schema): ValidatorContract
     {
         $this->rules = [];
         $this->pathStack = [];
@@ -31,18 +36,29 @@ class LaravelValidationExporter implements SchemaExporter
             ->title($schema->title())
             ->properties($schema->properties())
             ->description($schema->description())
-            ->required(false) // avoid injecting property on root
+            ->optional(false) // avoid injecting property on root
             ->nullable(false) // avoid injecting property on root
             ->additionalProperties(false);
 
         $root->resolveValidationRules($this->data, $this);
 
-        return $this->rules;
+
+        // Customize the resolver temporarily to handle empty string
+        Validator::resolver(function ($translator, $data, $rules, $messages) {
+            return new CustomValidator($translator, $data, $rules, $messages);
+        });
+        try {
+            return Validator::make($this->data, $this->rules, $this->messages, $this->attributes);
+        } finally {
+            // Force regenerate singleton to remove custom resolver
+            app()->forgetInstance('validator');
+            Validator::clearResolvedInstances();
+        }
     }
 
     public function exportChild(Property $field, string $path, mixed $value = null): void
     {
-        if (! ($field instanceof LaravelRulesExportable)) {
+        if (!($field instanceof LaravelRulesExportable)) {
             throw new RuntimeException(
                 'Cannot export field that does not implement LaravelRulesExportable'
             );
@@ -50,7 +66,7 @@ class LaravelValidationExporter implements SchemaExporter
 
         $prepend = $this->prepend;
 
-        if ($field->isRequired()) {
+        if (!$field->isOptional()) {
             $prepend[] = 'present'; // don't use required, fails when null
         }
 

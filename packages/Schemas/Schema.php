@@ -9,28 +9,30 @@ use Epsicube\Schemas\Contracts\SchemaExporter;
 use Epsicube\Schemas\Exceptions\DuplicatePropertyException;
 use Epsicube\Schemas\Exporters\JsonSchemaExporter;
 use Epsicube\Schemas\Exporters\LaravelPromptsFormExporter;
-use Epsicube\Schemas\Exporters\LaravelValidationExporter;
-use Illuminate\Support\Facades\Validator;
+use Epsicube\Schemas\Exporters\LaravelValidatorExporter;
+use Illuminate\Contracts\Validation\Validator;
 use LogicException;
 
 class Schema
 {
     /**
-     * @param  array<string,Property>  $properties
+     * @param array<string,Property> $properties
      */
     public function __construct(
-        protected string $identifier,
+        protected string  $identifier,
         protected ?string $title = null,
         protected ?string $description = null,
-        protected array $properties = [],
-    ) {}
+        protected array   $properties = [],
+    )
+    {
+    }
 
     /**
-     * @param  array<string, Property>  $properties
+     * @param array<string, Property> $properties
      */
     public static function create(string $identifier, ?string $title = null, ?string $description = null, array $properties = []): Schema
     {
-        return new static($identifier,$title, $description, $properties);
+        return new static($identifier, $title, $description, $properties);
     }
 
     public function identifier(): string
@@ -62,7 +64,7 @@ class Schema
     }
 
     /**
-     * @param  array<string, Property>  $properties
+     * @param array<string, Property> $properties
      * @return $this
      *
      * @throws DuplicatePropertyException
@@ -76,9 +78,9 @@ class Schema
             }
 
             // Consistency check: required vs default
-            if ($property->isRequired() && $property->hasDefault()) {
+            if (!$property->isOptional() && $property->hasDefault()) {
                 throw new LogicException(
-                    sprintf("Property '%s' is marked as required but has a default value defined.", $name)
+                    sprintf("Property '%s' is not marked as optional but has a default value defined.", $name)
                 );
             }
 
@@ -108,8 +110,8 @@ class Schema
     public function withDefaults(array $data): array
     {
         $defaults = array_map(
-            fn (Property $property) => $property->getDefault(),
-            array_filter($this->properties(), fn (Property $property) => $property->hasDefault())
+            fn(Property $property) => $property->getDefault(),
+            array_filter($this->properties(), fn(Property $property) => $property->hasDefault())
         );
 
         return array_merge($defaults, $data);
@@ -125,24 +127,25 @@ class Schema
         return $this->export(new LaravelPromptsFormExporter($data));
     }
 
-    public function toValidationRules(?array $data = null, ?array $prepend = null): array
+    public function toValidator(array $data = [], array $messages = [], array $attributes = [], array $prepend = []): Validator
     {
-        return $this->export(new LaravelValidationExporter($data ?? [], $prepend ?? []));
+        return $this->export(new LaravelValidatorExporter($data, $messages, $attributes, $prepend));
     }
 
     /**
      * Validate input data against the schema and return validated values
      * with defaults applied.
      *
-     * @param  array<string, mixed>  $data  Input data
-     * @param  bool  $bail  Whether to stop validation on first error
+     * @param array<string, mixed> $data Input data
+     * @param bool $bail Whether to stop validation on first error
      * @return array<string, mixed> Validated data
      */
     public function validated(array $data, bool $bail = false): array
     {
-        $all = $this->withDefaults($data);
-        $rules = $this->toValidationRules($all, $bail ? ['bail'] : []);
-
-        return Validator::make($all, $rules)->validated();
+        $validator = $this->toValidator(
+            $this->withDefaults($data),
+            prepend: $bail ? ['bail'] : []
+        );
+        return $validator->validated();
     }
 }

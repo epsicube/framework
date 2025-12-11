@@ -9,7 +9,7 @@ use Epsicube\Schemas\Contracts\Property;
 use Epsicube\Schemas\Exporters\FilamentExporter;
 use Epsicube\Schemas\Exporters\JsonSchemaExporter;
 use Epsicube\Schemas\Exporters\LaravelPromptsFormExporter;
-use Epsicube\Schemas\Exporters\LaravelValidationExporter;
+use Epsicube\Schemas\Exporters\LaravelValidatorExporter;
 use Epsicube\Schemas\Types\UndefinedValue;
 use Filament\Schemas\Components\Component;
 use Filament\Schemas\Components\Section;
@@ -67,7 +67,7 @@ class ObjectProperty extends BaseProperty
         foreach ($this->properties as $name => $field) {
             $schema['properties'][$name] = $exporter->export($field);
 
-            if ($field->isRequired()) {
+            if (!$field->isOptional()) {
                 $required[] = $name;
             }
         }
@@ -117,7 +117,7 @@ class ObjectProperty extends BaseProperty
         return $form->submit();
     }
 
-    public function resolveValidationRules(mixed $value, LaravelValidationExporter $exporter): array
+    public function resolveValidationRules(mixed $value, LaravelValidatorExporter $exporter): array
     {
         $rules = ['array'];
         foreach ($this->properties as $name => $property) {

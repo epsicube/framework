@@ -54,8 +54,8 @@ class ListMailers implements Activity
     {
         $schema->append([
             'mailers' => ArrayProperty::make()->items(ObjectProperty::make()->properties([
-                'identifier' => StringProperty::make()->required(),
-                'name'       => StringProperty::make()->required(),
+                'identifier' => StringProperty::make(),
+                'name'       => StringProperty::make(),
             ])),
         ]);
     }

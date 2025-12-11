@@ -1,6 +1,6 @@
 ## Core
 
-- support unigale modules in root composer.json / or / migrate module declaration into bootstrap/modules.php
+- support modules in root composer.json / or / migrate module declaration into bootstrap/modules.php
 - rework process installation / auto-setup
 - make:command pour le projet
 - migrer hypercore dans la foundation

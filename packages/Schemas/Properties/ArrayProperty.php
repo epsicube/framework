@@ -9,14 +9,15 @@ use Epsicube\Schemas\Contracts\Property;
 use Epsicube\Schemas\Exporters\FilamentExporter;
 use Epsicube\Schemas\Exporters\JsonSchemaExporter;
 use Epsicube\Schemas\Exporters\LaravelPromptsFormExporter;
-use Epsicube\Schemas\Exporters\LaravelValidationExporter;
+use Epsicube\Schemas\Exporters\LaravelValidatorExporter;
+use Epsicube\Schemas\Schema;
 use Epsicube\Schemas\Types\UndefinedValue;
 use Filament\Forms\Components\Field;
 use Filament\Forms\Components\Repeater;
 use Filament\Infolists\Components\RepeatableEntry;
 use Filament\Schemas\Components\Component;
 use Filament\Support\Enums\Operation;
-
+use Illuminate\Validation\ValidationException;
 use function Laravel\Prompts\select;
 use function Laravel\Prompts\warning;
 
@@ -107,8 +108,8 @@ class ArrayProperty extends BaseProperty
         return Repeater::make($name)
             ->when(
                 $component instanceof Field,
-                fn (Repeater $field) => $field->simple($component),
-                fn (Repeater $field) => $field->schema([$component]),
+                fn(Repeater $field) => $field->simple($component),
+                fn(Repeater $field) => $field->schema([$component]),
             )
             ->minItems($this->minItems)
             ->maxItems($this->maxItems);
@@ -126,15 +127,28 @@ class ArrayProperty extends BaseProperty
 
         while (true) {
             $options = array_merge(array_combine(
-                array_map(fn ($i) => "item_{$i}", array_keys($items)),
-                array_map(fn ($i, $item) => "[{$i}] ".(is_scalar($item) ? (string) $item : json_encode($item)), array_keys($items), $items)
+                array_map(fn($i) => "item_{$i}", array_keys($items)),
+                array_map(fn($i, $item) => "[{$i}] " . (is_scalar($item) ? (string)$item : json_encode($item)), array_keys($items), $items)
             ), ['add' => 'Add new item', 'finish' => 'Finish']);
 
             $choice = select(
                 label: $this->getTitle() ?? $name ?? '',
                 options: $options,
                 default: 'finish',
-                hint: 'Select an item to Edit/Delete or choose Add/Finish'
+                validate: function (string $option) use ($items, $name) {
+                    if ($option !== 'finish') {
+                        return null;
+                    }
+
+                    $s = Schema::create('', properties: [$name => $this]);
+                    try {
+                        $s->toValidator([$name => $items])->validate();
+                    } catch (ValidationException $e) {
+                        return implode("\n  ⚠ ", $e->errors()[$name]);
+                    }
+
+                    return null;
+                }, hint: 'Select an item to Edit/Delete or choose Add/Finish'
             );
 
             if ($choice === 'finish') {
@@ -154,7 +168,7 @@ class ArrayProperty extends BaseProperty
                 continue;
             }
 
-            $index = (int) str_replace('item_', '', $choice);
+            $index = (int)str_replace('item_', '', $choice);
             $action = select(
                 label: "Choose action for item #{$index}",
                 options: ['edit' => 'Edit', 'delete' => 'Delete', 'back' => 'Back'],
@@ -181,7 +195,7 @@ class ArrayProperty extends BaseProperty
         }
     }
 
-    public function resolveValidationRules(mixed $value, LaravelValidationExporter $exporter): array
+    public function resolveValidationRules(mixed $value, LaravelValidatorExporter $exporter): array
     {
         $rules = [
             'array',
@@ -189,11 +203,11 @@ class ArrayProperty extends BaseProperty
         ];
 
         if ($this->minItems !== null) {
-            $rules[] = 'min:'.$this->minItems;
+            $rules[] = 'min:' . $this->minItems;
         }
 
         if ($this->maxItems !== null) {
-            $rules[] = 'max:'.$this->maxItems;
+            $rules[] = 'max:' . $this->maxItems;
         }
 
         if ($this->uniqueItems) {
@@ -203,7 +217,7 @@ class ArrayProperty extends BaseProperty
         // Loop over each instead of using .* to get index on error
         if (is_array($value) && $this->items instanceof Property) {
             foreach ($value as $i => $itemValue) {
-                $exporter->exportChild($this->items, (string) $i, $itemValue);
+                $exporter->exportChild($this->items, (string)$i, $itemValue);
             }
         }
 

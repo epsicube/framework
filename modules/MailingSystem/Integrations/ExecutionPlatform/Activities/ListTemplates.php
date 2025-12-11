@@ -55,8 +55,8 @@ class ListTemplates implements Activity
     {
         $schema->append([
             'templates' => ArrayProperty::make()->items(ObjectProperty::make()->properties([
-                'identifier' => StringProperty::make()->required(),
-                'name'       => StringProperty::make()->required(),
+                'identifier' => StringProperty::make(),
+                'name'       => StringProperty::make(),
             ])),
         ]);
     }
