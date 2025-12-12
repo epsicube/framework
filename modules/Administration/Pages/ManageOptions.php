@@ -150,6 +150,7 @@ class ManageOptions extends Page implements HasSchemas
                                     ? (array_key_exists($name, $this->stored) ? $this->stored[$name] : $property->getDefault())
                                     : $property->getDefault()
                                 );
+                                $component->callAfterStateHydrated();
                             });
                     });
 

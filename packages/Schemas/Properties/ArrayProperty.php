@@ -111,7 +111,7 @@ class ArrayProperty extends BaseProperty
         }
 
         // TODO support nullable, and empty array without nullable
-        // TODO not work with array of array
+        // TODO not work with array of array (nested)
         return CustomRepeater::make($name)
             ->when(
                 $component instanceof Field,
@@ -165,11 +165,14 @@ class ArrayProperty extends BaseProperty
 
             if ($choice === 'add') {
                 $newItem = $exporter->export($this->items, 'New Item', new UndefinedValue);
-                if ($this->uniqueItems && in_array($newItem, $items, true)) {
+
+                $potentialList = collect($items)->push($newItem);
+                if ($this->uniqueItems && $potentialList->duplicates()->contains($newItem)) {
                     warning('This item already exists and must be unique.');
 
                     continue;
                 }
+
                 $items[] = $newItem;
                 info('Item added.');
 
@@ -187,10 +190,14 @@ class ArrayProperty extends BaseProperty
             if ($action === 'edit') {
                 $edited = $exporter->export($this->items, "Item #{$index}", $items[$index]);
 
-                if ($this->uniqueItems && in_array($edited, array_values(array_diff_key($items, [$index => null])), true)) {
-                    warning('This item already exists and must be unique.');
+                if ($this->uniqueItems) {
+                    $existingItems = collect(array_values(array_diff_key($items, [$index => null])));
+                    $potentialList = $existingItems->push($edited);
+                    if ($potentialList->duplicates()->contains($edited)) {
+                        warning('This item already exists and must be unique.');
 
-                    continue;
+                        continue;
+                    }
                 }
 
                 $items[$index] = $edited;
@@ -225,7 +232,7 @@ class ArrayProperty extends BaseProperty
 
         // Loop over each instead of using .* to get index on error
         if (is_array($value) && $this->items instanceof Property) {
-            foreach ($value as $i => $itemValue) {
+            foreach (array_values($value) as $i => $itemValue) {
                 $exporter->exportChild($this->items, (string) $i, $itemValue);
             }
         }
