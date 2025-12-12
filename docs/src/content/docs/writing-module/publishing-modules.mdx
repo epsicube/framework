@@ -1,0 +1,86 @@
+---
+title: Publish your module
+description: "Publish an Epsicube module using Composer."
+sidebar:
+    order: 6
+---
+
+import { Aside, Steps } from '@astrojs/starlight/components';
+
+Once your module is completed, you can distribute it as an installable Composer package.
+
+## How to publish your module ?
+<br/>
+
+<Steps>
+
+1. ### Convert your module into a package
+    Refer to the official guide on [Laravel Package Development](https://laravel.com/docs/12.x/packages) to structure your module as a standalone package.
+    This includes:
+    - Creating a separate package directory
+    - Defining a dedicated `composer.json`
+    - Moving your module’s Service Provider and related files into the package
+    - Adding autoloading rules
+    <br/>
+2. ### Add required dependencies
+
+    Ensure your package declares all necessary dependencies:
+
+    ```json
+    "require": {
+        "php": "^8.3",
+        "illuminate/support": "^12.8",
+        "epsicube/support": "*"
+    }
+    ```
+
+3. ### Declare your module
+
+    This section allows Epsicube to automatically detect and register your module:
+
+    ```json
+    "extra": {
+        "epsicube": {
+            "modules": [
+                "YourModuleNamespace\\YourModule"
+            ]
+        }
+    }
+    ```
+
+    <Aside type="tip">
+    When publishing your module as an external package:<br/>
+    • The <code>extra.epsicube.modules</code> section enables automatic module discovery.<br/>
+    • Remove your provider from <code>extra.laravel.providers</code> to prevent double registration.
+    </Aside>
+
+4. ### Publish the package to a Git repository
+
+    Your Composer package must be hosted in a Git repository (GitHub, GitLab, Bitbucket, etc.).
+    Make sure to include:
+    - A valid `composer.json`
+    - A tagged version (`git tag v0.0.1 && git push --tags`)
+    - PSR-4 autoloading
+    <br/>
+5. ### Require the package in your application
+
+    Once published, you can install it like any standard Composer dependency:
+
+    ```bash
+    composer require vendor/your-module-package
+    ```
+
+6. ### Verify module discovery
+
+    After installation:
+    - Epsicube will automatically detect your module via the `extra.epsicube.modules` section
+    - Your module will be listed in `php artisan modules:list`
+    - If needed, enable it explicitly:
+
+    ```bash
+    php artisan modules:enable {identifier}
+    ```
+
+</Steps>
+
+You can now distribute your module across multiple projects, version it, and maintain it as a standalone package.

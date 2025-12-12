@@ -1,7 +1,7 @@
 
 ---
 title: "Write your own"
-description: "Learn how to create your own Epsicube module."
+description: "Learn how to build your own Epsicube module."
 sidebar:
   order: 1
 ---
@@ -12,95 +12,82 @@ import { Steps, Aside } from '@astrojs/starlight/components';
 A module is a standard **[Laravel Service Provider](https://laravel.com/docs/providers)** that additionally implements the
 [`Epsicube\Support\Contracts\Module`](https://github.com/epsicube/framework/blob/main/packages/Foundation/Support/Module.php) interface.
 
-This contract provides the metadata Epsicube needs to register, identify, and manage your module.
+This contract exposes the metadata required by Epsicube to register, identify, and manage your module.
 
-## How to create a module ?
+## How to Create a Module?
 <br/>
 <Steps>
-
 1. ### Create a Service Provider
 
-    Generate a new provider using Laravel’s CLI:
+   Generate a new module using Laravel’s CLI:
 
-    ```bash
-    php artisan make:provider MyCustomModule
-    ```
+   ```bash
+   php artisan make:module MyCustomModule
+   ```
 
     <Aside type="note">
-    This class becomes the foundation of your module.
+    This class forms the core of your module.
     </Aside>
 
-2. ###  Implement the Module Contract
+2. ### Define Metadata
 
-    Update the provider to implement the `Module` interface:
+   Open the generated file `app/Modules/MyCustomModule.php`
 
-    ```php
-    use Illuminate\Support\ServiceProvider;
-    use Epsicube\Support\Contracts\Module;
-    use Epsicube\Support\ModuleIdentity;
+   ```php
+   use Illuminate\Support\ServiceProvider;
+   use Epsicube\Support\Contracts\Module;
+   use Epsicube\Support\ModuleIdentity;
 
-    class MyCustomModule extends ServiceProvider implements Module
-    {
-        public function identifier(): string
-        {
-            return 'my-custom-module';
-        }
+   class MyCustomModule extends ServiceProvider implements Module
+   {
+       public function identifier(): string
+       {
+           return 'custom::your-custom-module';
+       }
 
-        public function identity(): ModuleIdentity
-        {
-            return ModuleIdentity::make(
-                name: __('Your custom module'),
-                version: 'dev-master',
-                author: 'Your Team',
-                description: '' // Optional
-            );
-        }
+       public function identity(): ModuleIdentity
+       {
+           return ModuleIdentity::make(
+               name: "MyCustomModule",
+               version: "0.0.1",
+               author: "", // Provide information about the author
+               description: '' // Add a description for your module
+           );
+       }
 
-        // ... register()
-        // ... boot()
-    }
-    ```
+       //...
+   }
+   ```
 
     <Aside type="caution">
-    Ensure your <strong>identifier</strong> is unique across the entire application.
+    Ensure that your <strong>identifier</strong> is globally unique within the application.
     </Aside>
 
 3. ### Register the Module
 
-    Epsicube does not use Laravel’s default provider registration system.
+   By default, the `module:make` command registers your module in `bootstrap/modules.php`.
 
-    **Remove** the provider from:
-    - `bootstrap/providers.php`
-    - or `config/app.php → providers`
+   You may also manually create or update the `bootstrap/modules.php` file:
 
-    **Instead, register it in your module’s `composer.json`:**
+   ```php
+   <?php
 
-    ```json
-    "extra": {
-        "epsicube": {
-            "modules": [
-                "App\\Providers\\MyCustomModule"
-            ]
-        }
-    }
-    ```
-
-    <Aside type="tip">
-    When publishing your module as an external package:<br/>
-    • The <code>extra.epsicube.modules</code> section will be auto-discovered.<br/>
-    • Remove your provider from the <code>extra.laravel.providers</code> section to avoid duplicate registration.
-    </Aside>
-
-4. ### Refresh composer cache
-   ```bash
-   composer dump-autoload
+   return [
+       //...
+       App\Modules\MyCustomModule::class,
+   ];
    ```
 
-5. ### Enable your module
-   - Using the administration, or using the cli:
+4. ### Enable the Module
+
+   By default, the `module:make` command enables your module (unless you use the `--disabled` option).
+
+   You may also enable it manually using:
+
    ```bash
-   php artisan modules:enable my-custom-module # Use the specified identifier
+   php artisan modules:enable {identifier}
    ```
+
 </Steps>
 
 ## Related Laravel Documentation

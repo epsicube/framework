@@ -26,7 +26,6 @@ An exporter allows a single schema to drive multiple outputs without redefining 
 
 Epsicube’s Schema system includes several **built-in exporters**, each designed to transform a schema into a specific format or usage context. Exporters do not modify the schema—they generate representations compatible with different systems.
 
----
 
 ### JSON Schema
 
@@ -38,14 +37,11 @@ This is useful for API documentation, validation, or front-end integrations.
 ```php
 use Epsicube\Schemas\Exporters\JsonSchemaExporter;
 
-$json = $schema->export(new JsonSchemaExporter);
+$jsonSchema = $schema->export(new JsonSchemaExporter);
 
 // Or use the shortcut
-$json = $schema->toJsonSchema();
-
-// Output as JSON string
-echo json_encode($json, JSON_PRETTY_PRINT);
-````
+$jsonSchema = $schema->toJsonSchema();
+```
 
 ### FilamentPHP
 
@@ -54,74 +50,102 @@ The `FilamentExporter` converts a schema into **FilamentPHP forms or infolists**
 **Usage example:**
 
 ```php
-use Epsicube\Schemas\Exporters\FilamentExporter;
+use Epsicube\Schemas\Exporters\FilamentComponentsExporter;
 use Filament\Support\Enums\Operation;
 
-$form = $schema->export(new FilamentExporter(Operation::Edit)); // Or Operation::Create
-$infolist = $schema->export(new FilamentExporter(Operation::View));
+$formComponents = $schema->export(new FilamentComponentsExporter(Operation::Edit)); // Or Operation::Create
+$infolistComponents = $schema->export(new FilamentComponentsExporter(Operation::View));
+
+// Or use the shortcut
+$schema->toFilamentComponents($operation);
 ```
 
 ### Laravel Prompts
 
-The `LaravelPromptsFormExporter` generates **interactive CLI prompts** from schema properties.
-This is ideal for building command-line wizards or setup scripts.
+The `LaravelPromptsFormExporter` generates **interactive CLI prompts** based on your schema properties.
+It is ideal for creating command-line wizards, setup scripts, or guided input flows.
 
 **Usage example:**
 
 ```php
 use Epsicube\Schemas\Exporters\LaravelPromptsFormExporter;
 
+// Export schema as CLI prompts and execute them
 $resultData = $schema->export(new LaravelPromptsFormExporter([
-    'username' => 'current' // Inject current values (optional)
+    'username' => 'current' // Optional: pre-fill with current values
 ]));
 
-// Or use the shortcut
+// Shortcut method
 $resultData = $schema->toExecutedPrompts([
-    'username' => 'current' // Inject current values (optional)
+    'username' => 'current' // Optional: pre-fill values
 ]);
-```
+````
 
+<Aside type="caution">
+The prompts exporter automatically triggers fields to appear and returns user input.
+It only works in a **CLI context**.
+</Aside>
 
 ### Laravel Validation Rules
 
-The `LaravelValidationExporter` converts a schema into **Laravel validation rules** that can be used directly in `$request->validate()` or FormRequest classes.
+The `LaravelValidationExporter` converts a schema into **Laravel validation rules** that can be applied directly in `$request->validate()` or FormRequest classes.
 
-**Usage example:**
+This exporter provides a custom Validator instance that respects schema defaults and optional fields.
+
+---
+
+#### Usage Example
+
+
+<Aside type="tip">
+Recommended to use method: `$schema->validated($data, bail: false)`
+
+This method injects missing default values from the schema, validates the data, and returns the validated dataset.
+</Aside>
 
 ```php
 use Epsicube\Schemas\Exporters\LaravelValidatorExporter;
 
-// Export validation rules
-$validator = $schema->export(new LaravelValidatorExporter());
+// Export validator
+$validator = $schema->export(new LaravelValidatorExporter($data));
 
 // Or use the shortcut
-$validator = $schema->toValidator();
+$validator = $schema->toValidator($data);
 
 // Example usage in a FormRequest
-$validator->validate($request->all());
-```
+$validated = $validator->validated();
+````
+
+<Aside type="caution">
+This exporter returns a **custom Validator instance**.
+
+Rules may not behave correctly if you extract them via `getRules()` and use them with the native Laravel Validator.
+
+This is due to differences in PHP handling of null vs undefined values, which can cause validation failures for empty strings.
+</Aside>
+
 
 #### Notes
 
-1. **Data parameter**
-   When exporting rules, it is **preferable to pass the current data as the first argument**, for example `$request->all()`.
-   This is required because some validation rules are **dynamic** and will only be applied if necessary, based on the provided data.
+##### 1. Data Parameter
 
-   ```php
-   $rules = $schema->toValidator($request->all());
-   ```
+When exporting rules, it is recommended to pass the **current data** as the first argument (e.g., `$request->all()`).
 
-2. **Optional parameter (`$prepend`)**
-   You can provide an optional array of rules to **prepend** to all fields, for example `['bail']` to stop validation on the first failure:
+Some rules like `array` and `object` are **dynamic** and only apply based on the provided data.
 
-   ```php
-   $rules = $schema->toValidator($request->all(), prepend: ['bail']);
-   ```
+```php
+$validator = $schema->toValidator($request->all());
+```
 
-<Aside class="tip">
-User shortcut: `$schema->validated($data)` when you can
-This method takes a payload, injects any missing default values defined in the schema, validates the data according to the rules, and returns the validated dataset.
-</Aside>
+###### 2. Optional Parameter (`$prepend`)
+
+You can provide an optional array of rules to **prepend** to all fields.
+For example, `['bail']` stops validation on the first failure:
+
+```php
+$validator = $schema->toValidator($request->all(), prepend: ['bail']);
+```
+
 
 ## Create custom Exporter
 

@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Epsicube\Schemas\Properties;
 
 use Closure;
-use Epsicube\Schemas\Exporters\FilamentExporter;
+use Epsicube\Schemas\Exporters\FilamentComponentsExporter;
 use Epsicube\Schemas\Exporters\JsonSchemaExporter;
 use Epsicube\Schemas\Exporters\LaravelPromptsFormExporter;
 use Epsicube\Schemas\Exporters\LaravelValidatorExporter;
@@ -90,7 +90,7 @@ class FloatProperty extends BaseProperty
         return $schema;
     }
 
-    public function toFilamentComponent(string $name, FilamentExporter $exporter): Component
+    public function toFilamentComponent(string $name, FilamentComponentsExporter $exporter): Component
     {
         if ($exporter->operation === Operation::View) {
             return TextEntry::make($name)->numeric()->inlineLabel()->placeholder(__('No selection'));

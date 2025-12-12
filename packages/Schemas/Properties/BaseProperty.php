@@ -11,7 +11,7 @@ use Epsicube\Schemas\Contracts\LaravelRulesExportable;
 use Epsicube\Schemas\Contracts\PromptExportable;
 use Epsicube\Schemas\Contracts\Property;
 use Epsicube\Schemas\Exceptions\UndefinedDefaultException;
-use Epsicube\Schemas\Exporters\FilamentExporter;
+use Epsicube\Schemas\Exporters\FilamentComponentsExporter;
 use Epsicube\Schemas\Exporters\JsonSchemaExporter;
 use Epsicube\Schemas\Exporters\LaravelPromptsFormExporter;
 use Epsicube\Schemas\Exporters\LaravelValidatorExporter;
@@ -21,7 +21,7 @@ use ReflectionProperty;
  * BaseField provides the core functionality for all native fields in Epsicube Schema.
  *
  * Each native field supports the following exporters:
- * - @see FilamentExporter
+ * - @see FilamentComponentsExporter
  * - @see JsonSchemaExporter
  * - @see LaravelValidatorExporter
  * - @see LaravelPromptsFormExporter
@@ -104,7 +104,6 @@ abstract class BaseProperty implements FilamentExportable, JsonSchemaExportable,
         return $this;
     }
 
-    // TODO rename optional (inverse logic), by default false (means must be to be present)
     public function optional(bool $optional = true): static
     {
         $this->optional = $optional;

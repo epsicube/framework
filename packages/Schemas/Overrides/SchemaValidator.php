@@ -7,7 +7,7 @@ namespace Epsicube\Schemas\Overrides;
 use Illuminate\Validation\Validator;
 use Override;
 
-class CustomValidator extends Validator
+class SchemaValidator extends Validator
 {
     /**
      * Custom override to allow validating empty string

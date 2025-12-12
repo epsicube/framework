@@ -1,64 +1,104 @@
 ---
 title: "Defining Schemas"
-description: "Learn how to define Schema structure and properties."
+description: "Learn how to define schema structures and property behaviors."
 sidebar:
     order: 2
 ---
 import { Aside } from '@astrojs/starlight/components';
 
-Schemas are composed of **properties**, which define the type, default value, title, and constraints of each piece of data.
+Schemas define the structure of your data through **properties**, which specify the type, default value, title, description, and constraints for each field.
+
+## Key Concepts
+
+### Optional
+An optional property **may be omitted** from the input.
+If missing, it is treated as **undefined**, allowing the schema to:
+
+- Apply default values
+- Trigger fallback logic
+- Distinguish between a missing property and a property explicitly set to `null`
+
+Properties that are not optional **must** be present.
+
+### Nullable
+A nullable property **accepts `null`** as a valid value.
+This affects the **value**, not whether the property must be included.
+
+- Optional → controls presence
+- Nullable → controls allowed values
+
+These flags can be used together or separately.
+
+### Default
+Default values are only applied to **optional** properties.
+If an optional property is omitted, its default is automatically used.
+
+Defaults can be:
+
+- Static values
+- Closures (evaluated lazily)
+
+<Aside type="note" title="Summary">
+- Optional controls if the field can be omitted
+- Nullable controls whether the value can be `null`
+- Default provides a fallback when the field is missing
+- Description is purely informational and does not affect validation
+</Aside>
 
 ## Creating a Schema
 
-You can create a schema using the `Schema::create()` method:
+Use `Schema::create()` to define a new schema:
 
 ```php
 use Epsicube\Schemas\Schema;
-use Epsicube\Schemas\Properties\BooleanProperty;
-use Epsicube\Schemas\Properties\StringProperty;
 
 $schema = Schema::create(
     identifier: 'UniqueIdentifier',
-    title: 'Your Custom Schema',
-    description: 'Contain all informations about',
-    properties: [] // shortcuts for below ->append()
+    title: 'My Custom Schema',
+    description: 'Defines the structure of my data',
+    properties: [] // shortcut for ->append()
 );
 ````
 
-
 ## Adding Properties
 
-Once a schema is created, you can append properties to it:
+Append properties to a schema using `->append()`:
 
 ```php
 use Epsicube\Schemas\Properties\BooleanProperty;
 use Epsicube\Schemas\Properties\StringProperty;
+
 $schema->append([
     'enabled' => BooleanProperty::make()
-        ->title('This Feature Enabled')
-        ->default(true),
+        ->title('Feature Enabled')
+        ->description('Whether this feature is active')
+        ->default(true)
+        ->optional(),
 
     'brand-name' => StringProperty::make()
         ->title('Brand Name')
-        ->default(fn () => config('app.name')),
+        ->description('The name of your brand or application')
+        ->default(fn () => config('app.name'))
+        ->optional(),
 ]);
 ```
 
-Properties define the **type of data**, a **human-readable title**, and optional **default values**.
-Default values can be static or computed dynamically using a closure.
+Each property defines:
 
+* **Data type** (e.g., string, boolean)
+* **Human-readable title**
+* **Optional description**
+* **Optional default values** (static or dynamic)
 
-## Property Types
+## Built-in Property Types
 
-The Schema system comes with several built-in property types:
-
-* `ArrayProperty` — for arrays of values.
-* `BooleanProperty` — true/false values.
-* `FloatProperty` — decimal numbers.
-* `IntegerProperty` — whole numbers.
-* `ObjectProperty` — nested objects or complex structures.
-* `StringProperty` — text values.
+* `ArrayProperty` — arrays
+* `BooleanProperty` — true/false
+* `FloatProperty` — decimal numbers
+* `IntegerProperty` — whole numbers
+* `ObjectProperty` — nested objects
+* `StringProperty` — text
 
 <Aside title="Tip">
-You can combine properties to create **nested schemas**, reuse common definitions, and define complex structures in a maintainable way.
+Combine properties to create nested schemas, reuse common definitions, and build complex data structures in a clean, maintainable way.
 </Aside>

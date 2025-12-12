@@ -6,7 +6,7 @@ namespace Epsicube\Schemas\Properties;
 
 use Closure;
 use Epsicube\Schemas\Contracts\Property;
-use Epsicube\Schemas\Exporters\FilamentExporter;
+use Epsicube\Schemas\Exporters\FilamentComponentsExporter;
 use Epsicube\Schemas\Exporters\JsonSchemaExporter;
 use Epsicube\Schemas\Exporters\LaravelPromptsFormExporter;
 use Epsicube\Schemas\Exporters\LaravelValidatorExporter;
@@ -85,7 +85,7 @@ class ObjectProperty extends BaseProperty
         return $schema;
     }
 
-    public function toFilamentComponent(string $name, FilamentExporter $exporter): Component
+    public function toFilamentComponent(string $name, FilamentComponentsExporter $exporter): Component
     {
         $components = [];
         foreach ($this->properties as $propertyName => $field) {

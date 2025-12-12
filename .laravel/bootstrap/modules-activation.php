@@ -8,4 +8,5 @@ return [
     'core::execution-platform' => true,
     'core::mailing-system'     => true,
     'core::mcp-server'         => true,
+    'core::hypercore'          => false,
 ];

@@ -6,7 +6,6 @@ namespace EpsicubeModules\Administration\Pages;
 
 use BackedEnum;
 use Epsicube\Schemas\Contracts\Property;
-use Epsicube\Schemas\Exporters\FilamentExporter;
 use Epsicube\Support\Facades\Modules;
 use Epsicube\Support\Facades\Options;
 use Filament\Actions\Action;
@@ -19,9 +18,10 @@ use Filament\Resources\Concerns\HasTabs;
 use Filament\Schemas\Components\Actions;
 use Filament\Schemas\Components\Component;
 use Filament\Schemas\Components\EmbeddedSchema;
-use Filament\Schemas\Components\Form;
 use Filament\Schemas\Components\Icon;
+use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Tabs;
+use Filament\Schemas\Components\Text;
 use Filament\Schemas\Concerns\InteractsWithSchemas;
 use Filament\Schemas\Contracts\HasSchemas;
 use Filament\Schemas\Schema;
@@ -105,61 +105,69 @@ class ManageOptions extends Page implements HasSchemas
             ->statePath('data')
             ->operation($this->operation->value)
             ->schema(function () {
-                return Options::getSchema($this->activeTab)->export(
-                    new FilamentExporter($this->operation, function (Property $property, ?string $name, Component $component): void {
-                        if ($name === null || ! $property->hasDefault()) {
-                            return;
+                $modifyComponentUsing = function (Property $property, ?string $name, Component $component): void {
+                    if ($name === null || ! $property->hasDefault()) {
+                        return;
+                    }
+
+                    if (! ($component instanceof Field || $component instanceof Entry)) {
+                        return;
+                    }
+
+                    // afterContent handles both View and Edit modes dynamically
+                    $component->afterContent(function () use ($component, $name, $property) {
+                        $hasStored = array_key_exists($name, $this->stored);
+
+                        // --- VIEW MODE ------------------------------------------------------
+                        // Shows an icon indicating whether the value is overridden or using module default.
+                        if ($this->operation === Operation::View) {
+                            return $hasStored
+                                ? Icon::make(Heroicon::OutlinedExclamationCircle)
+                                    ->color('warning')
+                                    ->tooltip(__('Overridden value'))
+                                : Icon::make(Heroicon::OutlinedCube)
+                                    ->color('gray')
+                                    ->tooltip(__('Default value provided by the module'));
                         }
 
-                        if (! ($component instanceof Field || $component instanceof Entry)) {
-                            return;
-                        }
+                        // --- EDIT MODE ------------------------------------------------------
+                        // Allows switching between default and custom value.
+                        $isCustom = $this->useCustom[$name] ?? false;
 
-                        // afterContent handles both View and Edit modes dynamically
-                        $component->afterContent(function () use ($component, $name, $property) {
-                            $hasStored = array_key_exists($name, $this->stored);
+                        return Action::make('toggleDefault')
+                            ->label($isCustom ? new HtmlString(Str::replace(' ', '&nbsp;', __('Restore default'))) : __('Edit'))
+                            ->icon($isCustom ? Heroicon::OutlinedArrowUturnLeft : Heroicon::OutlinedPencilSquare)
+                            ->color($isCustom ? 'warning' : 'gray')
+                            ->tooltip(__('Click to toggle between default value and custom input'))
+                            ->action(function () use ($name, $property, $component, $isCustom) {
 
-                            // --- VIEW MODE ------------------------------------------------------
-                            // Shows an icon indicating whether the value is overridden or using module default.
-                            if ($this->operation === Operation::View) {
-                                return $hasStored
-                                    ? Icon::make(Heroicon::OutlinedExclamationCircle)
-                                        ->color('warning')
-                                        ->tooltip(__('Overridden value'))
-                                    : Icon::make(Heroicon::OutlinedCube)
-                                        ->color('gray')
-                                        ->tooltip(__('Default value provided by the module'));
-                            }
+                                // Toggle between default and custom state
+                                $this->useCustom[$name] = ! $isCustom;
 
-                            // --- EDIT MODE ------------------------------------------------------
-                            // Allows switching between default and custom value.
-                            $isCustom = $this->useCustom[$name] ?? false;
+                                // Update field state based on the toggle
+                                $component->state(
+                                    $this->useCustom[$name] ?? false
+                                    ? (array_key_exists($name, $this->stored) ? $this->stored[$name] : $property->getDefault())
+                                    : $property->getDefault()
+                                );
+                            });
+                    });
 
-                            return Action::make('toggleDefault')
-                                ->label($isCustom ? new HtmlString(Str::replace(' ', '&nbsp;', __('Restore default'))) : __('Edit'))
-                                ->icon($isCustom ? Heroicon::OutlinedArrowUturnLeft : Heroicon::OutlinedPencilSquare)
-                                ->color($isCustom ? 'warning' : 'gray')
-                                ->tooltip(__('Click to toggle between default value and custom input'))
-                                ->action(function () use ($name, $property, $component, $isCustom) {
+                    // Field disabled logic: respects toggle AND view mode
+                    $component->disabled(fn () => ! ($this->useCustom[$name] ?? false));
+                    // Always dehydrated: save() loop is authoritative
+                    $component->dehydrated(true);
+                };
 
-                                    // Toggle between default and custom state
-                                    $this->useCustom[$name] = ! $isCustom;
+                $schema = Options::getSchema($this->activeTab);
+                $components = $schema->toFilamentComponents($this->operation, $modifyComponentUsing);
+                if (empty($components)) {
+                    $components = [
+                        Text::make(__('This module declares using options, but it does not define any options')),
+                    ];
+                }
 
-                                    // Update field state based on the toggle
-                                    $component->state(
-                                        $this->useCustom[$name] ?? false
-                                        ? (array_key_exists($name, $this->stored) ? $this->stored[$name] : $property->getDefault())
-                                        : $property->getDefault()
-                                    );
-                                });
-                        });
-
-                        // Field disabled logic: respects toggle AND view mode
-                        $component->disabled(fn () => ! ($this->useCustom[$name] ?? false));
-                        // Always dehydrated: save() loop is authoritative
-                        $component->dehydrated(true);
-                    })
-                );
+                return Section::make('')->key($this->activeTab)->schema($components);
             });
     }
 

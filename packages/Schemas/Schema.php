@@ -4,13 +4,17 @@ declare(strict_types=1);
 
 namespace Epsicube\Schemas;
 
+use Closure;
 use Epsicube\Schemas\Contracts\Property;
 use Epsicube\Schemas\Contracts\SchemaExporter;
 use Epsicube\Schemas\Exceptions\DuplicatePropertyException;
+use Epsicube\Schemas\Exporters\FilamentComponentsExporter;
 use Epsicube\Schemas\Exporters\JsonSchemaExporter;
 use Epsicube\Schemas\Exporters\LaravelPromptsFormExporter;
 use Epsicube\Schemas\Exporters\LaravelValidatorExporter;
-use Illuminate\Contracts\Validation\Validator;
+use Epsicube\Schemas\Overrides\SchemaValidator;
+use Filament\Schemas\Components\Component;
+use Filament\Support\Enums\Operation;
 use LogicException;
 
 class Schema
@@ -105,6 +109,18 @@ class Schema
         );
     }
 
+    public function except(string ...$properties): static
+    {
+        $filtered = array_diff_key($this->properties(), array_flip($properties));
+
+        return new static(
+            identifier: $this->identifier(),
+            title: $this->title(),
+            description: $this->description(),
+            properties: $filtered
+        );
+    }
+
     public function withDefaults(array $data): array
     {
         $defaults = array_map(
@@ -113,6 +129,15 @@ class Schema
         );
 
         return array_merge($defaults, $data);
+    }
+
+    /**
+     * @param  Closure(Property $property, ?string $name, Component $component): void |null  $modifyComponentUsing
+     * @return array<int, Component>
+     */
+    public function toFilamentComponents(Operation|string $operation, ?Closure $modifyComponentUsing = null): array
+    {
+        return $this->export(new FilamentComponentsExporter($operation, $modifyComponentUsing));
     }
 
     public function toJsonSchema(): array
@@ -125,7 +150,7 @@ class Schema
         return $this->export(new LaravelPromptsFormExporter($data));
     }
 
-    public function toValidator(array $data = [], array $messages = [], array $attributes = [], array $prepend = []): Validator
+    public function toValidator(array $data = [], array $messages = [], array $attributes = [], array $prepend = []): SchemaValidator
     {
         return $this->export(new LaravelValidatorExporter($data, $messages, $attributes, $prepend));
     }

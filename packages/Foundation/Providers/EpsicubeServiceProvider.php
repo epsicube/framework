@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Epsicube\Foundation\Providers;
 
 use Carbon\Laravel\ServiceProvider;
+use Epsicube\Foundation\Console\Commands\MakeModuleCommand;
 use Epsicube\Foundation\Console\Commands\ModulesDisableCommand;
 use Epsicube\Foundation\Console\Commands\ModulesEnableCommand;
 use Epsicube\Foundation\Console\Commands\ModulesStatusCommand;
@@ -27,6 +28,8 @@ use Epsicube\Support\Facades\Modules;
 use Epsicube\Support\Facades\Options;
 use Illuminate\Filesystem\Filesystem;
 use Illuminate\Support\Env;
+use RuntimeException;
+use Throwable;
 
 /**
  * This service provider is initialized during the application bootstrap phase.
@@ -50,15 +53,32 @@ class EpsicubeServiceProvider extends ServiceProvider
 
         $this->app->singleton('foundation-modules', function () {
             $registry = new ModulesManager(
-                new FilesystemActivationDriver(new Filesystem, $this->app->bootstrapPath('modules.php')),
+                new FilesystemActivationDriver(new Filesystem, $this->app->bootstrapPath('modules-activation.php')),
             );
 
+            // Load modules from manifest (composer)
             $manifestModules = array_map(function (string $moduleClass) {
                 /** @var class-string<Module> $moduleClass */
                 return $this->app->make($moduleClass, ['app' => $this->app]);
             }, $this->app->get(\Epsicube\Support\Facades\Manifest::$accessor)->config('modules'));
-
             $registry->register(...$manifestModules);
+
+            // Load modules from bootstrap/modules.php
+            $file = new Filesystem;
+            $modulesPath = $this->app->bootstrapPath('modules.php');
+            if (! $file->exists($modulesPath)) {
+                return $registry;
+            }
+            try {
+                $modules = array_map(function (string $moduleClass) {
+                    /** @var class-string<Module> $moduleClass */
+                    return $this->app->make($moduleClass, ['app' => $this->app]);
+                }, $file->getRequire($modulesPath));
+                $registry->register(...$modules);
+
+            } catch (Throwable $e) {
+                throw new RuntimeException("Failed to register modules from 'bootstrap/modules.php' file.", $e->getCode(), $e);
+            }
 
             return $registry;
         });
@@ -92,6 +112,7 @@ class EpsicubeServiceProvider extends ServiceProvider
     public function boot(): void
     {
         $this->commands([
+            MakeModuleCommand::class,
             ModulesStatusCommand::class,
             ModulesEnableCommand::class,
             ModulesDisableCommand::class,

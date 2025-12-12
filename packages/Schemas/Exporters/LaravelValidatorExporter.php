@@ -8,7 +8,7 @@ use Closure;
 use Epsicube\Schemas\Contracts\LaravelRulesExportable;
 use Epsicube\Schemas\Contracts\Property;
 use Epsicube\Schemas\Contracts\SchemaExporter;
-use Epsicube\Schemas\Overrides\CustomValidator;
+use Epsicube\Schemas\Overrides\SchemaValidator;
 use Epsicube\Schemas\Properties\ObjectProperty;
 use Epsicube\Schemas\Schema;
 use Illuminate\Contracts\Validation\Validator as ValidatorContract;
@@ -42,7 +42,7 @@ class LaravelValidatorExporter implements SchemaExporter
 
         // Customize the resolver temporarily to handle empty string
         Validator::resolver(function ($translator, $data, $rules, $messages) {
-            return new CustomValidator($translator, $data, $rules, $messages);
+            return new SchemaValidator($translator, $data, $rules, $messages);
         });
         try {
             return Validator::make($this->data, $this->rules, $this->messages, $this->attributes);

@@ -8,7 +8,6 @@ use Closure;
 use Epsicube\Schemas\Contracts\FilamentExportable;
 use Epsicube\Schemas\Contracts\Property;
 use Epsicube\Schemas\Contracts\SchemaExporter;
-use Epsicube\Schemas\Properties\ObjectProperty;
 use Epsicube\Schemas\Schema;
 use Filament\Forms\Components\Field;
 use Filament\Infolists\Components\Entry;
@@ -17,7 +16,7 @@ use Filament\Support\Enums\Operation;
 use Filament\Support\Icons\Heroicon;
 use RuntimeException;
 
-class FilamentExporter implements SchemaExporter
+class FilamentComponentsExporter implements SchemaExporter
 {
     public Operation $operation;
 
@@ -29,16 +28,11 @@ class FilamentExporter implements SchemaExporter
         $this->operation = is_string($operation) ? Operation::from($operation) : $operation;
     }
 
-    public function exportSchema(Schema $schema): Component
+    public function exportSchema(Schema $schema): array
     {
-        return $this->export(
-            ObjectProperty::make()
-                ->title($schema->title())
-                ->properties($schema->properties())
-                ->description($schema->description())
-                ->additionalProperties(false),
-            $schema->identifier()
-        )->statePath(null);
+        return collect($schema->properties())
+            ->map(fn (Property $property, string $name) => $this->export($property, $name))
+            ->values()->all();
     }
 
     public function export(Property $property, ?string $name): Component
@@ -57,8 +51,6 @@ class FilamentExporter implements SchemaExporter
         // Globally apply required (when possible)
         if ($component instanceof Field && ! $property->isNullable()) {
             $component->required(! $property->isOptional());
-            // $component->nullable($property->isNullable());
-            // Don't do this because filament consider nullable like non-required
         }
 
         // Globally apply label (when possible)

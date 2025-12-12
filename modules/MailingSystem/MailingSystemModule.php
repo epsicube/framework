@@ -6,7 +6,9 @@ namespace EpsicubeModules\MailingSystem;
 
 use Carbon\Laravel\ServiceProvider;
 use Composer\InstalledVersions;
+use Epsicube\Schemas\Schema;
 use Epsicube\Support\Contracts\HasIntegrations;
+use Epsicube\Support\Contracts\HasOptions;
 use Epsicube\Support\Contracts\Module;
 use Epsicube\Support\Integrations;
 use Epsicube\Support\ModuleIdentity;
@@ -20,7 +22,7 @@ use EpsicubeModules\MailingSystem\Registries\MailersRegistry;
 use EpsicubeModules\MailingSystem\Registries\TemplatesRegistry;
 use Illuminate\Contracts\Support\DeferrableProvider;
 
-class MailingSystemModule extends ServiceProvider implements DeferrableProvider, HasIntegrations, Module
+class MailingSystemModule extends ServiceProvider implements DeferrableProvider, HasIntegrations, HasOptions, Module
 {
     public function identifier(): string
     {
@@ -38,6 +40,11 @@ class MailingSystemModule extends ServiceProvider implements DeferrableProvider,
         );
     }
 
+    public function options(Schema $schema): void
+    {
+        $schema->append(MailingSystemOptions::definition());
+    }
+
     public function provides(): array
     {
         return [Mailers::$accessor, Templates::$accessor];
@@ -47,10 +54,12 @@ class MailingSystemModule extends ServiceProvider implements DeferrableProvider,
     {
         $this->app->singleton(Mailers::$accessor, function () {
             $registry = new MailersRegistry;
-            $registry->register(...array_map(
-                fn (string $name) => new LaravelMailer($name),
-                array_keys(config()->array('mail.mailers', []))
-            ));
+            if (MailingSystemOptions::withInternalMailers()) {
+                $registry->register(...array_map(
+                    fn (string $name) => new LaravelMailer($name),
+                    array_keys(config()->array('mail.mailers', []))
+                ));
+            }
 
             return $registry;
         });

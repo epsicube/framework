@@ -7,7 +7,7 @@ namespace Epsicube\Schemas\Properties;
 use Closure;
 use Epsicube\Schemas\Contracts\JsonSchemaExportable;
 use Epsicube\Schemas\Enums\StringFormat;
-use Epsicube\Schemas\Exporters\FilamentExporter;
+use Epsicube\Schemas\Exporters\FilamentComponentsExporter;
 use Epsicube\Schemas\Exporters\JsonSchemaExporter;
 use Epsicube\Schemas\Exporters\LaravelPromptsFormExporter;
 use Epsicube\Schemas\Exporters\LaravelValidatorExporter;
@@ -95,7 +95,7 @@ class StringProperty extends BaseProperty implements JsonSchemaExportable
         return $schema;
     }
 
-    public function toFilamentComponent(string $name, FilamentExporter $exporter): Component
+    public function toFilamentComponent(string $name, FilamentComponentsExporter $exporter): Component
     {
         if ($exporter->operation === Operation::View) {
             return (match ($this->format) {

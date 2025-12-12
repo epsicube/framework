@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace Epsicube\Schemas\Exceptions;
 
 use Epsicube\Schemas\Schema;
-use Exception;
+use RuntimeException;
 
-class DuplicatePropertyException extends Exception
+class DuplicatePropertyException extends RuntimeException
 {
     public static function forSchema(Schema $schema, string $name): static
     {

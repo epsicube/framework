@@ -1,0 +1,76 @@
+<?php
+
+namespace {{ namespace }};
+
+use Epsicube\Schemas\Properties\BooleanProperty;
+use Epsicube\Schemas\Schema;
+use Epsicube\Support\Contracts\HasOptions;
+use Epsicube\Support\Contracts\Module;
+use Epsicube\Support\ModuleIdentity;
+use Illuminate\Support\ServiceProvider;
+
+class {{ class }} extends ServiceProvider implements HasOptions, Module
+{
+    /**
+     * Returns the unique identifier of the module.
+     *
+     * @return string
+     */
+    public function identifier(): string
+    {
+         return '{{ identifier }}';
+    }
+
+    /**
+     * Builds and returns the module's identity metadata.
+     *
+     * @return ModuleIdentity
+     */
+    public function identity(): ModuleIdentity
+    {
+        return ModuleIdentity::make(
+            name: "{{ name }}",
+            version: "0.0.1",
+            author: "",
+            description: ""
+        );
+    }
+
+    /**
+     * Declares the configurable options exposed by this module.
+     *
+     * @link https://epsicube.dev/writing-module/registering-options/
+     *
+     * @param Schema $schema Schema used to append option definitions.
+     * @return void
+     */
+    public function options(Schema $schema): void
+    {
+        $schema->append([
+            'your-option' => BooleanProperty::make()
+                ->title('Your Option')
+                ->optional()
+                ->default(true),
+        ]);
+    }
+
+    /**
+     * Register the module's services into the IoC container.
+     *
+     * @return void
+     */
+    public function register(): void
+    {
+        //
+    }
+
+    /**
+     * Bootstrap the module after registration.
+     *
+     * @return void
+     */
+    public function boot(): void
+    {
+        //
+    }
+}
