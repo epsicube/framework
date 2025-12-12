@@ -6,6 +6,7 @@ namespace Epsicube\Schemas\Properties;
 
 use Closure;
 use Epsicube\Schemas\Contracts\Property;
+use Epsicube\Schemas\Exceptions\DuplicatePropertyException;
 use Epsicube\Schemas\Exporters\FilamentComponentsExporter;
 use Epsicube\Schemas\Exporters\JsonSchemaExporter;
 use Epsicube\Schemas\Exporters\LaravelPromptsFormExporter;
@@ -13,7 +14,6 @@ use Epsicube\Schemas\Exporters\LaravelValidatorExporter;
 use Epsicube\Schemas\Types\UndefinedValue;
 use Filament\Schemas\Components\Component;
 use Filament\Schemas\Components\Section;
-use RuntimeException;
 
 use function Laravel\Prompts\form;
 
@@ -40,8 +40,7 @@ class ObjectProperty extends BaseProperty
     {
         foreach ($properties as $name => $field) {
             if (isset($this->fields[$name])) {
-                // TODO custom exception
-                throw new RuntimeException("Property {$name} already registered");
+                throw DuplicatePropertyException::forProperty($this, $name);
             }
             $this->properties[$name] = $field;
         }
@@ -95,7 +94,8 @@ class ObjectProperty extends BaseProperty
         // TODO additionalProperties
         // TODO required section
 
-        return Section::make($this->getTitle() ?? $name)
+        return Section::make($components)
+            ->heading($this->title ?? ($name !== '_' ? $name : null))
             ->when(
                 $this->getDescription(),
                 fn (Section $component) => $component->description($this->getDescription())

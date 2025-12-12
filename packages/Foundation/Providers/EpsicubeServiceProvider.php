@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace Epsicube\Foundation\Providers;
 
 use Carbon\Laravel\ServiceProvider;
+use Epsicube\Foundation\Console\Commands\CacheCommand;
+use Epsicube\Foundation\Console\Commands\ClearCommand;
 use Epsicube\Foundation\Console\Commands\MakeModuleCommand;
 use Epsicube\Foundation\Console\Commands\ModulesDisableCommand;
 use Epsicube\Foundation\Console\Commands\ModulesEnableCommand;
@@ -112,6 +114,8 @@ class EpsicubeServiceProvider extends ServiceProvider
     public function boot(): void
     {
         $this->commands([
+            CacheCommand::class,
+            ClearCommand::class,
             MakeModuleCommand::class,
             ModulesStatusCommand::class,
             ModulesEnableCommand::class,
@@ -124,5 +128,6 @@ class EpsicubeServiceProvider extends ServiceProvider
         ]);
         $this->loadMigrationsFrom(__DIR__.'/../database/migrations');
         $this->reloads('epsicube:reload', 'epsicube');
+        $this->optimizes('epsicube:cache', 'epsicube:clear', 'epsicube');
     }
 }

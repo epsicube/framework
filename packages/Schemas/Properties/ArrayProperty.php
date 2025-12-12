@@ -10,10 +10,12 @@ use Epsicube\Schemas\Exporters\FilamentComponentsExporter;
 use Epsicube\Schemas\Exporters\JsonSchemaExporter;
 use Epsicube\Schemas\Exporters\LaravelPromptsFormExporter;
 use Epsicube\Schemas\Exporters\LaravelValidatorExporter;
+use Epsicube\Schemas\Filament\CustomRepeater;
 use Epsicube\Schemas\Schema;
 use Epsicube\Schemas\Types\UndefinedValue;
 use Filament\Forms\Components\Field;
 use Filament\Forms\Components\Repeater;
+use Filament\Infolists\Components\Entry;
 use Filament\Infolists\Components\RepeatableEntry;
 use Filament\Schemas\Components\Component;
 use Filament\Support\Enums\Operation;
@@ -100,18 +102,23 @@ class ArrayProperty extends BaseProperty
         }
 
         if ($exporter->operation === Operation::View) {
-            return RepeatableEntry::make($name)->schema([$component])->inlineLabel();
+            return RepeatableEntry::make($name)
+                ->contained(false)
+                ->schema($component instanceof Entry
+                    ? [$component->inlineLabel(false)->statePath('')]
+                    : [$component],
+                )->inlineLabel();
         }
 
-        // TODO filament unique items, using custom rule
-        // TODO filament bug using simple re-hydration
-        // Switch to other than repeater
-        return Repeater::make($name)
+        // TODO support nullable, and empty array without nullable
+        // TODO not work with array of array
+        return CustomRepeater::make($name)
             ->when(
                 $component instanceof Field,
                 fn (Repeater $field) => $field->simple($component),
                 fn (Repeater $field) => $field->schema([$component]),
             )
+            ->uniqueItems($this->uniqueItems)
             ->minItems($this->minItems)
             ->maxItems($this->maxItems);
     }
@@ -211,6 +218,7 @@ class ArrayProperty extends BaseProperty
             $rules[] = 'max:'.$this->maxItems;
         }
 
+        // TODO ensure it work ith nested object, or array
         if ($this->uniqueItems) {
             $rules[] = 'distinct';
         }

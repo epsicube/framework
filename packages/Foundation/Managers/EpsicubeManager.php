@@ -16,6 +16,12 @@ class EpsicubeManager
         //        'queue'    => 'queue:work',
     ];
 
+    /** @var array<string, string> */
+    protected array $optimizeCommands = [];
+
+    /** @var array<string, string> */
+    protected array $clearCommands = [];
+
     /**
      * Register a new work command.
      *
@@ -38,5 +44,37 @@ class EpsicubeManager
     public function workCommands(): array
     {
         return $this->workCommands;
+    }
+
+    public function addOptimizeCommand(string $key, string $command): void
+    {
+        if (array_key_exists($key, $this->optimizeCommands)) {
+            throw new InvalidArgumentException(
+                sprintf("An optimize command with key '%s' already exists.", $key)
+            );
+        }
+
+        $this->optimizeCommands[$key] = $command;
+    }
+
+    public function optimizeCommands(): array
+    {
+        return $this->optimizeCommands;
+    }
+
+    public function addClearCommand(string $key, string $command): void
+    {
+        if (array_key_exists($key, $this->clearCommands)) {
+            throw new InvalidArgumentException(
+                sprintf("A clear command with key '%s' already exists.", $key)
+            );
+        }
+
+        $this->clearCommands[$key] = $command;
+    }
+
+    public function clearCommands(): array
+    {
+        return $this->clearCommands;
     }
 }

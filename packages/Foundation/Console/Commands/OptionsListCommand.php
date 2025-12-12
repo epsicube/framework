@@ -70,7 +70,8 @@ class OptionsListCommand extends Command
 
                     $fmt(
                         ($property->isNullable() ? '?' : '')
-                            .Str::beforeLast(class_basename($property), 'Property'),
+                            .Str::beforeLast(class_basename($property), 'Property')
+                            .(! $property->isOptional() ? '!' : ''),
                         'fg=green'
                     ),
                 ]
