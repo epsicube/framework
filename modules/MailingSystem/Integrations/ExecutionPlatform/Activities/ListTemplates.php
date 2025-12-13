@@ -45,12 +45,10 @@ class ListTemplates implements Activity
             'templates' => array_values(array_map(fn (MailTemplate $t) => [
                 'identifier' => $t->identifier(),
                 'name'       => $t->label(),
-                // TODO
             ], Templates::all())),
         ];
     }
 
-    // TODO custom schema module
     public function outputSchema(Schema $schema): void
     {
         $schema->append([

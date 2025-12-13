@@ -55,18 +55,18 @@ class ToolConverter extends Tool
         // Overrides schema resolving
         $schema = Schema::create($this->tool->identifier().'-input');
         $this->tool->inputSchema($schema);
+        $schema = $schema->toJsonSchema();
 
         $outputSchema = Schema::create($this->tool->identifier().'-output');
         $this->tool->outputSchema($outputSchema);
-
-        $schema['properties'] ??= (object) [];
+        $outputSchema = $outputSchema->toJsonSchema();
 
         $result = [
             'name'         => $this->name(),
             'title'        => $this->title(),
             'description'  => $this->description(),
-            'inputSchema'  => $schema->toJsonSchema(),
-            'outputSchema' => $schema->toJsonSchema(),
+            'inputSchema'  => $schema,
+            'outputSchema' => $outputSchema,
             'annotations'  => $annotations === [] ? (object) [] : $annotations,
         ];
 

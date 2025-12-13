@@ -49,7 +49,6 @@ class ListMailers implements Activity
         ];
     }
 
-    // TODO custom schema module
     public function outputSchema(Schema $schema): void
     {
         $schema->append([

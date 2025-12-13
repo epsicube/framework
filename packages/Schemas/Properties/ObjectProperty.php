@@ -58,8 +58,7 @@ class ObjectProperty extends BaseProperty
     public function toJsonSchema(JsonSchemaExporter $exporter): array
     {
         $schema = [
-            'type'       => 'object',
-            'properties' => [],
+            'type' => 'object',
         ];
 
         $required = [];

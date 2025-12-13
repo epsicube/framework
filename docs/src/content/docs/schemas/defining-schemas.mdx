@@ -99,6 +99,55 @@ Each property defines:
 * `ObjectProperty` — nested objects
 * `StringProperty` — text
 
+### EnumProperty
+
+`EnumProperty` allows a property to **accept only specific values**, either **static** or **dynamic**.
+
+#### Static Enum
+
+```php
+use Epsicube\Schemas\Properties\EnumProperty;
+use Epsicube\Schemas\Types\EnumCase;
+
+$schema->append([
+    'status' => EnumProperty::make()
+        ->title('Status')
+        ->description('The current status of the item')
+        ->cases(
+            new EnumCase('draft', 'Draft'),
+            new EnumCase('published', 'Published'),
+            new EnumCase('archived', 'Archived')
+        )
+        ->default('draft')
+        ->optional(),
+]);
+```
+
+* Use `cases(...)` to define **fixed enum values**.
+* Each `EnumCase` has a **value** and an optional **label**.
+* Defaults can be any valid enum value.
+
+#### Dynamic Enum
+
+`EnumProperty` can also generate enum values **dynamically**, using a closure.
+The closure is evaluated **lazily** at runtime:
+
+```php
+$schema->append([
+    'status' => EnumProperty::make()
+        ->title('Status')
+        ->dynamic(fn () => array_map(
+            fn(StatusEnum $case) => new EnumCase($case->value, $case->name, ['description'=>$case->description()]),
+            StatusEnum::cases()
+        )),
+]);
+```
+
+* Use `dynamic(fn () => ...)` to create enum values from a **database, API, or other runtime source**.
+* The closure **must return an array of `EnumCase`**.
+
 <Aside title="Tip">
-Combine properties to create nested schemas, reuse common definitions, and build complex data structures in a clean, maintainable way.
+`EnumProperty` is ideal for fields that should accept only a controlled set of values, whether predefined or dynamically generated.
+
+Use it for configuration options, or any data that has a fixed or runtime-determined set of valid choices.
 </Aside>

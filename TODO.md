@@ -16,7 +16,7 @@
 
 ### Mailing system
 
-- ajout d'une vue admin pour lister les templates/mailers
+- ajout d'une vue admin pour lister les templates/mailers (pourquoi pas action pour envoi)
 - mailer configurable via BO (DB)
 
 ### MCP server
@@ -31,9 +31,7 @@
 
 ## Schemas
 
-- gestion des enums avec resolver, type enum ( couplé à un type ?? )
-- corriger FilamentExporter 'repeater' 'repeatableEntry' qui ne fonctionne pas en mode simple, 
-  - utiliser quelque chose de custom via modal/table
+- Terminer array et object avec uniqueItems et dynamicProperties
 
 ## Modules à implementer
 
