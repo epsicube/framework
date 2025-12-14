@@ -45,7 +45,7 @@ class ForkExecutionAction extends Action
                     'started_at',
                     'completed_at',
                     '_run_id',
-                    '_workflow_id',
+                    '_idempotency_key',
                     'last_error',
                 ])->fill([
                     'status' => ExecutionStatus::QUEUED,

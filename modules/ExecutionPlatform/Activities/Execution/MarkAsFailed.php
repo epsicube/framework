@@ -22,7 +22,7 @@ class MarkAsFailed implements Activity
             ->where('status', ExecutionStatus::PROCESSING)
             ->update([
                 'status'       => ExecutionStatus::FAILED,
-                'completed_at' => now()->toIso8601String(),
+                'completed_at' => now(),
                 'last_error'   => $error,
             ]);
 

@@ -6,6 +6,8 @@ namespace EpsicubeModules\ExecutionPlatform\Models;
 
 use Carbon\CarbonImmutable;
 use EpsicubeModules\ExecutionPlatform\Enum\ExecutionStatus;
+use EpsicubeModules\ExecutionPlatform\Enum\ExecutionType;
+use EpsicubeModules\ExecutionPlatform\Facades\Activities;
 use EpsicubeModules\ExecutionPlatform\Facades\Workflows;
 use Exception;
 use Illuminate\Database\Eloquent\Model;
@@ -20,13 +22,14 @@ use Throwable;
  * Represents a single workflow execution within the Execution Platform.
  *
  * @property-read int $id
- * @property string $workflow_type Identifier of the workflow definition that was executed
+ * @property string $target Workflow or Activity identifier depending on execution_type
  * @property array|null $input Arbitrary input payload used to start the execution
  * @property array|null $output Resulting output of the execution
  * @property string|null $last_error
  * @property string|null $note Optional note attached to the execution
  * @property ExecutionStatus $status Current status of the execution lifecycle
- * @property string|null $_workflow_id Generated UUID to identify this execution for a specific input
+ * @property ExecutionType $execution_type Type of execution: WORKFLOW or ACTIVITY
+ * @property string $_idempotency_key Generated UUID used to ensure idempotency across schedules
  * @property string|null $_run_id Generated UUID to identify this run
  * @property CarbonImmutable|null $started_at
  * @property CarbonImmutable|null $completed_at
@@ -41,15 +44,27 @@ class Execution extends Model
 
     protected static $unguarded = true; // <- empty $guarded prevent _{field} assignation
 
+    protected $dateFormat = 'Y-m-d\TH:i:s.uP'; // <- force microseconds and timezone
+
     protected function casts(): array
     {
         return [
-            'input'        => 'array',
-            'output'       => 'array',
-            'started_at'   => 'immutable_datetime',
-            'completed_at' => 'immutable_datetime',
-            'status'       => ExecutionStatus::class,
+            'input'          => 'array',
+            'output'         => 'array',
+            'started_at'     => 'immutable_datetime',
+            'completed_at'   => 'immutable_datetime',
+            'status'         => ExecutionStatus::class,
+            'execution_type' => ExecutionType::class,
         ];
+    }
+
+    protected static function booted(): void
+    {
+        static::creating(function (Execution $model): void {
+            if (empty($model->_idempotency_key)) {
+                $model->_idempotency_key = (string) Str::uuid7();
+            }
+        });
     }
 
     /**
@@ -66,39 +81,58 @@ class Execution extends Model
             $this->refresh();
         }
 
-        $workflow = Workflows::get($this->workflow_type);
-        $this->_workflow_id = Str::uuid7(); // TODO WORKFLOW DECISION
         static::getConnection()->transaction(function () {
-            // Lock all rows with the same workflow_id to prevent race conditions
             static::query()
-                ->where('_workflow_id', $this->_workflow_id)
+                ->where('_idempotency_key', $this->_idempotency_key)
                 ->lockForUpdate()
-                ->get(); // Row-level locks are acquired here
+                ->get();
 
-            // Atomic update: move QUEUED → SCHEDULED and prevent race conditions
             $updated = static::query()
                 ->whereKey($this->getKey())
                 ->where('status', ExecutionStatus::QUEUED)
                 ->whereNotExists(function ($query) {
                     $query->from(DB::raw('(select * from `executions`) as sub'))
                         ->select(DB::raw(1))
-                        ->where('sub._workflow_id', $this->_workflow_id)
+                        ->where('sub._idempotency_key', $this->_idempotency_key)
                         ->whereIn('sub.status', [ExecutionStatus::SCHEDULED, ExecutionStatus::PROCESSING]);
                 })
                 ->update(['status' => ExecutionStatus::SCHEDULED]);
 
             if (! $updated) {
-                throw new Exception('Workflow cannot be scheduled, already in progress or not QUEUED.');
+                throw new Exception('Execution cannot be scheduled, already in progress or not QUEUED.');
             }
 
-            // Keep the local model instance up-to-date
             $this->fill(['status' => ExecutionStatus::SCHEDULED])->syncOriginal();
         });
 
+        // Workflow handling
+        if ($this->execution_type === ExecutionType::WORKFLOW) {
+            try {
+                Workflows::get($this->target)->run($this->id, $this->input ?? []);
+            } catch (Throwable $e) {
+                report($e);
+            }
+
+            return $this;
+        }
+
+        // Activity handling, sync run
+        $this->fill(['status' => ExecutionStatus::PROCESSING, 'started_at' => now()])->save();
         try {
-            $workflow->run($this->id, $this->input);
+            $result = Activities::get($this->target)->handle($this->input ?? []);
+
+            $this->fill([
+                'status'       => ExecutionStatus::COMPLETED,
+                'output'       => $result,
+                'completed_at' => now(),
+            ])->save();
         } catch (Throwable $e) {
             report($e);
+            $this->fill([
+                'status'       => ExecutionStatus::FAILED,
+                'last_error'   => $e->getMessage(),
+                'completed_at' => now(),
+            ])->save();
         }
 
         return $this;

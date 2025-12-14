@@ -38,7 +38,7 @@ class ActivitiesRunCommand extends Command implements PromptsForMissingInput
         $input = $inputSchema->toExecutedPrompts();
 
         $startedAt = microtime(true);
-        $result = spin(
+        $execution = spin(
             fn () => Activities::run($identifier, $input),
             sprintf("Running activity '%s'", $activity->label())
         );
@@ -52,7 +52,7 @@ class ActivitiesRunCommand extends Command implements PromptsForMissingInput
             'short'       => true,
         ])));
 
-        note("Raw JSON Output\n\n".json_encode($result, JSON_PRETTY_PRINT));
+        note("Raw JSON Output\n\n".json_encode($execution->output ?? [], JSON_PRETTY_PRINT));
 
         return self::SUCCESS;
     }

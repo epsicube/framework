@@ -22,7 +22,7 @@ class MarkAsCompleted implements Activity
             ->where('status', ExecutionStatus::PROCESSING)
             ->update([
                 'status'       => ExecutionStatus::COMPLETED,
-                'completed_at' => now()->toIso8601String(),
+                'completed_at' => now(),
                 'output'       => $output,
             ]);
 

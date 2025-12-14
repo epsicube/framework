@@ -56,7 +56,8 @@ class ActivityAction extends Action
         $this->action(function (self $action, array $data) {
             $data = array_merge($this->getActivityConstants(), $data);
             try {
-                $action->activityResult = Activities::run($this->getActivityIdentifier(), $data);
+                $execution = Activities::run($this->getActivityIdentifier(), $data);
+                $action->activityResult = $execution->output ?? [];
                 $action->success();
             } catch (Throwable  $e) {
                 report($action->activityError = $e);

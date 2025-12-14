@@ -16,12 +16,9 @@ return new class extends Migration
         Schema::create('executions', function (Blueprint $table) {
             $table->id();
 
-            //            $table->foreignId('user_id')->nullable();
-            //            $table->foreign('user_id')
-            //                ->references('id')->on('windy_users')
-            //                ->cascadeOnUpdate()->nullOnDelete();
+            $table->enum('execution_type', ['WORKFLOW', 'ACTIVITY'])->index();
+            $table->string('target')->comment('workflow identifier or activity identifier');
 
-            $table->string('workflow_type');
             $table->jsonb('input')->nullable();
             $table->jsonb('output')->nullable();
             $table->text('last_error')->nullable();
@@ -31,14 +28,15 @@ return new class extends Migration
                 ->default('QUEUED')
                 ->index();
 
-            $table->uuid('_workflow_id')->nullable()->index();
+            $table->uuid('_idempotency_key')->index();
             $table->uuid('_run_id')->nullable();
 
             // Timestamps / Dates
             $table->timestamp('created_at')->useCurrent()->index();
-            $table->timestamp('started_at')->nullable()->index();
-            $table->timestamp('completed_at')->nullable()->index();
             $table->timestamp('updated_at')->nullable()->useCurrentOnUpdate();
+
+            $table->timestampTz('started_at', 6)->nullable()->index();
+            $table->timestampTz('completed_at', 6)->nullable()->index();
         });
     }
 

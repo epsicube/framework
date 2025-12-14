@@ -22,7 +22,7 @@ class MarkAsCanceled implements Activity
             ->whereIn('status', [ExecutionStatus::SCHEDULED, ExecutionStatus::PROCESSING])
             ->update([
                 'status'       => ExecutionStatus::CANCELED,
-                'completed_at' => now()->toIso8601String(),
+                'completed_at' => now(),
                 'last_error'   => $reason,
             ]);
 

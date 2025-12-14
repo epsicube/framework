@@ -22,7 +22,7 @@ class StartProcessing implements Activity
             ->where('status', ExecutionStatus::SCHEDULED)
             ->update([
                 'status'     => ExecutionStatus::PROCESSING,
-                'started_at' => now()->toIso8601String(),
+                'started_at' => now(),
                 '_run_id'    => Str::uuid(),
             ]);
 

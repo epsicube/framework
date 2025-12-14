@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace EpsicubeModules\ExecutionPlatform\Integrations\Administration\Resources\Executions\Tables;
 
 use EpsicubeModules\ExecutionPlatform\Enum\ExecutionStatus;
-use EpsicubeModules\ExecutionPlatform\Facades\Workflows;
+use EpsicubeModules\ExecutionPlatform\Enum\ExecutionType;
 use EpsicubeModules\ExecutionPlatform\Integrations\Administration\Actions\CancelExecutionAction;
 use EpsicubeModules\ExecutionPlatform\Integrations\Administration\Actions\ForkExecutionAction;
 use EpsicubeModules\ExecutionPlatform\Integrations\Administration\Actions\RunExecutionAction;
@@ -41,8 +41,14 @@ class ExecutionsTable
                     ->badge()
                     ->sortable(),
 
-                TextColumn::make('workflow_type')
-                    ->label(__('Workflow Type'))
+                TextColumn::make('execution_type')
+                    ->label(__('Execution Type'))
+                    ->badge()
+                    ->sortable()
+                    ->toggleable(),
+
+                TextColumn::make('target')
+                    ->label(__('Target'))
                     ->searchable()
                     ->sortable()
                     ->toggleable(),
@@ -77,9 +83,9 @@ class ExecutionsTable
                             ->options(ExecutionStatus::class)
                             ->multiple(),
 
-                        SelectConstraint::make('workflow_type')
-                            ->label(__('Workflow Type'))
-                            ->options(Workflows::toIdentifierLabelMap())
+                        SelectConstraint::make('execution_type')
+                            ->label(__('Execution Type'))
+                            ->options(ExecutionType::class)
                             ->multiple(),
 
                         DateConstraint::make('created_at')
