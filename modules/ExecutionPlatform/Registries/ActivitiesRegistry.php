@@ -7,6 +7,10 @@ namespace EpsicubeModules\ExecutionPlatform\Registries;
 use Epsicube\Schemas\Schema;
 use Epsicube\Support\Registry;
 use EpsicubeModules\ExecutionPlatform\Contracts\Activity;
+use EpsicubeModules\ExecutionPlatform\Enum\EventStatus;
+use EpsicubeModules\ExecutionPlatform\Enum\EventType;
+use EpsicubeModules\ExecutionPlatform\Models\ExecutionEvent;
+use Throwable;
 
 /**
  * @extends Registry<Activity>
@@ -38,10 +42,27 @@ class ActivitiesRegistry extends Registry
 
     public function run(string $identifier, array $input = []): ?array
     {
-        $activity = $this->get($identifier);
         $schema = $this->inputSchema($identifier);
         $validated = $schema->validated($input);
 
-        return $activity->handle($validated);
+        $event = new ExecutionEvent([
+            'activity_type' => $identifier,
+            'event_type'    => EventType::ACTIVITY,
+            'tries'         => 1,
+            'input'         => $validated,
+            'status'        => EventStatus::QUEUED,
+        ]);
+        $event->save();
+
+        try {
+            $event->run();
+        } catch (Throwable $e) {
+            report($e);
+            throw $e;
+        }
+
+        $event->refresh();
+
+        return $event->output;
     }
 }

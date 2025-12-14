@@ -59,7 +59,7 @@ class ActivityAction extends Action
                 $action->activityResult = Activities::run($this->getActivityIdentifier(), $data);
                 $action->success();
             } catch (Throwable  $e) {
-                report($this->activityError = $e);
+                report($action->activityError = $e);
                 $action->failure();
             }
         });
@@ -96,7 +96,7 @@ class ActivityAction extends Action
         return $this->activityResult;
     }
 
-    protected function getActivityError(): Throwable
+    protected function getActivityError(): ?Throwable
     {
         return $this->activityError;
     }

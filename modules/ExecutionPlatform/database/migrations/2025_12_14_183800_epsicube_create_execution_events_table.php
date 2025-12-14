@@ -8,33 +8,30 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
-        Schema::create('executions', function (Blueprint $table) {
+        Schema::create('execution_events', function (Blueprint $table) {
             $table->id();
 
-            //            $table->foreignId('user_id')->nullable();
-            //            $table->foreign('user_id')
-            //                ->references('id')->on('windy_users')
-            //                ->cascadeOnUpdate()->nullOnDelete();
+            $table->foreignId('execution_id')->nullable();
+            $table->foreign('execution_id')
+                ->references('id')->on('executions')
+                ->cascadeOnUpdate()->nullOnDelete();
 
-            $table->string('workflow_type');
+            $table->string('activity_type')->nullable();
+            $table->enum('event_type', ['ACTIVITY', 'TIMER', 'SIDEEFFECT'])->default('ACTIVITY');
+
+            $table->unsignedSmallInteger('tries')->default(1);
             $table->jsonb('input')->nullable();
             $table->jsonb('output')->nullable();
-            $table->text('last_error')->nullable();
+            $table->text('output_error')->nullable();
 
-            $table->string('note')->nullable();
             $table->enum('status', ['QUEUED', 'SCHEDULED', 'PROCESSING', 'CANCELED', 'FAILED', 'COMPLETED'])
                 ->default('QUEUED')
                 ->index();
 
-            $table->uuid('_workflow_id')->nullable()->index();
-            $table->uuid('_run_id')->nullable();
+            $table->uuid('_run_id')->nullable()->index();
 
-            // Timestamps / Dates
             $table->timestamp('created_at')->useCurrent()->index();
             $table->timestamp('started_at')->nullable()->index();
             $table->timestamp('completed_at')->nullable()->index();
@@ -42,11 +39,8 @@ return new class extends Migration
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
-        Schema::dropIfExists('executions');
+        Schema::dropIfExists('execution_events');
     }
 };

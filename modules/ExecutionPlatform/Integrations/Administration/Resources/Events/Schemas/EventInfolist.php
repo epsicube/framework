@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace EpsicubeModules\ExecutionPlatform\Integrations\Administration\Resources\Executions\Schemas;
+namespace EpsicubeModules\ExecutionPlatform\Integrations\Administration\Resources\Events\Schemas;
 
-use EpsicubeModules\ExecutionPlatform\Enum\ExecutionStatus;
-use EpsicubeModules\ExecutionPlatform\Models\Execution;
+use EpsicubeModules\ExecutionPlatform\Enum\EventStatus;
+use EpsicubeModules\ExecutionPlatform\Models\ExecutionEvent;
 use Filament\Infolists\Components\CodeEntry;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Schemas\Components\Section;
@@ -13,7 +13,7 @@ use Filament\Schemas\Schema;
 use Filament\Support\Enums\TextSize;
 use Phiki\Grammar\Grammar;
 
-class ExecutionInfolist
+class EventInfolist
 {
     public static function configure(Schema $schema): Schema
     {
@@ -24,8 +24,8 @@ class ExecutionInfolist
                     ->size(TextSize::Large)
                     ->badge(),
             ])->schema([
-                TextEntry::make('note')
-                    ->label(__('Note')),
+                TextEntry::make('event_type')
+                    ->label(__('Event Type')),
 
                 TextEntry::make('created_at')
                     ->label(__('Created at'))
@@ -42,10 +42,14 @@ class ExecutionInfolist
                     ->inlineLabel()
                     ->dateTime(),
 
-                TextEntry::make('workflow_type')
-                    ->label(__('Workflow Type'))
+                TextEntry::make('activity_type')
+                    ->label(__('Activity Identifier'))
                     ->inlineLabel()
                     ->copyable(),
+
+                TextEntry::make('tries')
+                    ->label(__('Tries'))
+                    ->inlineLabel(),
 
                 CodeEntry::make('input')
                     ->grammar(Grammar::Json)
@@ -64,13 +68,12 @@ class ExecutionInfolist
                     ->hiddenLabel()
                     ->columnSpanFull(),
 
-                TextEntry::make('last_error')
+                TextEntry::make('output_error')
                     ->hiddenLabel()
                     ->color('danger')
-                    ->visible(fn (Execution $record) => $record->status === ExecutionStatus::FAILED)
+                    ->visible(fn (ExecutionEvent $record) => $record->status === EventStatus::FAILED)
                     ->columnSpanFull(),
             ]),
-
         ]);
     }
 }
