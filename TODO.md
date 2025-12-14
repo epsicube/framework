@@ -32,6 +32,13 @@
 ## Schemas
 
 - Terminer array et object avec uniqueItems et dynamicProperties
+- Implementer conditionalProperty (
+  ```php
+  ConditionalProperty::make()
+      ->when('field','value', Property::make())
+      ->when('field','value', Property::make())
+  
+  ```
 
 ## Modules à implementer
 

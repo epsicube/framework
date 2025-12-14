@@ -43,7 +43,6 @@ class SendMail implements Activity
         return new static;
     }
 
-    // TODO custom schema module
     public function inputSchema(Schema $schema): void
     {
         $schema->append([
