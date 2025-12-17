@@ -17,7 +17,7 @@ return new class extends Migration
             $table->id();
 
             $table->foreignId('core_id')->nullable()->index()
-                ->constrained('cores')->on('id')
+                ->constrained('cores', 'id')
                 ->cascadeOnUpdate()->cascadeOnDelete();
 
             $table->string('identifier', 255);

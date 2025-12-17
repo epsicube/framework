@@ -6,7 +6,9 @@ namespace EpsicubeModules\ExecutionPlatform\Console\Commands;
 
 use Carbon\CarbonInterval;
 use EpsicubeModules\ExecutionPlatform\Contracts\Activity;
+use EpsicubeModules\ExecutionPlatform\Enum\ExecutionStatus;
 use EpsicubeModules\ExecutionPlatform\Facades\Activities;
+use EpsicubeModules\ExecutionPlatform\Models\Execution;
 use Illuminate\Console\Command;
 use Illuminate\Contracts\Console\PromptsForMissingInput;
 
@@ -38,6 +40,8 @@ class ActivitiesRunCommand extends Command implements PromptsForMissingInput
         $input = $inputSchema->toExecutedPrompts();
 
         $startedAt = microtime(true);
+
+        /** @var Execution $execution */
         $execution = spin(
             fn () => Activities::run($identifier, $input),
             sprintf("Running activity '%s'", $activity->label())
@@ -45,6 +49,21 @@ class ActivitiesRunCommand extends Command implements PromptsForMissingInput
 
         $duration = microtime(true) - $startedAt;
         $interval = CarbonInterval::microseconds($duration * 1_000_000)->cascade();
+
+        if ($execution->status === ExecutionStatus::FAILED) {
+            error(sprintf('Activity failed after %s.', $interval->forHumans([
+                'minimumUnit' => 'millisecond',
+                'maximumUnit' => 'minute',
+                'short'       => true,
+            ])));
+            $errorMessage = $execution->last_error ?? 'An unknown error occurred during execution.';
+            note("Error Details:\n<fg=red>{$errorMessage}</>");
+            if (! empty($execution->output)) {
+                note("Raw JSON Output for Failure\n\n".json_encode($execution->output, JSON_PRETTY_PRINT));
+            }
+
+            return self::FAILURE;
+        }
 
         info(sprintf('Activity completed in %s.', $interval->forHumans([
             'minimumUnit' => 'millisecond',

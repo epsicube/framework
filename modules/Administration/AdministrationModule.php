@@ -14,6 +14,7 @@ use Epsicube\Support\Contracts\Module;
 use Epsicube\Support\ModuleIdentity;
 use Filament\FilamentServiceProvider;
 use Filament\PanelRegistry;
+use Throwable;
 
 class AdministrationModule extends ServiceProvider implements HasOptions, Module
 {
@@ -78,19 +79,23 @@ class AdministrationModule extends ServiceProvider implements HasOptions, Module
     public function register(): void
     {
         $this->app->booted(function () {
-            $callback = function (PanelRegistry $registry) {
-                $registry->register(Administration::make()->id('epsicube-administration'));
-            };
+            try {
+                $callback = function (PanelRegistry $registry) {
+                    $registry->register(Administration::make()->id('epsicube-administration'));
+                };
 
-            $this->app->resolving(PanelRegistry::class, $callback);
-            if ($this->app->resolved(PanelRegistry::class)) {
-                $callback(app(PanelRegistry::class));
+                $this->app->resolving(PanelRegistry::class, $callback);
+                if ($this->app->resolved(PanelRegistry::class)) {
+                    $callback(app(PanelRegistry::class));
 
-                // Force routes to register because filament cannot handle that
-                (function () {
-                    /** @var FilamentServiceProvider $this */
-                    $this->bootPackageRoutes();
-                })->call($this->app->getProvider(FilamentServiceProvider::class));
+                    // Force routes to register because filament cannot handle that
+                    (function () {
+                        /** @var FilamentServiceProvider $this */
+                        $this->bootPackageRoutes();
+                    })->call($this->app->getProvider(FilamentServiceProvider::class));
+                }
+            } catch (Throwable $e) {
+                report($e);
             }
         });
     }

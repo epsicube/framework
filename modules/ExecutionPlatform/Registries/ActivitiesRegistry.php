@@ -10,7 +10,6 @@ use EpsicubeModules\ExecutionPlatform\Contracts\Activity;
 use EpsicubeModules\ExecutionPlatform\Enum\ExecutionStatus;
 use EpsicubeModules\ExecutionPlatform\Enum\ExecutionType;
 use EpsicubeModules\ExecutionPlatform\Models\Execution;
-use Throwable;
 
 /**
  * @extends Registry<Activity>
@@ -44,7 +43,6 @@ class ActivitiesRegistry extends Registry
     {
         $schema = $this->inputSchema($identifier);
         $validated = $schema->validated($input);
-
         $execution = new Execution([
             'execution_type' => ExecutionType::ACTIVITY,
             'target'         => $identifier,
@@ -52,11 +50,7 @@ class ActivitiesRegistry extends Registry
             'status'         => ExecutionStatus::QUEUED,
         ]);
 
-        try {
-            $execution->run();
-        } catch (Throwable $e) {
-            report($e);
-        }
+        $execution->run();
 
         return $execution;
     }

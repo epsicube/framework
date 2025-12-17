@@ -11,6 +11,7 @@ use EpsicubeModules\ExecutionPlatform\Facades\Activities;
 use EpsicubeModules\ExecutionPlatform\Facades\Workflows;
 use Exception;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use RuntimeException;
@@ -90,8 +91,8 @@ class Execution extends Model
             $updated = static::query()
                 ->whereKey($this->getKey())
                 ->where('status', ExecutionStatus::QUEUED)
-                ->whereNotExists(function ($query) {
-                    $query->from(DB::raw('(select * from `executions`) as sub'))
+                ->whereNotExists(function (Builder $query) {
+                    $query->fromSub(static::query(), 'sub')
                         ->select(DB::raw(1))
                         ->where('sub._idempotency_key', $this->_idempotency_key)
                         ->whereIn('sub.status', [ExecutionStatus::SCHEDULED, ExecutionStatus::PROCESSING]);
