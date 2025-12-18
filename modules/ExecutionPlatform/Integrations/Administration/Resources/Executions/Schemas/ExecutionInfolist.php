@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace EpsicubeModules\ExecutionPlatform\Integrations\Administration\Resources\Executions\Schemas;
 
+use Carbon\CarbonInterval;
 use EpsicubeModules\ExecutionPlatform\Enum\ExecutionStatus;
 use EpsicubeModules\ExecutionPlatform\Models\Execution;
 use Filament\Infolists\Components\CodeEntry;
@@ -39,9 +40,9 @@ class ExecutionInfolist
 
             Section::make(__('Timeline'))->afterHeader([
                 TextEntry::make('execution_time')->hiddenLabel()->getStateUsing(
-                    fn (Execution $record) => __('Execution time: :time', ['time' => $record->started_at->diffAsCarbonInterval($record->completed_at)->forHumans([
-                        'minimumUnit' => 'millisecond',
-                        'maximumUnit' => 'minute',
+                    fn (Execution $record) => __('Execution time: :time', ['time' => CarbonInterval::microsecond($record->execution_time_ns / 1_000)->forHumans([
+                        'minimumUnit' => 'microsecond',
+                        'maximumUnit' => 'hour',
                         'short'       => true,
                     ])])
                 )->badge()->color(fn (Execution $record) => match ($record->status) {

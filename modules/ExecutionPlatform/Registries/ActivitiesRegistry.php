@@ -50,8 +50,6 @@ class ActivitiesRegistry extends Registry
             'status'         => ExecutionStatus::QUEUED,
         ]);
 
-        $execution->run();
-
-        return $execution;
+        return $execution->run();
     }
 }

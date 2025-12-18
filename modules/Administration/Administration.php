@@ -36,13 +36,16 @@ class Administration extends FilamentPanel
                 DispatchServingFilamentEvent::class,
             ]);
 
+        $options = Options::all('core::administration');
         // Options configurations
-        $this->path(Options::get('core::administration', 'path'));
-        $this->domain(Options::get('core::administration', 'domain'));
+        if ($path = $options['path']) {
+            $this->path($path);
+        }
+        $this->domain($options['domain'] ?? null);
 
-        $this->brandName(Options::get('core::administration', 'brand-name'));
-        $this->spa(Options::get('core::administration', 'spa'));
-        $this->topNavigation(Options::get('core::administration', 'top-navigation'));
+        $this->brandName(fn () => $options['brand-name'] ?? null);
+        $this->spa(fn () => $options['spa'] ?? false);
+        $this->topNavigation(fn () => $options['top-navigation'] ?? false);
         $this->maxContentWidth(Width::Full);
     }
 }

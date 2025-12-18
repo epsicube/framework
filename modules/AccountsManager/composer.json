@@ -13,7 +13,7 @@
     "illuminate/support": "^12.8",
     "illuminate/database": "^12.8",
     "epsicube/support": "*",
-    "filament/filament": "^v4.0.0-beta5"
+    "filament/filament": "^4.3.1.0"
   },
   "suggest": {
     "epsicube/module-administration": "User can be managed through the administration panel"

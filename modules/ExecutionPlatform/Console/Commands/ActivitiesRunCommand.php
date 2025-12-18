@@ -6,11 +6,11 @@ namespace EpsicubeModules\ExecutionPlatform\Console\Commands;
 
 use Carbon\CarbonInterval;
 use EpsicubeModules\ExecutionPlatform\Contracts\Activity;
-use EpsicubeModules\ExecutionPlatform\Enum\ExecutionStatus;
 use EpsicubeModules\ExecutionPlatform\Facades\Activities;
 use EpsicubeModules\ExecutionPlatform\Models\Execution;
 use Illuminate\Console\Command;
 use Illuminate\Contracts\Console\PromptsForMissingInput;
+use Throwable;
 
 use function Laravel\Prompts\error;
 use function Laravel\Prompts\info;
@@ -39,41 +39,29 @@ class ActivitiesRunCommand extends Command implements PromptsForMissingInput
         $inputSchema = Activities::inputSchema($identifier);
         $input = $inputSchema->toExecutedPrompts();
 
-        $startedAt = microtime(true);
+        try {
+            /** @var Execution $execution */
+            $execution = spin(
+                fn () => Activities::run($identifier, $input),
+                sprintf("Running activity '%s'", $activity->label())
+            );
 
-        /** @var Execution $execution */
-        $execution = spin(
-            fn () => Activities::run($identifier, $input),
-            sprintf("Running activity '%s'", $activity->label())
-        );
-
-        $duration = microtime(true) - $startedAt;
-        $interval = CarbonInterval::microseconds($duration * 1_000_000)->cascade();
-
-        if ($execution->status === ExecutionStatus::FAILED) {
-            error(sprintf('Activity failed after %s.', $interval->forHumans([
-                'minimumUnit' => 'millisecond',
-                'maximumUnit' => 'minute',
+            info(sprintf('Activity completed in %s.', CarbonInterval::microsecond($execution->execution_time_ns / 1_000)->forHumans([
+                'minimumUnit' => 'microsecond',
+                'maximumUnit' => 'hour',
                 'short'       => true,
             ])));
-            $errorMessage = $execution->last_error ?? 'An unknown error occurred during execution.';
-            note("Error Details:\n<fg=red>{$errorMessage}</>");
-            if (! empty($execution->output)) {
-                note("Raw JSON Output for Failure\n\n".json_encode($execution->output, JSON_PRETTY_PRINT));
-            }
+
+            note("Raw JSON Output\n\n".json_encode($execution->output ?? [], JSON_PRETTY_PRINT));
+
+            return self::SUCCESS;
+
+        } catch (Throwable $e) {
+            error('Activity failed.');
+            note("Error Details:\n<fg=red>{$e->getMessage()}</>");
 
             return self::FAILURE;
         }
-
-        info(sprintf('Activity completed in %s.', $interval->forHumans([
-            'minimumUnit' => 'millisecond',
-            'maximumUnit' => 'minute',
-            'short'       => true,
-        ])));
-
-        note("Raw JSON Output\n\n".json_encode($execution->output ?? [], JSON_PRETTY_PRINT));
-
-        return self::SUCCESS;
     }
 
     protected function promptForMissingArgumentsUsing(): array

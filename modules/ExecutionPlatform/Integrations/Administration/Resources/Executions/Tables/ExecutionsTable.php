@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace EpsicubeModules\ExecutionPlatform\Integrations\Administration\Resources\Executions\Tables;
 
+use Carbon\CarbonInterval;
 use EpsicubeModules\ExecutionPlatform\Enum\ExecutionStatus;
 use EpsicubeModules\ExecutionPlatform\Enum\ExecutionType;
 use EpsicubeModules\ExecutionPlatform\Integrations\Administration\Actions\CancelExecutionAction;
@@ -62,6 +63,16 @@ class ExecutionsTable
                     ->label(__('Created at'))
                     ->dateTime()
                     ->sortable(),
+
+                TextColumn::make('execution_time_ns')
+                    ->label(__('Execution Time'))
+                    ->formatStateUsing(fn (?int $state) => $state ? CarbonInterval::microsecond($state / 1_000)->forHumans([
+                        'minimumUnit' => 'millisecond',
+                        'maximumUnit' => 'hour',
+                        'short'       => true,
+                    ]) : null)
+                    ->sortable()
+                    ->toggleable(),
 
                 TextColumn::make('started_at')
                     ->label(__('Started at'))

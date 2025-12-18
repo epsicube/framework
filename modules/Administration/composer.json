@@ -12,7 +12,7 @@
     "ext-intl": "*",
     "php": "^8.3",
     "illuminate/support": "^12.8",
-    "filament/filament": "^v4.0.0-beta5",
+    "filament/filament": "^4.3.1.0",
     "epsicube/support": "*"
   },
   "autoload": {

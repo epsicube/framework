@@ -7,6 +7,7 @@ namespace EpsicubeModules\ExecutionPlatform\Integrations\Administration\Resource
 use EpsicubeModules\ExecutionPlatform\Integrations\Administration\Resources\Executions\ExecutionResource;
 use EpsicubeModules\ExecutionPlatform\Integrations\Administration\Resources\Executions\Widgets\ExecutionsOverTime;
 use EpsicubeModules\ExecutionPlatform\Integrations\Administration\Resources\Executions\Widgets\ExecutionStatusStats;
+use EpsicubeModules\ExecutionPlatform\Integrations\Administration\Resources\Executions\Widgets\ExecutionTimeEvolution;
 use Filament\Pages\Concerns\ExposesTableToWidgets;
 use Filament\Resources\Pages\ListRecords;
 
@@ -33,6 +34,9 @@ class ListExecutions extends ListRecords
                 'tableClass' => static::class,
             ]),
             ExecutionsOverTime::make([
+                'tableClass' => static::class,
+            ]),
+            ExecutionTimeEvolution::make([
                 'tableClass' => static::class,
             ]),
         ];

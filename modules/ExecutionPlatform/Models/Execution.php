@@ -34,6 +34,7 @@ use Throwable;
  * @property string|null $_run_id Generated UUID to identify this run
  * @property CarbonImmutable|null $started_at
  * @property CarbonImmutable|null $completed_at
+ * @property int|null $execution_time_ns
  * @property CarbonImmutable $created_at
  * @property CarbonImmutable|null $updated_at
  */
@@ -117,23 +118,31 @@ class Execution extends Model
             return $this;
         }
 
+        $activity = Activities::get($this->target);
+
         // Activity handling, sync run
         $this->fill(['status' => ExecutionStatus::PROCESSING, 'started_at' => now()])->save();
-        try {
-            $result = Activities::get($this->target)->handle($this->input ?? []);
 
-            $this->fill([
-                'status'       => ExecutionStatus::COMPLETED,
-                'output'       => $result,
-                'completed_at' => now(),
-            ])->save();
+        $error = null;
+        $start = hrtime(true);
+        try {
+            $result = $activity->handle($this->input ?? []);
         } catch (Throwable $e) {
-            report($e);
-            $this->fill([
-                'status'       => ExecutionStatus::FAILED,
-                'last_error'   => $e->getMessage(),
-                'completed_at' => now(),
-            ])->save();
+            $error = $e;
+            $result = null;
+        }
+
+        $durationNs = hrtime(true) - $start;
+        $this->fill([
+            'status'            => $error ? ExecutionStatus::FAILED : ExecutionStatus::COMPLETED,
+            'output'            => $result,
+            'last_error'        => $error?->getMessage(),
+            'execution_time_ns' => $durationNs,
+            'completed_at'      => now(),
+        ])->save();
+
+        if ($error) {
+            throw $error;
         }
 
         return $this;
