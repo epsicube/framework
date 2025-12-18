@@ -65,7 +65,7 @@ class WorkCommand extends Command
 
         $this->log("Starting '{$key}'…");
 
-        $process = Process::fromShellCommandline($command, base_path());
+        $process = Process::fromShellCommandline($command, $this->laravel->basePath());
         $process->start(function (string $type, string $output) use ($key) {
             $level = $type === 'stderr' ? 'warn' : 'line';
             foreach (preg_split('/\R/', $output) as $line) {
