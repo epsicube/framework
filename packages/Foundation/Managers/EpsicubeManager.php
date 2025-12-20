@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Epsicube\Foundation\Managers;
 
+use Illuminate\Console\Command;
 use InvalidArgumentException;
 
 class EpsicubeManager
@@ -26,7 +27,7 @@ class EpsicubeManager
      * Register a new work command.
      *
      * @param  string  $key  Unique identifier for the worker
-     * @param  string  $command  Signature of the command to run
+     * @param  string|class-string<Command>  $command  Signature of the command to run
      *
      * @throws InvalidArgumentException
      */
@@ -43,7 +44,13 @@ class EpsicubeManager
 
     public function workCommands(): array
     {
-        return $this->workCommands;
+        return array_map(function (string $command) {
+            if (class_exists($command) && is_a($command, Command::class, true)) {
+                return (new $command)->getName();
+            }
+
+            return $command;
+        }, $this->workCommands);
     }
 
     public function addOptimizeCommand(string $key, string $command): void

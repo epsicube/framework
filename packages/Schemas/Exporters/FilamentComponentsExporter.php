@@ -32,7 +32,8 @@ class FilamentComponentsExporter implements SchemaExporter
     {
         return collect($schema->properties())
             ->map(fn (Property $property, string $name) => $this->export($property, $name))
-            ->values()->all();
+            ->values()
+            ->all();
     }
 
     public function export(Property $property, ?string $name): Component
@@ -41,8 +42,7 @@ class FilamentComponentsExporter implements SchemaExporter
             throw new RuntimeException('cannot export field that does not implement FilamentExportable');
         }
 
-        $component = $property->toFilamentComponent($name ?? '_', $this); // <- TODO only used for array, but all fields requires $name
-
+        $component = $property->toFilamentComponent($name ?? '_', $this); // <- only used for array, but all fields requires $name
         // Globally apply default
         if ($property->hasDefault() && $this->operation !== Operation::View) {
             $component->default($property->getDefault());

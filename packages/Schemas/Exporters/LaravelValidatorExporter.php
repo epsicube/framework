@@ -86,13 +86,12 @@ class LaravelValidatorExporter implements SchemaExporter
     protected function runWithContext(?string $path, callable $callback): void
     {
         $pushed = false;
-
         if ($path !== null && $path !== '') {
             $this->pathStack[] = $path;
             $pushed = true;
         }
 
-        $callback(implode('.', array_filter($this->pathStack)));
+        $callback(implode('.', array_filter($this->pathStack, fn ($value) => $value !== null && $value !== '')));
 
         if ($pushed) {
             array_pop($this->pathStack);

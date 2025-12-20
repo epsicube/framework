@@ -13,6 +13,7 @@
   "prefer-stable": true,
   "require": {
     "ext-intl": "*",
+    "ext-pcntl": "*",
     "php": "^8.3",
     "laravel/framework": "^12.41",
     "laravel/mcp": "^0.4",

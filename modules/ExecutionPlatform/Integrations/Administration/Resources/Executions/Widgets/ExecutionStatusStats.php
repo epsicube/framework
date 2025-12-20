@@ -24,7 +24,7 @@ class ExecutionStatusStats extends ChartWidget
 
     public function getHeading(): string|Htmlable|null
     {
-        return __('Status Distribution');
+        return __('Status Distribution per Hour');
     }
 
     protected function getMaxHeight(): ?string
@@ -40,19 +40,26 @@ class ExecutionStatusStats extends ChartWidget
     protected function getOptions(): array
     {
         return [
+            'interaction' => [
+                'mode'      => 'index', // Show all items at the same index in the tooltip
+                'intersect' => false, // Hovering anywhere in the vertical column triggers it
+            ],
             'plugins' => [
                 'legend' => [
-                    'display' => false,
+                    'display'  => true,
+                    'position' => 'bottom',
+                ],
+                'tooltip' => [
+                    'enabled' => true,
                 ],
             ],
             'scales' => [
-                'y' => [
-                    'beginAtZero' => true,
+                'x' => [
+                    'stacked' => true,
                 ],
-            ],
-            'elements' => [
-                'bar' => [
-                    'borderWidth' => 0, // removes border around each bar
+                'y' => [
+                    'stacked'     => true,
+                    'beginAtZero' => true,
                 ],
             ],
         ];
@@ -60,33 +67,62 @@ class ExecutionStatusStats extends ChartWidget
 
     protected function getData(): array
     {
-        // Single query to get counts by status
+        $lookbackHours = 24;
+        $startPeriod = now()->subHours($lookbackHours)->startOfHour();
+
+        // 1. Fetch grouped results
         $results = $this->getPageTableQuery()
-            ->reorder() // remove ORDER BY to avoid 'only_full_group_by'
-            ->selectRaw('status, COUNT(*) as total')
-            ->groupBy('status')
-            ->pluck('total', 'status');
+            ->reorder()
+            ->selectRaw('
+                SUBSTR(CAST(created_at AS CHAR(19)), 1, 13) as hour_key,
+                status,
+                COUNT(*) as total
+            ')
+            ->where('created_at', '>=', $startPeriod)
+            ->groupBy('hour_key', 'status')
+            ->get();
 
-        // Readable labels
-        $labels = $results->keys()->map(
-            fn (string $status) => ExecutionStatus::tryFrom($status)?->getLabel() ?? $status
-        );
+        // 2. Generate time slots for X-Axis
+        $labels = [];
+        $hourKeys = [];
+        for ($i = 0; $i <= $lookbackHours; $i++) {
+            $dt = $startPeriod->copy()->addHours($i);
+            $hourKeys[] = $dt->format('Y-m-d H');
+            $labels[] = $dt->format('H:00');
+        }
 
-        // Dynamic colors
-        $colors = $results->keys()->map(
-            fn (string $status) => data_get(ExecutionStatus::tryFrom($status)?->getColor() ?? [], '300', '#6b727f')
-        );
+        // 3. Only iterate over statuses present in the current results
+        // We cast the raw status back to Enum to access labels/colors
+        $foundStatuses = $results->pluck('status')->unique()->map(
+            fn ($s) => $s instanceof ExecutionStatus ? $s : ExecutionStatus::tryFrom($s)
+        )->filter();
+
+        $datasets = [];
+        /** @var ExecutionStatus $status */
+        foreach ($foundStatuses as $status) {
+            $datasetData = [];
+
+            // Filter results for this specific status
+            $statusResults = $results->where('status', $status->value)->keyBy('hour_key');
+            foreach ($hourKeys as $hourKey) {
+                $value = $statusResults->get($hourKey);
+                $datasetData[] = $value ? (int) $value->total : null;
+            }
+
+            $datasets[] = [
+                'label'           => $status->getLabel(),
+                'data'            => $datasetData,
+                'backgroundColor' => $status->getColor()['500'],
+
+                'borderColor'  => 'transparent', // Eliminate the border stroke
+                'borderWidth'  => 0,            // Force zero width
+                'minBarLength' => 5,
+            ];
+        }
 
         return [
             'labels'   => $labels,
-            'datasets' => [
-                [
-                    'label'           => 'Number of Executions',
-                    'data'            => $results->values()->all(),
-                    'backgroundColor' => $colors,
-                    'borderColor'     => $colors,
-                ],
-            ],
+            'datasets' => $datasets,
         ];
     }
 }

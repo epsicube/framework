@@ -28,6 +28,7 @@
 
 - ajout d'une vue admin pour lister les activities/workflows (readonly)
 - logger les run des activities (configurable au run)
+- Searchable enum (au moins filament et cli) pour les relations par exemple
 
 ## Schemas
 

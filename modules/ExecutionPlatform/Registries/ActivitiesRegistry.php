@@ -34,7 +34,7 @@ class ActivitiesRegistry extends Registry
     {
         $activity = $this->get($identifier);
         $schema = Schema::create($identifier.'-output', 'Output Schema for: '.$activity->label());
-        $activity->inputSchema($schema);
+        $activity->outputSchema($schema);
 
         return $schema;
     }

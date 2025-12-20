@@ -46,10 +46,11 @@ class ActivitiesRunCommand extends Command implements PromptsForMissingInput
                 sprintf("Running activity '%s'", $activity->label())
             );
 
-            info(sprintf('Activity completed in %s.', CarbonInterval::microsecond($execution->execution_time_ns / 1_000)->forHumans([
+            info(sprintf('Activity completed in %s.', CarbonInterval::microsecond($execution->execution_time_ns / 1_000)->cascade()->forHumans([
                 'minimumUnit' => 'microsecond',
                 'maximumUnit' => 'hour',
                 'short'       => true,
+                'parts'       => 2,
             ])));
 
             note("Raw JSON Output\n\n".json_encode($execution->output ?? [], JSON_PRETTY_PRINT));
@@ -57,6 +58,7 @@ class ActivitiesRunCommand extends Command implements PromptsForMissingInput
             return self::SUCCESS;
 
         } catch (Throwable $e) {
+            report($e);
             error('Activity failed.');
             note("Error Details:\n<fg=red>{$e->getMessage()}</>");
 

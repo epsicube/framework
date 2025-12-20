@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Epsicube\Support\Facades;
 
 use Epsicube\Foundation\Managers\EpsicubeManager;
+use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Facade;
 
 class Epsicube extends Facade
@@ -20,6 +21,9 @@ class Epsicube extends Facade
         return static::$accessor;
     }
 
+    /**
+     * @param  string|class-string<Command>  $command
+     */
     public static function addWorkCommand(string $key, string $command): void
     {
         static::resolved(function (EpsicubeManager $manager) use ($key, $command) {

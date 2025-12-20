@@ -96,27 +96,44 @@ class ArrayProperty extends BaseProperty
 
     public function toFilamentComponent(string $name, FilamentComponentsExporter $exporter): Component
     {
-        $component = null;
+        $childComponent = null;
         if ($this->items instanceof Property) {
-            $component = $exporter->export($this->items, null);
+            $childComponent = $exporter->export($this->items, null);
         }
 
         if ($exporter->operation === Operation::View) {
-            return RepeatableEntry::make($name)
+
+            $entry = RepeatableEntry::make($name)
                 ->contained(false)
-                ->schema($component instanceof Entry
-                    ? [$component->inlineLabel(false)->statePath('')]
-                    : [$component],
-                )->inlineLabel();
+                ->schema([$childComponent])
+                ->inlineLabel();
+
+            // Handle scalar type
+            if ($childComponent instanceof Entry) {
+                $entry->getStateUsing(function (RepeatableEntry $component) use (&$childComponent) {
+                    // Resolve initial state
+                    (function () {
+                        $this->hasConstantState = false;
+                    })->call($component);
+                    $initialState = $component->getState();
+                    (function () {
+                        $this->hasConstantState = true;
+                    })->call($component);
+
+                    return array_map(fn ($i) => ['_s_' => $i], $initialState ?? []);
+                })->schema([$childComponent->inlineLabel(false)->statePath('_s_')]);
+            }
+
+            return $entry;
         }
 
         // TODO support nullable, and empty array without nullable
         // TODO not work with array of array (nested)
         return CustomRepeater::make($name)
             ->when(
-                $component instanceof Field,
-                fn (Repeater $field) => $field->simple($component),
-                fn (Repeater $field) => $field->schema([$component]),
+                $childComponent instanceof Field,
+                fn (Repeater $field) => $field->simple($childComponent),
+                fn (Repeater $field) => $field->schema([$childComponent]),
             )
             ->uniqueItems($this->uniqueItems)
             ->minItems($this->minItems)

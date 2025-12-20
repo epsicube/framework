@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace EpsicubeModules\ExecutionPlatform\Models;
 
 use Carbon\CarbonImmutable;
+use EpsicubeModules\ExecutionPlatform\Contracts\Activity;
+use EpsicubeModules\ExecutionPlatform\Contracts\Workflow;
 use EpsicubeModules\ExecutionPlatform\Enum\ExecutionStatus;
 use EpsicubeModules\ExecutionPlatform\Enum\ExecutionType;
 use EpsicubeModules\ExecutionPlatform\Facades\Activities;
@@ -66,6 +68,9 @@ class Execution extends Model
             if (empty($model->_idempotency_key)) {
                 $model->_idempotency_key = (string) Str::uuid7();
             }
+            if (empty($model->status)) {
+                $model->status = ExecutionStatus::QUEUED;
+            }
         });
     }
 
@@ -80,7 +85,7 @@ class Execution extends Model
     {
         if ($this->isDirty()) {
             $this->save();
-            $this->refresh();
+            //            $this->refresh(); // <- retrieve fresh instance with database defaults
         }
 
         static::getConnection()->transaction(function () {
@@ -118,7 +123,7 @@ class Execution extends Model
             return $this;
         }
 
-        $activity = Activities::get($this->target);
+        $activity = $this->targetInstance();
 
         // Activity handling, sync run
         $this->fill(['status' => ExecutionStatus::PROCESSING, 'started_at' => now()])->save();
@@ -151,5 +156,13 @@ class Execution extends Model
     public function cancel(?string $reason = null): static
     {
         throw new RuntimeException('Not implemented');
+    }
+
+    public function targetInstance(): Activity|Workflow
+    {
+        return match ($this->execution_type) {
+            ExecutionType::WORKFLOW => Workflows::get($this->target),
+            ExecutionType::ACTIVITY => Activities::get($this->target),
+        };
     }
 }
