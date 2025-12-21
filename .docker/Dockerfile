@@ -10,12 +10,12 @@ RUN echo "Acquire::http::Pipeline-Depth 0;" > /etc/apt/apt.conf.d/99custom && \
     echo "Acquire::BrokenProxy    true;" >> /etc/apt/apt.conf.d/99custom
 
 # add additional extensions here:
-ARG PHP_EXTENSIONS="bcmath curl intl mbstring opcache pcntl pcov pdo_sqlite pdo_pgsql pgsql readline sockets xdebug xml zip"
+ARG PHP_EXTENSIONS="bcmath curl intl mbstring opcache pcntl pdo_sqlite pdo_pgsql pgsql readline sockets xml zip"
 RUN install-php-extensions ${PHP_EXTENSIONS} @composer
 
 # Install dependencies
 RUN apt-get update && \
-    apt-get install -y  curl git mc htop sqlite3 && \
+    apt-get install -y curl git mc htop sqlite3 postgresql-client && \
     apt-get -y autoremove && apt-get clean && \
     rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
