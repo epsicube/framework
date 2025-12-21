@@ -23,6 +23,7 @@ return new class extends Migration
             $table->jsonb('output')->nullable();
             $table->text('last_error')->nullable();
             $table->unsignedBigInteger('execution_time_ns')->nullable();
+            $table->unsignedBigInteger('memory_used_bytes')->nullable();
 
             $table->string('note')->nullable();
             $table->enum('status', ['QUEUED', 'SCHEDULED', 'PROCESSING', 'CANCELED', 'FAILED', 'COMPLETED'])

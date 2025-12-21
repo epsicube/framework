@@ -37,6 +37,7 @@ use Throwable;
  * @property CarbonImmutable|null $started_at
  * @property CarbonImmutable|null $completed_at
  * @property int|null $execution_time_ns
+ * @property int|null $memory_used_bytes
  * @property CarbonImmutable $created_at
  * @property CarbonImmutable|null $updated_at
  */
@@ -129,6 +130,11 @@ class Execution extends Model
         $this->fill(['status' => ExecutionStatus::PROCESSING, 'started_at' => now()])->save();
 
         $error = null;
+
+        $memoryBefore = memory_get_usage(false);
+        if (function_exists('memory_reset_peak_usage')) {
+            memory_reset_peak_usage();
+        }
         $start = hrtime(true);
         try {
             $result = $activity->handle($this->input ?? []);
@@ -136,13 +142,17 @@ class Execution extends Model
             $error = $e;
             $result = null;
         }
-
         $durationNs = hrtime(true) - $start;
+
+        $peakDuringHandle = memory_get_peak_usage(false);
+        $memoryUsedByActivity = max(0, $peakDuringHandle - $memoryBefore);
+
         $this->fill([
             'status'            => $error ? ExecutionStatus::FAILED : ExecutionStatus::COMPLETED,
             'output'            => $result,
             'last_error'        => $error?->getMessage(),
             'execution_time_ns' => $durationNs,
+            'memory_used_bytes' => $memoryUsedByActivity,
             'completed_at'      => now(),
         ])->save();
 

@@ -49,7 +49,8 @@ class WorkCommand extends Command
             $this->processes[$key] = $this->startProcess($key, $command);
         }
 
-        $this->trap([SIGINT, SIGTERM], function (int $signal) {
+        // SIGINT, SIGTERM
+        $this->trap([2, 15], function (int $signal) {
             $this->log('Termination signal received, stopping sub-processes…', 'warn');
             $this->stopRunningProcesses();
             $this->shouldKeepRunning = false;

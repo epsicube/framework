@@ -6,7 +6,7 @@ services:
       args:
         DOCKER_GID: '${DOCKER_GID:-1000}'
         DOCKER_UID: '${DOCKER_UID:-1000}'
-        PHP_EXTENSIONS: '${PHP_EXTENSIONS:-bcmath curl intl mbstring opcache pcntl pcov pdo_sqlite pdo_pgsql pgsql readline sockets xdebug xml zip}'
+        PHP_EXTENSIONS: '${PHP_EXTENSIONS:-bcmath curl intl mbstring opcache pcntl pdo_sqlite pdo_pgsql pgsql readline sockets xml zip}'
     init: true # <- or install tini (schedule:run specific)
     ports:
       - "80:80"

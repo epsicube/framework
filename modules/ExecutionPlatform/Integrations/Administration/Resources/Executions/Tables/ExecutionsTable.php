@@ -21,6 +21,7 @@ use Filament\Tables\Filters\QueryBuilder;
 use Filament\Tables\Filters\QueryBuilder\Constraints\DateConstraint;
 use Filament\Tables\Filters\QueryBuilder\Constraints\SelectConstraint;
 use Filament\Tables\Table;
+use Illuminate\Support\Number;
 
 class ExecutionsTable
 {
@@ -71,6 +72,12 @@ class ExecutionsTable
                         'maximumUnit' => 'hour',
                         'short'       => true,
                     ]) : null)
+                    ->sortable()
+                    ->toggleable(),
+
+                TextColumn::make('memory_used_bytes')
+                    ->label(__('Memory used'))
+                    ->formatStateUsing(fn (?int $state) => $state ? Number::fileSize($state, 1, 3) : null)
                     ->sortable()
                     ->toggleable(),
 
