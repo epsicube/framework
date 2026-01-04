@@ -175,8 +175,12 @@ class ManageModules extends Page implements HasSchemas
 
     protected function reloadModules(): void
     {
+
         $this->forceRender();
-        $this->dispatch('$refresh');
+
+        $this->reset();
+        $this->mount();
+        //        $this->redirect(static::getUrl(), true);
     }
 
     public function getState(?string $search = null): array
