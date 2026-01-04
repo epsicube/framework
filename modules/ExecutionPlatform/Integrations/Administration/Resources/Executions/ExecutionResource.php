@@ -24,7 +24,7 @@ class ExecutionResource extends Resource
 
     protected static ?int $navigationSort = 999;
 
-    protected static string|null|UnitEnum $navigationGroup = 'Execution Engine';
+    protected static string|null|UnitEnum $navigationGroup = 'Execution Platform';
 
     public static function infolist(Schema $schema): Schema
     {
