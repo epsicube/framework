@@ -13,6 +13,7 @@ use Epsicube\Support\Facades\Options;
 use Filament\Actions\Action;
 use Filament\Infolists\Components\RepeatableEntry;
 use Filament\Infolists\Components\TextEntry;
+use Filament\Notifications\Notification;
 use Filament\Pages\Page;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Concerns\InteractsWithSchemas;
@@ -105,63 +106,54 @@ class ManageModules extends Page implements HasSchemas
                         ])
                         ->footerActionsAlignment(Alignment::Center)
                         ->footerActions([
-                            Action::make('enable')->label(__('Enable'))
+                            fn (array $state) => Action::make('enable')->label(__('Enable'))
                                 ->link()->color(Color::Green)
-                                ->visible(fn ($state) => Modules::canBeEnabled($state['identifier'])
-                                    && ! Modules::hasUnresolvedDependencies($state['identifier']))
-                                ->action(function ($state) {
+                                ->visible(Modules::canBeEnabled($state['identifier']) && ! Modules::hasUnresolvedDependencies($state['identifier']))
+                                ->action(function () use ($state) {
                                     Modules::enable($state['identifier']);
+                                    Notification::make()->success()->title(__('Module enabled'))->send();
                                     $this->reloadModules();
                                 })->requiresConfirmation(),
 
-                            Action::make('enableWithDependencies')->label(__('Enable with dependencies'))
+                            fn (array $state) => Action::make('enableWithDependencies')->label(__('Enable with dependencies'))
                                 ->link()->color(Color::Green)
-                                ->visible(fn ($state) => Modules::hasUnresolvedDependencies($state['identifier'])
-                                    && Modules::canEnableWithDependencies($state['identifier']))
+                                ->visible(Modules::hasUnresolvedDependencies($state['identifier']) && Modules::canEnableWithDependencies($state['identifier']))
                                 ->modalHeading(__('Enable with dependencies'))
-                                ->modalDescription(fn ($state) => function_exists('__')
-                                    ? __('This will enable (in order): :list', [
-                                        'list' => implode(', ', array_map(
-                                            fn (string $id) => Modules::safeGet($id)?->identity()->name ?? $id,
-                                            Modules::resolveEnableChain($state['identifier'])
-                                        )),
-                                    ])
-                                    : 'This will enable (in order): '.implode(', ', array_map(
+                                ->modalDescription(__('This will enable (in order): :list', [
+                                    'list' => implode(', ', array_map(
                                         fn (string $id) => Modules::safeGet($id)?->identity()->name ?? $id,
                                         Modules::resolveEnableChain($state['identifier'])
-                                    )))
-                                ->action(function ($state) {
+                                    )),
+                                ]))
+                                ->action(function () use ($state) {
                                     Modules::enableWithDependencies($state['identifier']);
+                                    Notification::make()->success()->title(__('Module enabled'))->send();
                                     $this->reloadModules();
                                 })
                                 ->requiresConfirmation(),
 
-                            Action::make('disable')->label(__('Disable'))
+                            fn (array $state) => Action::make('disable')->label(__('Disable'))
                                 ->link()->color(Color::Red)
-                                ->visible(fn ($state) => Modules::canBeDisabled($state['identifier']))
-                                ->action(function ($state) {
+                                ->visible(Modules::canBeDisabled($state['identifier']))
+                                ->action(function () use ($state) {
                                     Modules::disable($state['identifier']);
+                                    Notification::make()->danger()->title(__('Module disabled'))->send();
                                     $this->reloadModules();
                                 })->requiresConfirmation(),
 
-                            Action::make('disableWithDependents')->label(__('Disable with dependents'))
+                            fn (array $state) => Action::make('disableWithDependents')->label(__('Disable with dependents'))
                                 ->link()->color(Color::Red)
-                                ->visible(fn ($state) => ! Modules::canBeDisabled($state['identifier'])
-                                    && Modules::canDisableWithDependents($state['identifier']))
+                                ->visible(! Modules::canBeDisabled($state['identifier']) && Modules::canDisableWithDependents($state['identifier']))
                                 ->modalHeading(__('Disable with dependents'))
-                                ->modalDescription(fn ($state) => function_exists('__')
-                                    ? __('This will disable (in order): :list', [
-                                        'list' => implode(', ', array_map(
-                                            fn (string $id) => Modules::safeGet($id)?->identity()->name ?? $id,
-                                            Modules::resolveDisableChain($state['identifier'])
-                                        )),
-                                    ])
-                                    : 'This will disable (in order): '.implode(', ', array_map(
+                                ->modalDescription(__('This will disable (in order): :list', [
+                                    'list' => implode(', ', array_map(
                                         fn (string $id) => Modules::safeGet($id)?->identity()->name ?? $id,
                                         Modules::resolveDisableChain($state['identifier'])
-                                    )))
-                                ->action(function ($state) {
+                                    )),
+                                ]))
+                                ->action(function () use ($state) {
                                     Modules::disableWithDependents($state['identifier']);
+                                    Notification::make()->danger()->title(__('Module disabled'))->send();
                                     $this->reloadModules();
                                 })
                                 ->requiresConfirmation(),
