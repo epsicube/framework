@@ -17,7 +17,7 @@ class McpServerIntegration
     public static function handle(): void
     {
         // Keep resolved to ensure Activities are registered before sending them to tools
-        Tools::resolved(function () {
+        Tools::resolved(function (): void {
             Tools::register(...array_values(
                 array_map(fn (Activity $a) => new ActivityToolProxy($a), Activities::all())
             ));

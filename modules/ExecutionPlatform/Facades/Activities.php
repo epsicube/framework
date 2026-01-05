@@ -19,7 +19,7 @@ class Activities extends Facade
 
     public static function register(Activity ...$items): void
     {
-        static::resolved(function (ActivitiesRegistry $registry) use ($items) {
+        static::resolved(function (ActivitiesRegistry $registry) use ($items): void {
             $registry->register(...$items);
         });
     }

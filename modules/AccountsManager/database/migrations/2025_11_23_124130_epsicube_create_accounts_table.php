@@ -10,7 +10,7 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::create('accounts', function (Blueprint $table) {
+        Schema::create('accounts', function (Blueprint $table): void {
             $table->id();
             $table->string('name');
             $table->string('email')->unique();
@@ -19,13 +19,13 @@ return new class extends Migration
             $table->rememberToken();
         });
 
-        Schema::create('account_password_reset_tokens', function (Blueprint $table) {
+        Schema::create('account_password_reset_tokens', function (Blueprint $table): void {
             $table->string('email')->primary();
             $table->string('token');
             $table->timestamp('created_at')->useCurrent();
         });
 
-        Schema::create('account_sessions', function (Blueprint $table) {
+        Schema::create('account_sessions', function (Blueprint $table): void {
             $table->string('id')->primary();
 
             $table->foreignId('account_id')->nullable()->index()

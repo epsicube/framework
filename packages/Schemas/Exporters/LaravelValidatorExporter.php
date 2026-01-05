@@ -71,14 +71,14 @@ class LaravelValidatorExporter implements SchemaExporter
             $prepend[] = 'nullable';
         }
 
-        $this->runWithContext($path, function (string $absPath) use ($field, $value, $prepend) {
+        $this->runWithContext($path, function (string $absPath) use ($field, $value, $prepend): void {
             $this->rules[$absPath] = [...$prepend, ...$field->resolveValidationRules($value, $this)];
         });
     }
 
     public function setChildRules(string $path, array $rules): void
     {
-        $this->runWithContext($path, function (string $absPath) use ($rules) {
+        $this->runWithContext($path, function (string $absPath) use ($rules): void {
             $this->rules[$absPath] = $rules;
         });
     }

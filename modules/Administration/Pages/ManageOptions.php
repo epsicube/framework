@@ -139,7 +139,7 @@ class ManageOptions extends Page implements HasSchemas
                             ->icon($isCustom ? Heroicon::OutlinedArrowUturnLeft : Heroicon::OutlinedPencilSquare)
                             ->color($isCustom ? 'warning' : 'gray')
                             ->tooltip(__('Click to toggle between default value and custom input'))
-                            ->action(function () use ($name, $property, $component, $isCustom) {
+                            ->action(function () use ($name, $property, $component, $isCustom): void {
 
                                 // Toggle between default and custom state
                                 $this->useCustom[$name] = ! $isCustom;
@@ -210,7 +210,7 @@ class ManageOptions extends Page implements HasSchemas
                     ->iconPosition(IconPosition::After)
                     ->outlined()
                     ->size(Size::Small)
-                    ->action(function () {
+                    ->action(function (): void {
                         $this->operation = $this->operation === Operation::Edit
                             ? Operation::View
                             : Operation::Edit;

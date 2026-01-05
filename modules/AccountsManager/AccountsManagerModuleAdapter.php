@@ -23,7 +23,7 @@ class AccountsManagerModuleAdapter extends HypercoreAdapter
     {
         $applier->injectIntegrations(
             identifier: $this->moduleIdentifier(),
-            whenEnabled: function () use ($applier) {
+            whenEnabled: function () use ($applier): void {
                 $applier->getModule($this->moduleIdentifier())->setHypercoreContext('central');
             }
         );
@@ -37,7 +37,7 @@ class AccountsManagerModuleAdapter extends HypercoreAdapter
         // Configure model to be scoped
         $applier->injectIntegrations(
             identifier: $this->moduleIdentifier(),
-            whenEnabled: function () use ($applier) {
+            whenEnabled: function () use ($applier): void {
 
                 $guardName = 'accounts';
                 Config::set("auth.passwords.{$guardName}.connection", HypercoreActivator::centralConnectionName());
@@ -45,10 +45,10 @@ class AccountsManagerModuleAdapter extends HypercoreAdapter
                 $applier->getModule($this->moduleIdentifier())->setHypercoreContext('tenant');
 
                 Account::$runtimeConnection = HypercoreActivator::centralConnectionName();
-                Account::creating(function (Account $account) {
+                Account::creating(function (Account $account): void {
                     $account->hypercore_tenant_id = HypercoreActivator::tenant()->id;
                 });
-                Account::addGlobalScope(function (Builder $builder) {
+                Account::addGlobalScope(function (Builder $builder): void {
                     $builder->where('hypercore_tenant_id', HypercoreActivator::tenant()->id);
                 });
             }

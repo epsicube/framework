@@ -78,9 +78,9 @@ class AdministrationModule extends ServiceProvider implements HasOptions, Module
 
     public function register(): void
     {
-        $this->app->booted(function () {
+        $this->app->booted(function (): void {
             try {
-                $callback = function (PanelRegistry $registry) {
+                $callback = function (PanelRegistry $registry): void {
                     $registry->register(Administration::make()->id('epsicube-administration'));
                 };
 
@@ -89,7 +89,7 @@ class AdministrationModule extends ServiceProvider implements HasOptions, Module
                     $callback(app(PanelRegistry::class));
 
                     // Force routes to register because filament cannot handle that
-                    (function () {
+                    (function (): void {
                         /** @var FilamentServiceProvider $this */
                         $this->bootPackageRoutes();
                     })->call($this->app->getProvider(FilamentServiceProvider::class));

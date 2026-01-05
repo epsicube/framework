@@ -26,14 +26,14 @@ class Epsicube extends Facade
      */
     public static function addWorkCommand(string $key, string $command): void
     {
-        static::resolved(function (EpsicubeManager $manager) use ($key, $command) {
+        static::resolved(function (EpsicubeManager $manager) use ($key, $command): void {
             $manager->addWorkCommand($key, $command);
         });
     }
 
     public static function optimizes(string $key, ?string $optimizeCmd = null, ?string $clearCmd = null): void
     {
-        static::resolved(function (EpsicubeManager $manager) use ($key, $optimizeCmd, $clearCmd) {
+        static::resolved(function (EpsicubeManager $manager) use ($key, $optimizeCmd, $clearCmd): void {
             if ($optimizeCmd) {
                 $manager->addOptimizeCommand($key, $optimizeCmd);
             }

@@ -98,9 +98,9 @@ class DatabaseTenantDetector
         return Tenant::query()
             ->where(fn ($q) => $q->where('scheme', $request->getScheme())->orWhereNull('scheme'))
             ->where(fn ($q) => $q->whereRaw(" ? LIKE REPLACE(domain, '*', '%')", [$request->host()]))
-            ->when(! empty($path), function (Builder $q) use ($path) {
+            ->when(! empty($path), function (Builder $q) use ($path): void {
                 $q->whereRaw("( ? LIKE CONCAT(path, '%') OR path IS NULL)", [$path]);
-            })->when(empty($path), function (Builder $q) {
+            })->when(empty($path), function (Builder $q): void {
                 $q->whereNull('path');
             })->first();
     }

@@ -19,7 +19,7 @@ class Workflows extends Facade
 
     public static function register(Workflow ...$items): void
     {
-        static::resolved(function (WorkflowsRegistry $registry) use ($items) {
+        static::resolved(function (WorkflowsRegistry $registry) use ($items): void {
             $registry->register(...$items);
         });
     }

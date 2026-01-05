@@ -50,7 +50,7 @@ class WorkCommand extends Command
         }
 
         // SIGINT, SIGTERM
-        $this->trap([2, 15], function (int $signal) {
+        $this->trap([2, 15], function (int $signal): void {
             $this->log('Termination signal received, stopping sub-processes…', 'warn');
             $this->stopRunningProcesses();
             $this->shouldKeepRunning = false;
@@ -82,7 +82,7 @@ class WorkCommand extends Command
         }
         $process = new Process($args, $this->laravel->basePath(), $env);
         $process->setTimeout(null);
-        $process->start(function (string $type, string $output) use ($key) {
+        $process->start(function (string $type, string $output) use ($key): void {
             $level = $type === 'stderr' ? 'warn' : 'line';
             foreach (preg_split('/\R/', $output) as $line) {
                 if ($line !== '') {

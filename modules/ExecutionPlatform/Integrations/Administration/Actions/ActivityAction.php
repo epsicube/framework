@@ -53,7 +53,7 @@ class ActivityAction extends Action
             fn (?Throwable $error) => app()->hasDebugModeEnabled() ? $error?->getMessage() : null
         );
 
-        $this->action(function (self $action, array $data) {
+        $this->action(function (self $action, array $data): void {
             $data = array_merge($this->getActivityConstants(), $data);
             try {
                 $execution = Activities::run($this->getActivityIdentifier(), $data);

@@ -11,7 +11,7 @@ class AdministrationIntegration
 {
     public static function handle(): void
     {
-        Administration::configureUsing(function (Administration $admin) {
+        Administration::configureUsing(function (Administration $admin): void {
 
             // Show users panel
             $admin->discoverResources(in: __DIR__.'/Resources', for: __NAMESPACE__.'\\Resources');

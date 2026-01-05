@@ -35,7 +35,7 @@ class SendMail extends Workflow implements HasInputSchema
                 ->options(fn () => Templates::toIdentifierLabelMap())
                 ->required()
                 ->live()
-                ->afterStateUpdated(function (Select $component) {
+                ->afterStateUpdated(function (Select $component): void {
                     $component
                         ->getContainer()
                         ->getComponent('template_configuration', withHidden: true)

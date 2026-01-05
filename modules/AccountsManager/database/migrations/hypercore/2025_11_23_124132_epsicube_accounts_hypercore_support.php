@@ -10,7 +10,7 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::table('accounts', function (Blueprint $table) {
+        Schema::table('accounts', function (Blueprint $table): void {
             $table->foreignId('hypercore_tenant_id')->nullable()
                 ->constrained('hypercore_tenants', 'id')
                 ->cascadeOnUpdate()

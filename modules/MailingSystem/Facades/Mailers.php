@@ -19,7 +19,7 @@ class Mailers extends Facade
 
     public static function register(Mailer ...$items): void
     {
-        static::resolved(function (MailersRegistry $registry) use ($items) {
+        static::resolved(function (MailersRegistry $registry) use ($items): void {
             $registry->register(...$items);
         });
     }

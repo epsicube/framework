@@ -23,7 +23,7 @@ class BootstrapEpsicube
     {
         $app->register(EpsicubeServiceProvider::class); // <- force registering self provider
 
-        $app->afterBootstrapping(LoadConfiguration::class, function (EpsicubeApplication $app) {
+        $app->afterBootstrapping(LoadConfiguration::class, function (EpsicubeApplication $app): void {
             $cleanups = [];
             // Ensure proper error handling is available (omitted without debug for performance)
             if ($app->hasDebugModeEnabled()) {
@@ -53,7 +53,7 @@ class BootstrapEpsicube
         });
 
         // Register enabled modules as ServiceProvider in the application
-        $app->afterBootstrapping(RegisterProviders::class, function (Application $app) {
+        $app->afterBootstrapping(RegisterProviders::class, function (Application $app): void {
             /** @var ModulesManager $modulesManager */
             $modulesManager = $app->make(Modules::$accessor);
             $modulesManager->registerInApp($app);

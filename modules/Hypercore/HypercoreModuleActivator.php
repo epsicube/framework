@@ -41,8 +41,8 @@ class HypercoreModuleActivator extends ServiceProvider implements HasIntegration
     {
         return Integrations::make()->forModule(
             identifier: 'core::administration',
-            whenEnabled: static function () {
-                Administration::configureUsing(function (Administration $administration) {
+            whenEnabled: static function (): void {
+                Administration::configureUsing(function (Administration $administration): void {
                     $administration->renderHook(
                         PanelsRenderHook::PAGE_START,
                         fn () => view('hypercore-activator::banner'),

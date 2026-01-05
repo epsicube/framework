@@ -68,17 +68,17 @@ class BootstrapHypercore
          * domain not possible, but scoped by detector
          */
         if ($tenant->path) {
-            (function () use ($tenant) {
+            (function () use ($tenant): void {
                 /** @var Router $this */
                 $this->updateGroupStack(RouteGroup::merge(['prefix' => $tenant->path], $this->getGroupStack()));
             })->call(app('router'));
         }
 
-        $app->resolving('url', function (UrlGenerator $url) use ($tenant) {
+        $app->resolving('url', function (UrlGenerator $url) use ($tenant): void {
             $url->forceScheme($tenant->scheme);
         });
         // Supports (fix filament do not use bootstrap path to get filename)
-        $app->resolving('filament', function ($_, Application $app) use (&$tenant) {
+        $app->resolving('filament', function ($_, Application $app) use (&$tenant): void {
             $app['config']->set('filament.cache_path', $app->bootstrapPath("cache/filament-{$tenant->identifier}"));
         });
 

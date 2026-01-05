@@ -67,7 +67,7 @@ class ForkExecutionAction extends Action
         if ($data['run_mode'] !== 'run') {
             $this->success();
             $this->successNotificationTitle(__('Execution forked successfully'));
-            $this->successNotification(function (Notification $notification) use ($newExecution) {
+            $this->successNotification(function (Notification $notification) use ($newExecution): void {
                 $notification->body(__('New Execution ID: :id', ['id' => $newExecution->id]));
             });
 
@@ -79,7 +79,7 @@ class ForkExecutionAction extends Action
 
             $this->success();
             $this->successNotificationTitle(__('Execution forked and ran successfully'));
-            $this->successNotification(function (Notification $notification) use ($newExecution) {
+            $this->successNotification(function (Notification $notification) use ($newExecution): void {
                 $notification->body(__('New Execution ID: :id', ['id' => $newExecution->id]));
             });
         } catch (Throwable $e) {

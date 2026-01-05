@@ -13,7 +13,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('cores', function (Blueprint $table) {
+        Schema::create('cores', function (Blueprint $table): void {
             $table->id();
             $table->string('identifier', 64)->unique();
             $table->string('key', 64)->unique();

@@ -13,7 +13,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('executions', function (Blueprint $table) {
+        Schema::create('executions', function (Blueprint $table): void {
             $table->id();
 
             $table->enum('execution_type', ['WORKFLOW', 'ACTIVITY'])->index();

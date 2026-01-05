@@ -204,7 +204,7 @@ class ModulesManager extends Registry
         $perm = [];
         $temp = [];
 
-        $visit = function (Module $m) use (&$visit, &$order, &$perm, &$temp) {
+        $visit = function (Module $m) use (&$visit, &$order, &$perm, &$temp): void {
             $id = $m->identifier();
             if (isset($perm[$id])) {
                 return;
@@ -456,7 +456,7 @@ class ModulesManager extends Registry
         $perm = [];
         $temp = [];
 
-        $visit = function (Module $m) use (&$visit, &$order, &$perm, &$temp) {
+        $visit = function (Module $m) use (&$visit, &$order, &$perm, &$temp): void {
             $id = $m->identifier();
             if (isset($perm[$id])) {
                 return;

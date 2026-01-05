@@ -23,7 +23,7 @@ class Resources extends Facade
 
     public static function register(Resource ...$items): void
     {
-        static::resolved(function (ResourcesRegistry $registry) use ($items) {
+        static::resolved(function (ResourcesRegistry $registry) use ($items): void {
             $registry->register(...$items);
         });
     }

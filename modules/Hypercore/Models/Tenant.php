@@ -44,13 +44,13 @@ class Tenant extends Model
     protected static function boot(): void
     {
         parent::boot();
-        static::creating(function (self $model) {
+        static::creating(function (self $model): void {
             if (! $model->key) {
                 $model->key = 'base64:'.base64_encode(Encrypter::generateKey(config('app.cipher')));
             }
         });
 
-        static::updated(function () {
+        static::updated(function (): void {
             Hypercore::updateCache();
         });
     }

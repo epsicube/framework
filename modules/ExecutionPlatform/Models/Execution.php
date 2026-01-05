@@ -89,7 +89,7 @@ class Execution extends Model
             //            $this->refresh(); // <- retrieve fresh instance with database defaults
         }
 
-        static::getConnection()->transaction(function () {
+        static::getConnection()->transaction(function (): void {
             static::query()
                 ->where('_idempotency_key', $this->_idempotency_key)
                 ->lockForUpdate()
@@ -98,7 +98,7 @@ class Execution extends Model
             $updated = static::query()
                 ->whereKey($this->getKey())
                 ->where('status', ExecutionStatus::QUEUED)
-                ->whereNotExists(function (Builder $query) {
+                ->whereNotExists(function (Builder $query): void {
                     $query->fromSub(static::query(), 'sub')
                         ->select(DB::raw(1))
                         ->where('sub._idempotency_key', $this->_idempotency_key)

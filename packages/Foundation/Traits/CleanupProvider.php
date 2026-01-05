@@ -22,7 +22,7 @@ trait CleanupProvider
         $this->register($provider);
         $addedBindings = array_diff(array_keys($this->getBindings()), $initialBindings);
 
-        return function () use ($provider, $addedBindings) {
+        return function () use ($provider, $addedBindings): void {
             foreach ($addedBindings as $binding) {
                 $this->offsetUnset($binding);
             }

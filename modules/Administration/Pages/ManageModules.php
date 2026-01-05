@@ -109,7 +109,7 @@ class ManageModules extends Page implements HasSchemas
                             fn (array $state) => Action::make('enable')->label(__('Enable'))
                                 ->link()->color(Color::Green)
                                 ->visible(Modules::canBeEnabled($state['identifier']) && ! Modules::hasUnresolvedDependencies($state['identifier']))
-                                ->action(function () use ($state) {
+                                ->action(function () use ($state): void {
                                     Modules::enable($state['identifier']);
                                     Notification::make()->success()->title(__('Module enabled'))->send();
                                     $this->reloadModules();
@@ -125,7 +125,7 @@ class ManageModules extends Page implements HasSchemas
                                         Modules::resolveEnableChain($state['identifier'])
                                     )),
                                 ]))
-                                ->action(function () use ($state) {
+                                ->action(function () use ($state): void {
                                     Modules::enableWithDependencies($state['identifier']);
                                     Notification::make()->success()->title(__('Module enabled'))->send();
                                     $this->reloadModules();
@@ -135,7 +135,7 @@ class ManageModules extends Page implements HasSchemas
                             fn (array $state) => Action::make('disable')->label(__('Disable'))
                                 ->link()->color(Color::Red)
                                 ->visible(Modules::canBeDisabled($state['identifier']))
-                                ->action(function () use ($state) {
+                                ->action(function () use ($state): void {
                                     Modules::disable($state['identifier']);
                                     Notification::make()->danger()->title(__('Module disabled'))->send();
                                     $this->reloadModules();
@@ -151,7 +151,7 @@ class ManageModules extends Page implements HasSchemas
                                         Modules::resolveDisableChain($state['identifier'])
                                     )),
                                 ]))
-                                ->action(function () use ($state) {
+                                ->action(function () use ($state): void {
                                     Modules::disableWithDependents($state['identifier']);
                                     Notification::make()->danger()->title(__('Module disabled'))->send();
                                     $this->reloadModules();

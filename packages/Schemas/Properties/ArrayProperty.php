@@ -112,11 +112,11 @@ class ArrayProperty extends BaseProperty
             if ($childComponent instanceof Entry) {
                 $entry->getStateUsing(function (RepeatableEntry $component) use (&$childComponent) {
                     // Resolve initial state
-                    (function () {
+                    (function (): void {
                         $this->hasConstantState = false;
                     })->call($component);
                     $initialState = $component->getState();
-                    (function () {
+                    (function (): void {
                         $this->hasConstantState = true;
                     })->call($component);
 

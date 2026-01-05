@@ -13,7 +13,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('options', function (Blueprint $table) {
+        Schema::create('options', function (Blueprint $table): void {
             $table->id();
 
             $table->foreignId('core_id')->nullable()->index()

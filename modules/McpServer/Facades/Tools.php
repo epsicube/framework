@@ -23,7 +23,7 @@ class Tools extends Facade
 
     public static function register(Tool ...$items): void
     {
-        static::resolved(function (ToolsRegistry $registry) use ($items) {
+        static::resolved(function (ToolsRegistry $registry) use ($items): void {
             $registry->register(...$items);
         });
     }

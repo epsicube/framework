@@ -13,7 +13,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('hypercore_modules', function (Blueprint $table) {
+        Schema::create('hypercore_modules', function (Blueprint $table): void {
             $table->id();
 
             $table->foreignId('core_id')->nullable()->index()

@@ -21,7 +21,7 @@ class HypercoreModuleAdapter extends HypercoreAdapter
     // TODO merge hypercore in base app ans use a trait on module instead of adapter
     public function register(): void
     {
-        Artisan::starting(function (Artisan $artisan) {
+        Artisan::starting(function (Artisan $artisan): void {
             $artisan->getDefinition()->addOption(new InputOption(
                 'tenant',
                 null,

@@ -151,7 +151,7 @@ class StringProperty extends BaseProperty implements JsonSchemaExportable
         $isNull = false;
         if ($this->isNullable()) {
             $prompt->placeholder = ' — Press CTRL+Del to set null, or Enter for empty —';
-            $prompt->on('key', function ($key) use (&$prompt, &$isNull) {
+            $prompt->on('key', function ($key) use (&$prompt, &$isNull): void {
                 // Use CTRL_DELETE to set null
                 if ($key === "\e[3;5~") {
                     $isNull = true;

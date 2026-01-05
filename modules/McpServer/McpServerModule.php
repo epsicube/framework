@@ -68,7 +68,7 @@ class McpServerModule extends ServiceProvider implements HasOptions, Module
         });
         $this->app->alias('mcp-resources', Resources::$accessor);
 
-        $this->app->booted(function () {
+        $this->app->booted(function (): void {
             Mcp::web('/mcp', McpServer::class);
             Mcp::local('epsicube', McpServer::class);
         });

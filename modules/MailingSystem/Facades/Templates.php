@@ -19,7 +19,7 @@ class Templates extends Facade
 
     public static function register(MailTemplate ...$items): void
     {
-        static::resolved(function (TemplatesRegistry $registry) use ($items) {
+        static::resolved(function (TemplatesRegistry $registry) use ($items): void {
             $registry->register(...$items);
         });
     }

@@ -141,7 +141,7 @@ class IntegerProperty extends BaseProperty
         $isNull = false;
         if ($this->isNullable()) {
             $prompt->placeholder = ' — Press CTRL+Del or Enter to set null —';
-            $prompt->on('key', function ($key) use (&$prompt, &$isNull) {
+            $prompt->on('key', function ($key) use (&$prompt, &$isNull): void {
                 if ($key === "\e[3;5~") { // Ctrl + Delete
                     $isNull = true;
                     $prompt->state = 'submit';
