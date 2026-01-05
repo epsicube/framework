@@ -73,7 +73,7 @@ class MakeModuleCommand extends GeneratorCommand
 
     protected function resolveStubPath($stub): string
     {
-        return file_exists($customPath = $this->laravel->basePath(trim($stub, '/')))
+        return file_exists($customPath = $this->laravel->basePath(mb_trim($stub, '/')))
             ? $customPath
             : __DIR__.$stub;
     }

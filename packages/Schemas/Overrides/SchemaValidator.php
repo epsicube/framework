@@ -15,7 +15,7 @@ class SchemaValidator extends Validator
     #[Override]
     protected function presentOrRuleIsImplicit($rule, $attribute, $value): bool
     {
-        if (is_string($value) && trim($value) === '') {
+        if (is_string($value) && mb_trim($value) === '') {
             return true;
         }
 
