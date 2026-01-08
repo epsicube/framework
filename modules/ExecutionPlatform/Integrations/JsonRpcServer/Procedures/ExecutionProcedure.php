@@ -18,9 +18,7 @@ class ExecutionProcedure extends Procedure
 
     public function listActivities(): array
     {
-        $activities = Activities::all();
-
-        return collect($activities)->map(fn (Activity $activity, string $identifier) => [
+        return collect(Activities::all())->map(fn (Activity $activity, string $identifier) => [
             'identifier'    => $identifier,
             'name'          => $activity->label(),
             'description'   => $activity->description(),
