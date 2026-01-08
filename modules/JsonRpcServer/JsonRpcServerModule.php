@@ -57,9 +57,8 @@ class JsonRpcServerModule extends ServiceProvider implements HasOptions, Module
             if ($this->app instanceof CachesRoutes && $this->app->routesAreCached()) {
                 return;
             }
-
             Route::prefix(Options::get($this->identifier(), 'endpoint'))->group(function () {
-                Route::rpc('/', array_keys(array_map('get_class', Procedures::all())))->name('rpc.endpoint');
+                Route::rpc('/', array_values(array_map('get_class', Procedures::all())))->name('rpc.endpoint');
             });
         });
     }
