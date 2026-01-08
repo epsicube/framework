@@ -16,6 +16,7 @@ use EpsicubeModules\ExecutionPlatform\Console\Commands\WorkflowsListCommand;
 use EpsicubeModules\ExecutionPlatform\Facades\Activities;
 use EpsicubeModules\ExecutionPlatform\Facades\Workflows;
 use EpsicubeModules\ExecutionPlatform\Integrations\Administration\AdministrationIntegration;
+use EpsicubeModules\ExecutionPlatform\Integrations\JsonRpcServer\JsonRpcServerIntegration;
 use EpsicubeModules\ExecutionPlatform\Integrations\McpServer\McpServerIntegration;
 use EpsicubeModules\ExecutionPlatform\Registries\ActivitiesRegistry;
 use EpsicubeModules\ExecutionPlatform\Registries\WorkflowsRegistry;
@@ -66,6 +67,9 @@ class ExecutionPlatformModule extends ServiceProvider implements HasIntegrations
         )->forModule(
             identifier: 'core::mcp-server',
             whenEnabled: [McpServerIntegration::class, 'handle']
+        )->forModule(
+            identifier: 'core::json-rpc-server',
+            whenEnabled: [JsonRpcServerIntegration::class, 'handle']
         );
     }
 }

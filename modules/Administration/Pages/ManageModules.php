@@ -31,7 +31,7 @@ class ManageModules extends Page implements HasSchemas
 
     protected string $view = 'epsicube-administration::pages.manage-modules';
 
-    protected static string|null|BackedEnum $navigationIcon = Heroicon::OutlinedCube;
+    protected static string|null|BackedEnum $navigationIcon = Heroicon::OutlinedPuzzlePiece;
 
     protected static ?int $navigationSort = 30;
 

@@ -125,7 +125,7 @@ class ManageOptions extends Page implements HasSchemas
                                 ? Icon::make(Heroicon::OutlinedExclamationCircle)
                                     ->color('warning')
                                     ->tooltip(__('Overridden value'))
-                                : Icon::make(Heroicon::OutlinedCube)
+                                : Icon::make(Heroicon::OutlinedPuzzlePiece)
                                     ->color('gray')
                                     ->tooltip(__('Default value provided by the module'));
                         }

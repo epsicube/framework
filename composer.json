@@ -20,7 +20,8 @@
     "spatie/mjml-php": "^1.2.5",
     "phiki/phiki": "^2.0.4",
     "codeat3/blade-clarity-icons": "^1.8",
-    "filament/filament": "^4.3.1.0"
+    "filament/filament": "^4.3.1.0",
+    "sajya/server": "^7.0.0"
   },
   "replace": {
     "epsicube/schemas": "self.version",
@@ -80,7 +81,8 @@
         "EpsicubeModules\\ExecutionPlatform\\ExecutionPlatformModule",
         "EpsicubeModules\\Hypercore\\HypercoreModule",
         "EpsicubeModules\\MailingSystem\\MailingSystemModule",
-        "EpsicubeModules\\McpServer\\McpServerModule"
+        "EpsicubeModules\\McpServer\\McpServerModule",
+        "EpsicubeModules\\JsonRpcServer\\JsonRpcServerModule"
       ],
       "hypercore": {
         "adapters": [
