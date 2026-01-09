@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace EpsicubeModules\Administration\Clusters\System\Pages;
 
 use Epsicube\Schemas\Contracts\Property;
+use Epsicube\Support\Contracts\HasOptions;
 use Epsicube\Support\Facades\Modules;
 use Epsicube\Support\Facades\Options;
 use EpsicubeModules\Administration\Clusters\System\OptionsCluster;
@@ -12,15 +13,14 @@ use Filament\Actions\Action;
 use Filament\Actions\ActionGroup;
 use Filament\Forms\Components\Field;
 use Filament\Infolists\Components\Entry;
+use Filament\Navigation\NavigationItem;
 use Filament\Notifications\Notification;
 use Filament\Pages\Page;
-use Filament\Resources\Concerns\HasTabs;
 use Filament\Schemas\Components\Actions;
 use Filament\Schemas\Components\Component;
 use Filament\Schemas\Components\EmbeddedSchema;
 use Filament\Schemas\Components\Icon;
 use Filament\Schemas\Components\Section;
-use Filament\Schemas\Components\Tabs;
 use Filament\Schemas\Components\Text;
 use Filament\Schemas\Concerns\InteractsWithSchemas;
 use Filament\Schemas\Contracts\HasSchemas;
@@ -32,20 +32,20 @@ use Filament\Support\Icons\Heroicon;
 use Illuminate\Support\HtmlString;
 use Illuminate\Support\Str;
 use Livewire\Attributes\Url;
+use function Filament\Support\original_request;
 
 // TODO one page per module
 class ManageOptions extends Page implements HasSchemas
 {
-    use HasTabs, InteractsWithSchemas;
+    use InteractsWithSchemas;
 
     protected static ?string $cluster = OptionsCluster::class;
 
-    protected static ?string $slug = '/options';
+    protected static ?string $slug = '/modules/{module?}';
 
     protected string $view = 'epsicube-administration::pages.manage-options';
 
-    #[Url]
-    public ?string $activeTab = null;
+    public string $activeModule;
 
     #[Url('mode')]
     public Operation $operation = Operation::View;
@@ -57,9 +57,46 @@ class ManageOptions extends Page implements HasSchemas
     /** @var array<string,bool> */
     public array $useCustom = [];
 
+    public function getSubNavigation(): array
+    {
+        $items = [];
+
+        foreach (Modules::enabled() as $moduleIdentifier => $module) {
+            if (!($module instanceof HasOptions)) {
+                continue;
+            }
+
+            $pageItems = [
+                NavigationItem::make($module->identity()->name)
+                    ->group(static::getNavigationGroup())
+                    ->parentItem(static::getNavigationParentItem())
+                    ->icon(static::getNavigationIcon())
+                    ->activeIcon(static::getActiveNavigationIcon())
+                    ->isActiveWhen(function () use ($moduleIdentifier) {
+                        $request = original_request();
+                        return $request->routeIs(static::getNavigationItemActiveRoutePattern())
+                            && $request->route()->parameter('module') === $moduleIdentifier;
+                    })
+                    ->sort(static::getNavigationSort())
+                    ->badge(static::getNavigationBadge(), color: static::getNavigationBadgeColor())
+                    ->badgeTooltip(static::getNavigationBadgeTooltip())
+                    ->url(static::getUrl(['module' => $moduleIdentifier])),
+            ];
+
+            $items = [...$items, ...$pageItems];
+        }
+
+        return $items;
+    }
+
     public function mount(): void
     {
-        $this->loadDefaultActiveTab();
+        $activeModule = original_request()->route()->parameter('module');
+        if (!$activeModule) {
+            $this->redirect(static::getUrl(['module' => 'core::administration']));
+            return;
+        }
+        $this->activeModule = $activeModule;
         $this->fillForm();
     }
 
@@ -69,15 +106,15 @@ class ManageOptions extends Page implements HasSchemas
         $this->form->state(null);
         $this->form->fill(null);
 
-        $schema = Options::getSchema($this->activeTab);
+        $schema = Options::getSchema($this->activeModule);
 
         // Stored values only (custom values)
-        $this->stored = Options::store()->all($this->activeTab);
+        $this->stored = Options::store()->all($this->activeModule);
         $this->useCustom = array_reduce(
             array_keys($schema->properties()),
             function ($carry, $name) use ($schema) {
                 $property = $schema->properties()[$name];
-                $carry[$name] = array_key_exists($name, $this->stored) || ! $property->hasDefault();
+                $carry[$name] = array_key_exists($name, $this->stored) || !$property->hasDefault();
 
                 return $carry;
             },
@@ -95,13 +132,6 @@ class ManageOptions extends Page implements HasSchemas
         $this->fillForm();
     }
 
-    public function getTabs(): array
-    {
-        return collect(Options::schemas())->map(
-            fn ($_, string $id) => Tabs\Tab::make(Modules::safeGet($id)?->identity()->name ?? $id)->key('id'),
-        )->all();
-    }
-
     public function form(Schema $schema): Schema
     {
         return $schema
@@ -109,11 +139,11 @@ class ManageOptions extends Page implements HasSchemas
             ->operation($this->operation->value)
             ->schema(function () {
                 $modifyComponentUsing = function (Property $property, ?string $name, Component $component): void {
-                    if ($name === null || ! $property->hasDefault()) {
+                    if ($name === null || !$property->hasDefault()) {
                         return;
                     }
 
-                    if (! ($component instanceof Field || $component instanceof Entry)) {
+                    if (!($component instanceof Field || $component instanceof Entry)) {
                         return;
                     }
 
@@ -145,25 +175,25 @@ class ManageOptions extends Page implements HasSchemas
                             ->action(function () use ($name, $property, $component, $isCustom): void {
 
                                 // Toggle between default and custom state
-                                $this->useCustom[$name] = ! $isCustom;
+                                $this->useCustom[$name] = !$isCustom;
 
                                 // Update field state based on the toggle
                                 $component->state(
-                                    $this->useCustom[$name] ?? false
-                                    ? (array_key_exists($name, $this->stored) ? $this->stored[$name] : $property->getDefault())
-                                    : $property->getDefault()
+                                        $this->useCustom[$name] ?? false
+                                        ? (array_key_exists($name, $this->stored) ? $this->stored[$name] : $property->getDefault())
+                                        : $property->getDefault()
                                 );
                                 $component->callAfterStateHydrated();
                             });
                     });
 
                     // Field disabled logic: respects toggle AND view mode
-                    $component->disabled(fn () => ! ($this->useCustom[$name] ?? false));
+                    $component->disabled(fn() => !($this->useCustom[$name] ?? false));
                     // Always dehydrated: save() loop is authoritative
                     $component->dehydrated(true);
                 };
 
-                $schema = Options::getSchema($this->activeTab);
+                $schema = Options::getSchema($this->activeModule);
                 $components = $schema->toFilamentComponents($this->operation, $modifyComponentUsing);
                 if (empty($components)) {
                     $components = [
@@ -171,7 +201,7 @@ class ManageOptions extends Page implements HasSchemas
                     ];
                 }
 
-                return Section::make('')->key($this->activeTab)->schema($components);
+                return Section::make('')->key($this->activeModule)->schema($components);
             });
     }
 
@@ -181,13 +211,13 @@ class ManageOptions extends Page implements HasSchemas
 
             // If user selected custom value → persist it
             if ($this->useCustom[$key] ?? false) {
-                Options::set($this->activeTab, $key, $value);
+                Options::set($this->activeModule, $key, $value);
 
                 continue;
             }
 
             // Otherwise → remove explicit storage so module default applies
-            Options::delete($this->activeTab, $key);
+            Options::delete($this->activeModule, $key);
         }
 
         Notification::make()->success()->title(__('Saved'))->send();
@@ -200,11 +230,11 @@ class ManageOptions extends Page implements HasSchemas
             ActionGroup::make([
                 Action::make('displayMode')
                     ->disabled()
-                    ->label(fn () => $this->operation === Operation::Edit ? __('Edit Mode') : __('View Mode'))
-                    ->icon(fn () => $this->operation === Operation::Edit ? Heroicon::OutlinedPencil : Heroicon::OutlinedEye)
+                    ->label(fn() => $this->operation === Operation::Edit ? __('Edit Mode') : __('View Mode'))
+                    ->icon(fn() => $this->operation === Operation::Edit ? Heroicon::OutlinedPencil : Heroicon::OutlinedEye)
                     ->outlined()
                     ->size(Size::Small)
-                    ->color(fn () => $this->operation === Operation::Edit ? 'warning' : 'gray'),
+                    ->color(fn() => $this->operation === Operation::Edit ? 'warning' : 'gray'),
 
                 Action::make('toggleMode')
                     ->label(__('Switch'))
@@ -228,21 +258,20 @@ class ManageOptions extends Page implements HasSchemas
     public function content(Schema $schema): Schema
     {
         return $schema->components([
-            $this->getTabsContentComponent(),
             EmbeddedSchema::make('form'),
             Actions::make([
                 Action::make('resetAllFields')
                     ->label(__('Undo all changes'))
                     ->color('primary')
-                    ->visible(fn () => $this->operation === Operation::Edit)
+                    ->visible(fn() => $this->operation === Operation::Edit)
                     ->icon(Heroicon::OutlinedArrowPath)
                     ->outlined()
                     ->size(Size::Small)
-                    ->action(fn () => $this->fillForm()),
+                    ->action(fn() => $this->fillForm()),
 
                 Action::make('save')
                     ->label(__('Save'))
-                    ->visible(fn () => $this->operation === Operation::Edit)
+                    ->visible(fn() => $this->operation === Operation::Edit)
                     ->keyBindings(['mod+s'])
                     ->action('save'),
             ])->alignJustify(),
