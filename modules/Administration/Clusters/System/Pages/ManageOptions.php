@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace EpsicubeModules\Administration\Pages;
+namespace EpsicubeModules\Administration\Clusters\System\Pages;
 
-use BackedEnum;
 use Epsicube\Schemas\Contracts\Property;
 use Epsicube\Support\Facades\Modules;
 use Epsicube\Support\Facades\Options;
+use EpsicubeModules\Administration\Clusters\System\OptionsCluster;
 use Filament\Actions\Action;
 use Filament\Actions\ActionGroup;
 use Filament\Forms\Components\Field;
@@ -33,16 +33,19 @@ use Illuminate\Support\HtmlString;
 use Illuminate\Support\Str;
 use Livewire\Attributes\Url;
 
+// TODO one page per module
 class ManageOptions extends Page implements HasSchemas
 {
     use HasTabs, InteractsWithSchemas;
 
-    #[Url]
-    public ?string $activeTab = null;
+    protected static ?string $cluster = OptionsCluster::class;
+
+    protected static ?string $slug = '/options';
 
     protected string $view = 'epsicube-administration::pages.manage-options';
 
-    protected static string|null|BackedEnum $navigationIcon = Heroicon::OutlinedCog;
+    #[Url]
+    public ?string $activeTab = null;
 
     #[Url('mode')]
     public Operation $operation = Operation::View;

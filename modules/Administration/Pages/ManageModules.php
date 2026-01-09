@@ -10,6 +10,8 @@ use Epsicube\Support\Contracts\HasIntegrations;
 use Epsicube\Support\Contracts\Module;
 use Epsicube\Support\Facades\Modules;
 use Epsicube\Support\Facades\Options;
+use EpsicubeModules\Administration\ApplicationGroup;
+use EpsicubeModules\Administration\Enums\Icons;
 use Filament\Actions\Action;
 use Filament\Infolists\Components\RepeatableEntry;
 use Filament\Infolists\Components\TextEntry;
@@ -21,7 +23,6 @@ use Filament\Schemas\Contracts\HasSchemas;
 use Filament\Schemas\Schema;
 use Filament\Support\Colors\Color;
 use Filament\Support\Enums\Alignment;
-use Filament\Support\Icons\Heroicon;
 use Illuminate\Contracts\Support\Htmlable;
 use UnitEnum;
 
@@ -29,11 +30,15 @@ class ManageModules extends Page implements HasSchemas
 {
     use InteractsWithSchemas;
 
+    protected static string|UnitEnum|null $navigationGroup = ApplicationGroup::SYSTEM;
+
+    protected static string|null|BackedEnum $navigationIcon = Icons::MODULE;
+
+    protected static ?string $slug = '/system/modules';
+
     protected string $view = 'epsicube-administration::pages.manage-modules';
 
-    protected static string|null|BackedEnum $navigationIcon = Heroicon::OutlinedPuzzlePiece;
-
-    protected static ?int $navigationSort = 30;
+    protected static ?int $navigationSort = 10;
 
     public array $state = [];
 
@@ -55,11 +60,6 @@ class ManageModules extends Page implements HasSchemas
     public function mount(): void
     {
         $this->state = $this->getState();
-    }
-
-    public static function getNavigationGroup(): string|UnitEnum|null
-    {
-        return __('Integrations');
     }
 
     public function modulesInfolist(Schema $schema): Schema

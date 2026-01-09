@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace EpsicubeModules\ExecutionPlatform\Integrations\Administration\Resources\Executions;
 
 use BackedEnum;
+use EpsicubeModules\Administration\ApplicationGroup;
 use EpsicubeModules\ExecutionPlatform\Enum\Icons;
 use EpsicubeModules\ExecutionPlatform\Integrations\Administration\Resources\Executions\Pages\ListExecutions;
 use EpsicubeModules\ExecutionPlatform\Integrations\Administration\Resources\Executions\Pages\ViewExecution;
@@ -22,9 +23,11 @@ class ExecutionResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Icons::EXECUTION;
 
-    protected static ?int $navigationSort = 999;
+    protected static ?int $navigationSort = 0;
 
-    protected static string|null|UnitEnum $navigationGroup = 'Execution Platform';
+    protected static string|null|UnitEnum $navigationGroup = ApplicationGroup::SYSTEM;
+
+    protected static ?string $slug = '/system/executions';
 
     public static function infolist(Schema $schema): Schema
     {
