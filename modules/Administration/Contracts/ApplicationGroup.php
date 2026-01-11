@@ -5,12 +5,12 @@ declare(strict_types=1);
 namespace EpsicubeModules\Administration\Contracts;
 
 use BackedEnum;
+use Filament\Support\Contracts\HasLabel;
 use Illuminate\Contracts\Support\Htmlable;
-use Illuminate\Support\HtmlString;
 
-interface ApplicationGroup
+interface ApplicationGroup extends HasLabel
 {
-    public function getApplicationLabel(): string|HtmlString;
-
     public function getApplicationIcon(): string|BackedEnum|Htmlable|null;
+
+    public function getApplicationSort(): ?int;
 }

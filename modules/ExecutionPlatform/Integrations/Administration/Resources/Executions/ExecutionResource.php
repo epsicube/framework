@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace EpsicubeModules\ExecutionPlatform\Integrations\Administration\Resources\Executions;
 
 use BackedEnum;
-use EpsicubeModules\Administration\ApplicationGroup;
+use EpsicubeModules\Administration\Enums\ApplicationGroup;
 use EpsicubeModules\ExecutionPlatform\Enum\Icons;
 use EpsicubeModules\ExecutionPlatform\Integrations\Administration\Resources\Executions\Pages\ListExecutions;
 use EpsicubeModules\ExecutionPlatform\Integrations\Administration\Resources\Executions\Pages\ViewExecution;

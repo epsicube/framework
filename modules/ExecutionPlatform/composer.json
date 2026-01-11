@@ -14,7 +14,7 @@
     "illuminate/database": "^12.8",
     "epsicube/support": "*",
     "phiki/phiki": "^2.0.4",
-    "codeat3/blade-clarity-icons": "^1.8"
+    "codeat3/blade-phosphor-icons": "^2.0"
   },
   "suggest": {
     "epsicube/module-administration": "Executions can be tracked in administration"

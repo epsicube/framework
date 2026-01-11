@@ -4,17 +4,18 @@ declare(strict_types=1);
 
 namespace EpsicubeModules\Administration\Enums;
 
-use Filament\Support\Icons\Heroicon;
-
 class Icons
 {
-    public const Heroicon APPLICATION = Heroicon::OutlinedSquare3Stack3d;
+    // Applications
+    public const string APPLICATIONS_SWITCH = 'phosphor-dots-nine';
 
-    public const Heroicon DASHBOARD = Heroicon::OutlinedSquares2x2;
+    public const string APP_DASHBOARDS = 'phosphor-chart-donut-duotone';
 
-    public const Heroicon SYSTEM = Heroicon::OutlinedCog8Tooth;
+    public const string APP_EXTRAS = 'phosphor-hash-duotone';
 
-    public const Heroicon MODULE = Heroicon::OutlinedPuzzlePiece;
+    public const string APP_SYSTEM = 'phosphor-wrench-duotone';
 
-    public const Heroicon OPTION = Heroicon::OutlinedCog6Tooth;
+    public const string MODULE = 'phosphor-lego';
+
+    public const string OPTION = 'phosphor-sliders-horizontal';
 }

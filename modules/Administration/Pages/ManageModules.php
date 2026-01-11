@@ -9,8 +9,8 @@ use Epsicube\Support\Contracts\HasDependencies;
 use Epsicube\Support\Contracts\HasIntegrations;
 use Epsicube\Support\Contracts\Module;
 use Epsicube\Support\Facades\Modules;
-use Epsicube\Support\Facades\Options;
-use EpsicubeModules\Administration\ApplicationGroup;
+use EpsicubeModules\Administration\AdministrationOptions;
+use EpsicubeModules\Administration\Enums\ApplicationGroup;
 use EpsicubeModules\Administration\Enums\Icons;
 use Filament\Actions\Action;
 use Filament\Infolists\Components\RepeatableEntry;
@@ -44,7 +44,7 @@ class ManageModules extends Page implements HasSchemas
 
     public static function canAccess(): bool
     {
-        return Options::get('core::administration', 'enable-modules-manager');
+        return AdministrationOptions::isModulesManagerEnabled();
     }
 
     public static function getNavigationLabel(): string

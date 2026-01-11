@@ -2,7 +2,7 @@
 - rework process installation / auto-setup
 - migrer hypercore dans la foundation
 - obligation de presence d'un core avec default seeder/migration
-
+- ajout de sous-groupe pour options ou (module,sous-groupe,key,value)
 ## Documentation
 
 - best practice structure module
@@ -40,6 +40,13 @@
       ->when('field','value', Property::make())
   
   ```
+## Adminisration
+- how to extend panel
+- applicaitonGroup
+
+## MCP Server
+
+## JSON-RPC Server
 
 ## Modules à implementer
 

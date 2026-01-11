@@ -42,7 +42,7 @@ class StringProperty extends BaseProperty implements JsonSchemaExportable
         return $this;
     }
 
-    public function format(?StringFormat $format = null): static
+    public function format(?StringFormat $format): static
     {
         $this->format = $format;
 

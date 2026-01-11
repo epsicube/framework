@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace EpsicubeModules\ExecutionPlatform\Integrations\Administration\Resources\Executions\Pages;
 
+use EpsicubeModules\ExecutionPlatform\Enum\Icons;
 use EpsicubeModules\ExecutionPlatform\Integrations\Administration\Actions\CancelExecutionAction;
 use EpsicubeModules\ExecutionPlatform\Integrations\Administration\Actions\ForkExecutionAction;
 use EpsicubeModules\ExecutionPlatform\Integrations\Administration\Actions\RunExecutionAction;
@@ -22,7 +23,7 @@ class ViewExecution extends ViewRecord
         return [
             Action::make('toggleJsonView')
                 ->label(fn () => $this->showAsJson ? __('Show Form') : __('Show JSON'))
-                ->icon(fn () => $this->showAsJson ? 'heroicon-m-document-text' : 'heroicon-m-code-bracket')
+                ->icon(Icons::TOGGLE_JSON_VIEW)
                 ->color('gray')
                 ->action(fn () => $this->showAsJson = ! $this->showAsJson),
 
