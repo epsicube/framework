@@ -23,6 +23,9 @@ class EpsicubeManager
     /** @var array<string, string> */
     protected array $clearCommands = [];
 
+    /** @var array<string, string> */
+    protected array $installCommands = [];
+
     /**
      * Register a new work command.
      *
@@ -67,6 +70,22 @@ class EpsicubeManager
     public function optimizeCommands(): array
     {
         return $this->optimizeCommands;
+    }
+
+    public function addInstallCommand(string $key, string $command): void
+    {
+        if (array_key_exists($key, $this->installCommands)) {
+            throw new InvalidArgumentException(
+                sprintf("An install command with key '%s' already exists.", $key)
+            );
+        }
+
+        $this->installCommands[$key] = $command;
+    }
+
+    public function installCommands(): array
+    {
+        return $this->installCommands;
     }
 
     public function addClearCommand(string $key, string $command): void

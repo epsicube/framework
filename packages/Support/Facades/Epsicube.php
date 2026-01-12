@@ -31,6 +31,16 @@ class Epsicube extends Facade
         });
     }
 
+    /**
+     * @param  string|class-string<Command>  $command
+     */
+    public static function addInstallCommand(string $key, string $command): void
+    {
+        static::resolved(function (EpsicubeManager $manager) use ($key, $command): void {
+            $manager->addInstallCommand($key, $command);
+        });
+    }
+
     public static function optimizes(string $key, ?string $optimizeCmd = null, ?string $clearCmd = null): void
     {
         static::resolved(function (EpsicubeManager $manager) use ($key, $optimizeCmd, $clearCmd): void {

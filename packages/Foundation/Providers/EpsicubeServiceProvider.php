@@ -7,6 +7,7 @@ namespace Epsicube\Foundation\Providers;
 use Carbon\Laravel\ServiceProvider;
 use Epsicube\Foundation\Console\Commands\CacheCommand;
 use Epsicube\Foundation\Console\Commands\ClearCommand;
+use Epsicube\Foundation\Console\Commands\InstallCommand;
 use Epsicube\Foundation\Console\Commands\MakeModuleCommand;
 use Epsicube\Foundation\Console\Commands\ModulesDisableCommand;
 use Epsicube\Foundation\Console\Commands\ModulesEnableCommand;
@@ -19,6 +20,7 @@ use Epsicube\Foundation\Console\Commands\WorkCommand;
 use Epsicube\Foundation\Managers\EpsicubeManager;
 use Epsicube\Foundation\Managers\ModulesManager;
 use Epsicube\Foundation\Managers\OptionsManager;
+use Epsicube\Foundation\Proxy\NumberTranslator;
 use Epsicube\Foundation\Utilities\DatabaseOptionStore;
 use Epsicube\Foundation\Utilities\FilesystemActivationDriver;
 use Epsicube\Foundation\Utilities\Manifest;
@@ -28,6 +30,7 @@ use Epsicube\Support\Contracts\Module;
 use Epsicube\Support\Facades\Epsicube;
 use Epsicube\Support\Facades\Modules;
 use Epsicube\Support\Facades\Options;
+use Illuminate\Contracts\Translation\Translator;
 use Illuminate\Filesystem\Filesystem;
 use Illuminate\Support\Env;
 use RuntimeException;
@@ -109,6 +112,11 @@ class EpsicubeServiceProvider extends ServiceProvider
         $this->app->alias('foundation-manifest', \Epsicube\Support\Facades\Manifest::$accessor);
         $this->app->alias('foundation-options', Options::$accessor);
         $this->app->alias('foundation-modules', Modules::$accessor);
+
+        // Extend translator to handle number formatting
+        $this->app->extend('translator', function (Translator $translator) {
+            return new NumberTranslator($translator);
+        });
     }
 
     public function boot(): void
@@ -116,6 +124,7 @@ class EpsicubeServiceProvider extends ServiceProvider
         $this->commands([
             CacheCommand::class,
             ClearCommand::class,
+            InstallCommand::class,
             MakeModuleCommand::class,
             ModulesStatusCommand::class,
             ModulesEnableCommand::class,

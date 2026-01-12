@@ -9,6 +9,7 @@ use Composer\InstalledVersions;
 use Epsicube\Schemas\Schema;
 use Epsicube\Support\Contracts\HasOptions;
 use Epsicube\Support\Contracts\Module;
+use Epsicube\Support\Facades\Epsicube;
 use Epsicube\Support\ModuleIdentity;
 use EpsicubeModules\Administration\View\Components\ApplicationGroupIcon;
 use Filament\FilamentServiceProvider;
@@ -68,5 +69,6 @@ class AdministrationModule extends ServiceProvider implements HasOptions, Module
         $this->loadViewComponentsAs('epsicube-administration', [
             ApplicationGroupIcon::class,
         ]);
+        Epsicube::addInstallCommand('core::administration', 'filament:assets');
     }
 }
