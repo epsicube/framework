@@ -48,7 +48,7 @@ class AdministrationOptions
                 ->title(__('Path'))
                 ->description(__('Defines the subpath where the administration panel is served (e.g. /admin or /dashboard).'))
                 ->optional()
-                ->default('/epsicube'),
+                ->default('/admin'),
 
             'domain' => StringProperty::make()
                 ->title(__('Domain'))

@@ -2,69 +2,122 @@
 title: Installation
 description: Learn how to install and bootstrap Epsicube in your Laravel application.
 slug: "getting-started/installation"
+tableOfContents: false
+
 ---
-import { Steps, Aside } from '@astrojs/starlight/components';
+import { Steps, Aside, Tabs, TabItem } from '@astrojs/starlight/components';
 
 **Epsicube** is a modular application framework built on top of Laravel.
-It provides a robust architecture for building extensible systems composed of isolated modules, shared integrations, and
-configurable execution pipelines.
+It provides a robust architecture for building extensible systems composed of isolated modules, shared integrations, and configurable execution pipelines.
 
-Epsicube enhances Laravel's foundation without altering its philosophy, offering additional capabilities such as module
-lifecycle management, multi-core orchestration, workflow execution, and centralized configuration.
+## Global Requirements
 
+Before installing Epsicube, ensure your environment meets these core requirements:
 
-## Requirements
-
-Epsicube follows the requirements of your Laravel version and does not introduce additional PHP extension dependencies.
-
-Ensure your environment meets the following:
-
-- PHP 8.4 +
-- Composer
-- A working Laravel application (supported version: **Laravel 12.x**)
+- **PHP 8.4+**
+- **Composer**
+- **PHP Extensions**:
+    - `intl`: Required for advanced localization and string handling.
+    - `pcntl`: Required for the **Epsicube Worker** to manage process signals.
 
 ---
 
-## Installation Steps
+## Installation Guide
 
-<Steps>
-1. ### Install the framework
+Choose the method that best fits your project needs:
 
-    Install Epsicube via Composer:
+<Tabs>
+  <TabItem label="New App (Starter Kit)">
 
-    ```bash
-    composer require epsicube/framework
-    ```
+    The fastest way to start. This uses the official Laravel installer to scaffold a project pre-configured with Epsicube.
 
-2. ### Replace the application class
+    <Steps>
+    1. ### Install Laravel Installer
+        If you haven't already, install the installer globally:
+        ```bash
+        composer global require laravel/installer
+        ```
 
-    Epsicube uses its own application container, `EpsicubeApplication`.
-    Update your `bootstrap/app.php` accordingly:
+    2. ### Scaffold Project
+        Create a new project using the `--using` flag to pull the Epsicube starter kit:
+        ```bash
+        laravel new my-modular-app --using=epsicube/epsicube
+        ```
 
-    ```php
-    use Epsicube\Foundation\EpsicubeApplication;
+    3. ### Run with Docker (Optional)
+        The starter kit includes a `docker-compose.yml`. To lift your environment:
+        ```bash
+        # Start containers
+        docker compose up -d
 
-    return EpsicubeApplication::configure(basePath: dirname(__DIR__))
-        ->withRouting()
-        ->withMiddleware()
-        ->withExceptions()
-        ->create();
-    ```
+        # Run migrations inside the container
+        docker compose exec epsicube php artisan migrate
 
-3. ### Run migrations
+        # Access the container shell
+        docker compose exec epsicube bash
+        ```
+    </Steps>
+  </TabItem>
 
-    Epsicube automatically provides additional migrations required for its internal systems.
-    Apply all pending migrations:
+  <TabItem label="Existing Application">
 
-    ```bash
-    php artisan migrate
-    ```
+    Follow these steps to integrate Epsicube into an existing Laravel 12.x project.
 
-4. ### Configure long-running tasks
+    <Steps>
+    1. ### Install via Composer
+        Add the framework to your dependencies:
+        ```bash
+        composer require epsicube/framework
+        ```
 
-    Epsicube provides its own unified worker system through the `epsicube:work` command.
-    This worker supervises long-running processes defined by modules (e.g., schedulers, queues).
+    2. ### Replace Application Class
+        Epsicube uses its own container, `EpsicubeApplication`.
+        Update your `bootstrap/app.php` file:
 
-    Refer to the section **[Configure worker for production](/usage/manage-processes/#setup-for-production)** for detailed instructions.
+        ```php
+        use Epsicube\Foundation\EpsicubeApplication;
 
-</Steps>
+        return EpsicubeApplication::configure(basePath: dirname(__DIR__))
+            ->withRouting()
+            ->withMiddleware()
+            ->withExceptions()
+            ->create();
+        ```
+
+    3. ### Run Migrations
+        Epsicube requires internal tables to manage the module registry and options store:
+        ```bash
+        php artisan migrate
+        ```
+    </Steps>
+  </TabItem>
+</Tabs>
+
+## Worker Configuration
+
+Epsicube relies on its own worker system (`epsicube:work`) to supervise long-running processes (queues, schedulers, custom loops).
+
+**This step is required for both installation methods** (unless you are using Docker, where the worker is already pre-configured in the services).
+
+Refer to the **[Production Setup](/usage/manage-processes/#setup-for-production)** for detailed instructions on using Supervisor.
+
+## Verify Installation
+
+Epsicube injects its metadata directly into the native Laravel `about` command. Run the following to ensure everything is operational:
+
+```bash
+php artisan about --only Epsicube
+
+```
+
+You should see an output similar to this:
+
+| Epsicube |       |
+|----------|-------|
+| Version  | 1.0.x |
+
+
+## Next Steps
+
+* **[Architectural Overview](https://www.google.com/search?q=/usage/overview/)**: Understand the modular philosophy.
+* **[Writing a Module](https://www.google.com/search?q=/writing-module/)**: Use the CLI to generate your first module.
