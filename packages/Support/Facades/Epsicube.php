@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Epsicube\Support\Facades;
 
+use Composer\InstalledVersions;
 use Epsicube\Foundation\Managers\EpsicubeManager;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Facade;
@@ -19,6 +20,13 @@ class Epsicube extends Facade
     protected static function getFacadeAccessor(): string
     {
         return static::$accessor;
+    }
+
+    public static function version(): string
+    {
+        return InstalledVersions::getPrettyVersion('epsicube/foundation')
+            ?? InstalledVersions::getPrettyVersion('epsicube/framework')
+            ?? '---';
     }
 
     /**

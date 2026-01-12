@@ -27,6 +27,7 @@ class Administration extends FilamentPanel
 
         $this
             ->discoverPages(in: __DIR__.'/Pages', for: __NAMESPACE__.'\\Pages')
+            ->discoverWidgets(in: __DIR__.'/Widgets', for: __NAMESPACE__.'\\Widgets')
             ->domain(AdministrationOptions::domain())
             ->path(AdministrationOptions::path())
             // Inject brand name, or default logo
@@ -56,6 +57,7 @@ class Administration extends FilamentPanel
 
         // Custom application scoped navigation
         if (AdministrationOptions::hasApplicationNavigation()) {
+            //            $this->maxContentWidth(Width::ScreenExtraLarge);
             (new PanelApplicationNavigation($this))->configure();
         }
     }
