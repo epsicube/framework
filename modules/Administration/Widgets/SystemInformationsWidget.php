@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace EpsicubeModules\Administration\Widgets;
 
 use Exception;
+use Filament\Forms\Concerns\InteractsWithForms;
+use Filament\Forms\Contracts\HasForms;
 use Filament\Widgets\StatsOverviewWidget as BaseWidget;
 use Filament\Widgets\StatsOverviewWidget\Stat;
 use Illuminate\Support\Facades\App;
@@ -12,27 +14,26 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Number;
 use Illuminate\Support\Str;
 
-class SystemInformationsWidget extends BaseWidget
+class SystemInformationsWidget extends BaseWidget implements HasForms
 {
+    use InteractsWithForms;
+
     protected static bool $isLazy = false;
 
-    protected ?string $pollingInterval = '1s';
+    protected ?string $pollingInterval = '10s';
 
     protected function getHeading(): ?string
     {
         return __('Global System Overview');
     }
 
-    protected function getDescription(): ?string
-    {
-        return __('Real-time monitoring of infrastructure, database, and environment.');
-    }
-
     protected function getStats(): array
     {
-        $cpuLoad = sys_getloadavg()[0];
         $coreCount = $this->getCpuCoreCount();
-        $loadRatio = $cpuLoad / $coreCount;
+
+        $loadAvg = sys_getloadavg();
+        $cpuLoad = $loadAvg[0] ?? 0;
+        $loadPercentage = ($coreCount > 0) ? ($cpuLoad / $coreCount) * 100 : 0;
 
         $memoryUsageBytes = memory_get_usage(true);
         $memoryInMb = $memoryUsageBytes / 1024 / 1024;
@@ -52,13 +53,13 @@ class SystemInformationsWidget extends BaseWidget
         }
 
         return [
-            Stat::make(__('Server Load'), round($cpuLoad, 2)." / {$coreCount}")
-                ->description(__('Average load across available CPU cores'))
-                ->icon('heroicon-m-cpu-chip')
+            Stat::make(__('Server Load'), number_format($loadPercentage, 1).'%')
+                ->description(__('Global average load (1 min)'))
+                ->icon('heroicon-m-chart-bar')
                 ->color(match (true) {
-                    $loadRatio > 0.9 => 'danger',
-                    $loadRatio > 0.7 => 'warning',
-                    default          => 'success',
+                    $loadPercentage > 100 => 'danger',
+                    $loadPercentage > 80  => 'warning',
+                    default               => 'success',
                 }),
 
             Stat::make(__('PHP Memory'), Number::fileSize($memoryUsageBytes, precision: 1).' / '.($memoryLimit === '-1' ? '∞' : $memoryLimit))
@@ -73,17 +74,7 @@ class SystemInformationsWidget extends BaseWidget
             Stat::make(__('Database'), "{$databaseName} (".Str::title($driver).')')
                 ->icon('heroicon-m-circle-stack')
                 ->description(__('Active Connections: ').$connections)
-                ->color($connections !== '---' ? 'info' : 'gray'),
-
-            Stat::make(__('Upload Limits'), ini_get('upload_max_filesize'))
-                ->description(__('Post Max: ').ini_get('post_max_size'))
-                ->icon('heroicon-m-arrow-up-tray')
-                ->color('gray'),
-
-            Stat::make(__('PHP Runtime'), 'v'.PHP_VERSION)
-                ->description(__('Max Execution: ').ini_get('max_execution_time').'s')
-                ->icon('heroicon-m-clock')
-                ->color('gray'),
+                ->color($connections !== '---' ? 'info' : null),
 
             Stat::make(__('Environment'), ucfirst(App::environment()))
                 ->description(App::isProduction() ? __('Live Server') : __('Development Mode'))
@@ -92,26 +83,52 @@ class SystemInformationsWidget extends BaseWidget
         ];
     }
 
-    protected function getCpuCoreCount(): int
+    protected function getCpuCoreCount(): float
     {
         return once(function () {
-            if (is_file('/proc/cpuinfo')) {
-                $cpuinfo = file_get_contents('/proc/cpuinfo');
-                preg_match_all('/^processor/m', $cpuinfo, $matches);
-
-                return count($matches[0]) ?: 1;
-            }
-
             try {
-                $process = shell_exec('sysctl -n hw.ncpu');
-                if ($process) {
-                    return (int) $process;
+                if (@is_file('/sys/fs/cgroup/cpu.max')) {
+                    $content = @file_get_contents('/sys/fs/cgroup/cpu.max');
+                    if ($content) {
+                        $parts = explode(' ', trim($content));
+                        if (isset($parts[0], $parts[1]) && $parts[0] !== 'max') {
+                            return (float) $parts[0] / (float) $parts[1];
+                        }
+                    }
+                }
+
+                if (@is_file('/sys/fs/cgroup/cpu/cpu.cfs_quota_us')) {
+                    $quota = (int) @file_get_contents('/sys/fs/cgroup/cpu/cpu.cfs_quota_us');
+                    $period = (int) @file_get_contents('/sys/fs/cgroup/cpu/cpu.cfs_period_us');
+                    if ($quota > 0 && $period > 0) {
+                        return (float) $quota / $period;
+                    }
+                }
+
+                if (@is_file('/proc/cpuinfo')) {
+                    $cpuinfo = @file_get_contents('/proc/cpuinfo');
+                    if ($cpuinfo) {
+                        preg_match_all('/^processor/m', $cpuinfo, $matches);
+
+                        return (float) (count($matches[0]) ?: 1);
+                    }
+                }
+
+                $sysctl = @shell_exec('sysctl -n hw.ncpu');
+                if ($sysctl) {
+                    return (float) trim($sysctl);
+                }
+
+                if (str_contains(PHP_OS, 'WIN')) {
+                    $winCores = @shell_exec('echo %NUMBER_OF_PROCESSORS%');
+                    if ($winCores) {
+                        return (float) trim($winCores);
+                    }
                 }
             } catch (Exception $e) {
             }
 
-            return 1;
+            return 1.0;
         });
-
     }
 }
