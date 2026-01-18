@@ -23,7 +23,8 @@
     "filament/filament": "^4.5",
     "sajya/server": "^7.0.0",
     "filafly/filament-phosphor-icons": "^2.0",
-    "laravel/serializable-closure": "^2.0.8"
+    "laravel/serializable-closure": "^2.0.8",
+    "symfony/var-exporter": "^8.0"
   },
   "replace": {
     "epsicube/schemas": "self.version",
