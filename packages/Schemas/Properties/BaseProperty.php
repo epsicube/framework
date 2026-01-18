@@ -38,17 +38,7 @@ abstract class BaseProperty implements FilamentExportable, JsonSchemaExportable,
 
     protected bool $nullable = false;
 
-    /**
-     * @var ReflectionProperty Used to detect if default provided because isset return false when value is null
-     */
-    protected ReflectionProperty $reflectionDefault;
-
     protected mixed $default;
-
-    public function __construct()
-    {
-        $this->reflectionDefault = new ReflectionProperty(static::class, 'default');
-    }
 
     public static function make(): static
     {
@@ -104,7 +94,10 @@ abstract class BaseProperty implements FilamentExportable, JsonSchemaExportable,
 
     public function hasDefault(): bool
     {
-        return $this->reflectionDefault->isInitialized($this);
+        // Use reflection because isset with 'false or null' return 'false'
+        $reflectedDefault = new ReflectionProperty(static::class, 'default');
+
+        return $reflectedDefault->isInitialized($this);
     }
 
     // ------------------------------
