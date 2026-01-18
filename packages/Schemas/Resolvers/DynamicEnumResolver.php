@@ -13,10 +13,7 @@ use ReflectionClass;
 
 class DynamicEnumResolver implements EnumResolver
 {
-    /** @var SerializableClosure */
-    protected Closure|SerializableClosure $callback;
-
-    protected SerializableClosure $serializedCallback;
+    protected SerializableClosure $callback;
 
     /** @var EnumCase[]|null */
     protected ?array $cases = null;
@@ -26,16 +23,7 @@ class DynamicEnumResolver implements EnumResolver
      */
     public function __construct(Closure $callback)
     {
-        $this->callback = $callback;
-    }
-
-    public function __sleep(): array
-    {
-        if ($this->callback instanceof Closure) {
-            $this->serializedCallback = new SerializableClosure($this->callback);
-        }
-
-        return ['serializedCallback', 'cases'];
+        $this->callback = new SerializableClosure($callback);
     }
 
     public static function __set_state(array $properties): static
@@ -44,11 +32,6 @@ class DynamicEnumResolver implements EnumResolver
 
         foreach ($properties as $key => $value) {
             $instance->{$key} = $value;
-        }
-
-        if (isset($instance->serializedCallback)) {
-            $instance->callback = $instance->serializedCallback->getClosure();
-            unset($instance->serializedCallback);
         }
 
         return $instance;
@@ -60,7 +43,7 @@ class DynamicEnumResolver implements EnumResolver
     public function cases(): array
     {
         if ($this->cases === null) {
-            $cases = ($this->callback)();
+            $cases = ($this->callback->getClosure())();
 
             if (! is_array($cases)) {
                 throw new LogicException('Dynamic enum resolver must return an array of EnumCase.');
