@@ -6,8 +6,6 @@ namespace Epsicube\Schemas\Types;
 
 use JsonSerializable;
 use LogicException;
-use ReflectionClass;
-use ReflectionException;
 
 /**
  * Represents the absence of value.
@@ -29,24 +27,6 @@ class UndefinedValue implements JsonSerializable
     public function jsonSerialize(): null
     {
         return null;
-    }
-
-    /**
-     * Keep to ensure var_export and require work for cache
-     *
-     * @throws ReflectionException
-     */
-    public static function __set_state(array $properties): static
-    {
-        $instance = (new ReflectionClass(static::class))->newInstanceWithoutConstructor();
-
-        foreach ($properties as $key => $value) {
-            if (property_exists($instance, $key)) {
-                $instance->{$key} = $value;
-            }
-        }
-
-        return $instance;
     }
 
     public function __clone(): void

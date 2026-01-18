@@ -16,8 +16,7 @@ use Epsicube\Schemas\Overrides\SchemaValidator;
 use Filament\Schemas\Components\Component;
 use Filament\Support\Enums\Operation;
 use LogicException;
-use ReflectionClass;
-use ReflectionException;
+use Symfony\Component\VarExporter\VarExporter;
 
 class Schema
 {
@@ -30,24 +29,6 @@ class Schema
         protected ?string $description = null,
         protected array $properties = [],
     ) {}
-
-    /**
-     * Keep to ensure var_export and require work for cache
-     *
-     * @throws ReflectionException
-     */
-    public static function __set_state(array $properties): static
-    {
-        $instance = (new ReflectionClass(static::class))->newInstanceWithoutConstructor();
-
-        foreach ($properties as $key => $value) {
-            if (property_exists($instance, $key)) {
-                $instance->{$key} = $value;
-            }
-        }
-
-        return $instance;
-    }
 
     /**
      * @param  array<string, Property>  $properties
@@ -191,5 +172,10 @@ class Schema
         );
 
         return $validator->validated();
+    }
+
+    public function cacheExport(): string
+    {
+        return VarExporter::export($this);
     }
 }

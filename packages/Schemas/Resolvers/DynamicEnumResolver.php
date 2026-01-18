@@ -9,7 +9,6 @@ use Epsicube\Schemas\Contracts\EnumResolver;
 use Epsicube\Schemas\Types\EnumCase;
 use Laravel\SerializableClosure\SerializableClosure;
 use LogicException;
-use ReflectionClass;
 
 class DynamicEnumResolver implements EnumResolver
 {
@@ -24,17 +23,6 @@ class DynamicEnumResolver implements EnumResolver
     public function __construct(Closure $callback)
     {
         $this->callback = new SerializableClosure($callback);
-    }
-
-    public static function __set_state(array $properties): static
-    {
-        $instance = (new ReflectionClass(static::class))->newInstanceWithoutConstructor();
-
-        foreach ($properties as $key => $value) {
-            $instance->{$key} = $value;
-        }
-
-        return $instance;
     }
 
     /**

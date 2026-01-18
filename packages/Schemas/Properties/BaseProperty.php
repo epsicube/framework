@@ -15,8 +15,6 @@ use Epsicube\Schemas\Exporters\FilamentComponentsExporter;
 use Epsicube\Schemas\Exporters\JsonSchemaExporter;
 use Epsicube\Schemas\Exporters\LaravelPromptsFormExporter;
 use Epsicube\Schemas\Exporters\LaravelValidatorExporter;
-use ReflectionClass;
-use ReflectionException;
 use ReflectionProperty;
 
 /**
@@ -43,24 +41,6 @@ abstract class BaseProperty implements FilamentExportable, JsonSchemaExportable,
     public static function make(): static
     {
         return new static;
-    }
-
-    /**
-     * Keep to ensure var_export and require work for cache
-     *
-     * @throws ReflectionException
-     */
-    public static function __set_state(array $properties): static
-    {
-        $instance = (new ReflectionClass(static::class))->newInstanceWithoutConstructor();
-
-        foreach ($properties as $key => $value) {
-            if (property_exists($instance, $key)) {
-                $instance->{$key} = $value;
-            }
-        }
-
-        return $instance;
     }
 
     public function getTitle(): ?string
