@@ -4,9 +4,12 @@ declare(strict_types=1);
 
 namespace Epsicube\Schemas\Types;
 
+use ReflectionClass;
+use ReflectionException;
+
 class EnumCase
 {
-    public function make(int|string $value, ?string $label = null, ?array $meta = []): static
+    public static function make(int|string $value, ?string $label = null, ?array $meta = []): static
     {
         return new static($value, $label, $meta);
     }
@@ -16,6 +19,24 @@ class EnumCase
         protected ?string $label = null,
         protected ?array $meta = []
     ) {}
+
+    /**
+     * Keep to ensure var_export and require work for cache
+     *
+     * @throws ReflectionException
+     */
+    public static function __set_state(array $properties): static
+    {
+        $instance = (new ReflectionClass(static::class))->newInstanceWithoutConstructor();
+
+        foreach ($properties as $key => $value) {
+            if (property_exists($instance, $key)) {
+                $instance->{$key} = $value;
+            }
+        }
+
+        return $instance;
+    }
 
     public function value(): int|string
     {

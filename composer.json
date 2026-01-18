@@ -22,7 +22,8 @@
     "codeat3/blade-phosphor-icons": "^2.0",
     "filament/filament": "^4.5",
     "sajya/server": "^7.0.0",
-    "filafly/filament-phosphor-icons": "^2.0"
+    "filafly/filament-phosphor-icons": "^2.0",
+    "laravel/serializable-closure": "^2.0.8"
   },
   "replace": {
     "epsicube/schemas": "self.version",

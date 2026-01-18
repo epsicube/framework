@@ -54,7 +54,7 @@ class FloatProperty extends BaseProperty
         return $this;
     }
 
-    public function multipleOf(int $multiple): static
+    public function multipleOf(float $multiple): static
     {
         $this->multipleOf = $multiple;
 
