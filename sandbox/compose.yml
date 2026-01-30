@@ -1,0 +1,77 @@
+services:
+  epsicube:
+    build:
+      context: .docker/epsicube
+      args:
+        DOCKER_GID: '${DOCKER_GID:-999}'
+        DOCKER_UID: '${DOCKER_UID:-999}'
+        PHP_EXTENSIONS: '${PHP_EXTENSIONS:-bcmath curl intl mbstring opcache pcntl pdo_sqlite pdo_pgsql pgsql readline sockets xml zip}'
+    init: true # <- or install tini (schedule:run specific)
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"
+    environment:
+      DB_CONNECTION: pgsql
+      DB_HOST: pgsql
+      DB_DATABASE: ${DB_DATABASE:-epsicube}
+      DB_USERNAME: ${DB_USERNAME:-postgres}
+      DB_PASSWORD: ${DB_PASSWORD:-secret}
+      SERVER_ROOT: "/app/sandbox/public"
+    volumes:
+      - '../:/app'
+    working_dir: /app/sandbox
+    networks:
+      - epsicube
+
+  pgsql:
+    image: "postgres:18.1-alpine3.23"
+    environment:
+      PGPASSWORD: '${DB_PASSWORD:-secret}'
+      POSTGRES_DB: '${DB_DATABASE:-epsicube}'
+      POSTGRES_USER: '${DB_USERNAME:-postgres}'
+      POSTGRES_PASSWORD: '${DB_PASSWORD:-secret}'
+    volumes:
+      - 'pgsql:/var/lib/postgresql/data'
+    networks:
+      - epsicube
+    healthcheck:
+      test: [ "CMD", "pg_isready", "-q", "-d", "${DB_DATABASE:-epsicube}", "-U", "${DB_USERNAME:-postgres}" ]
+      interval: 2s
+      timeout: 5s
+      retries: 10
+      start_period: 2s
+
+  # DEV
+  mailpit:
+    profiles: [ 'dev' ]
+    image: "axllent/mailpit:v1.28.2"
+    ports:
+      - '8025:8025'
+    networks:
+      - epsicube
+
+  pgadmin:
+    profiles: [ 'dev' ]
+    depends_on:
+      pgsql:
+        condition: service_healthy
+    image: "dpage/pgadmin4:9"
+    ports:
+      - "8015:80"
+    environment:
+      PGADMIN_DEFAULT_EMAIL: pgadmin@epsicube.dev
+      PGADMIN_DEFAULT_PASSWORD: secret
+      PGADMIN_CONFIG_SERVER_MODE: 'False'
+      PGADMIN_CONFIG_MASTER_PASSWORD_REQUIRED: 'False'
+    volumes:
+      - pgadmin:/var/lib/pgadmin
+    networks:
+      - epsicube
+volumes:
+  pgsql:
+  pgadmin:
+
+networks:
+  epsicube:
+    driver: bridge

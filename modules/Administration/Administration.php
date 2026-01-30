@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace EpsicubeModules\Administration;
 
-use Epsicube\Support\Facades\Options;
 use EpsicubeModules\Administration\Features\PanelApplicationNavigation;
 use Filafly\Icons\Phosphor\PhosphorIcons;
 use Filament\Http\Middleware\AuthenticateSession;
@@ -57,7 +56,6 @@ class Administration extends FilamentPanel
 
         // Custom application scoped navigation
         if (AdministrationOptions::hasApplicationNavigation()) {
-            //            $this->maxContentWidth(Width::ScreenExtraLarge);
             (new PanelApplicationNavigation($this))->configure();
         }
     }
