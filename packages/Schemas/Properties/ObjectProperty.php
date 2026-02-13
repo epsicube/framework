@@ -94,6 +94,7 @@ class ObjectProperty extends BaseProperty
         // TODO required section
 
         return Section::make($components)
+            ->statePath($name)
             ->heading($this->title ?? ($name !== '_' ? $name : null))
             ->when(
                 $this->getDescription(),
