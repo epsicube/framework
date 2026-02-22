@@ -2,17 +2,21 @@
 
 declare(strict_types=1);
 
+use App\Modules\TestIsModule;
+use Epsicube\Support\Enums\ModuleStatus;
+use Epsicube\Support\Facades\Modules;
+use Epsicube\Support\Modules\Module;
 use EpsicubeModules\ExecutionPlatform\Integrations\Administration\AdministrationIntegration;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
 
-    $t = new \App\Modules\TestIsModule(app());
+    $t = new TestIsModule(app());
     $module = $t->module();
 
-    $versions = array_map(function (\Epsicube\Support\Modules\Module $module) {
-        return $module->status === \Epsicube\Support\Enums\ModuleStatus::ENABLED ? $module->version : false;
-    }, \Epsicube\Support\Facades\Modules::all());
+    $versions = array_map(function (Module $module) {
+        return $module->status === ModuleStatus::ENABLED ? $module->version : false;
+    }, Modules::all());
     dd(
         AdministrationIntegration::handle(...),
         //        $module->identity,

@@ -1,6 +1,11 @@
 <?php
 
+declare(strict_types=1);
+
+use App\Modules\MyCustomModule;
+use App\Modules\TestIsModule;
+
 return [
-    App\Modules\MyCustomModule::class,
-    App\Modules\TestIsModule::class,
+    MyCustomModule::class,
+    TestIsModule::class,
 ];

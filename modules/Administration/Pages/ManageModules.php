@@ -102,12 +102,12 @@ class ManageModules extends Page implements HasActions, HasSchemas
 
                     // Modal configuration
                     ->requiresConfirmation()->modalWidth(Width::Small)
-                    ->modalHeading(fn () => $module->status === ModuleStatus::ENABLED ? __('Disable Module') : __('Enable Module'))
-                    ->modalDescription(fn () => $module->status === ModuleStatus::ENABLED
+                    ->modalHeading(fn () => $module->status !== ModuleStatus::DISABLED ? __('Disable Module') : __('Enable Module'))
+                    ->modalDescription(fn () => $module->status !== ModuleStatus::DISABLED
                         ? __('Are you sure you want to disable this module? Some features might become unavailable.')
                         : __('Are you sure you want to enable this module?'))
-                    ->modalIcon(fn () => $module->status === ModuleStatus::ENABLED ? Heroicon::Stop : Heroicon::Play)
-                    ->modalIconColor(fn () => $module->status === ModuleStatus::ENABLED ? Color::Red : Color::Green)
+                    ->modalIcon(fn () => $module->status !== ModuleStatus::DISABLED ? Heroicon::Stop : Heroicon::Play)
+                    ->modalIconColor(fn () => $module->status !== ModuleStatus::DISABLED ? Color::Red : Color::Green)
                     ->modalSubmitAction(fn (Action $action) => $action->label(match ($module->status) {
                         ModuleStatus::ENABLED,ModuleStatus::ERROR => __('Disable'),
                         ModuleStatus::DISABLED => __('Enable'),
@@ -120,7 +120,7 @@ class ManageModules extends Page implements HasActions, HasSchemas
                     ->disabled(! Modules::canBeDisabled($module->identifier) && ! Modules::canBeEnabled($module->identifier))
                     ->action(function (Action $action) use ($module) {
 
-                        if ($module->status === ModuleStatus::ENABLED) {
+                        if ($module->status !== ModuleStatus::DISABLED) {
                             Modules::disable($module->identifier);
                             Notification::make()->danger()->title(__('Module disabled'))->send();
                         } else {
