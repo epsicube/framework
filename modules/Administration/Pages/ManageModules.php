@@ -85,19 +85,19 @@ class ManageModules extends Page implements HasActions, HasSchemas
 
                 Action::make("toggle-{$module->identifier}")
                     ->label(match ($module->status) {
-                        ModuleStatus::ENABLED => __('Enabled'),
+                        ModuleStatus::ENABLED  => __('Enabled'),
                         ModuleStatus::DISABLED => __('Disabled'),
-                        ModuleStatus::ERROR => __('Error'),
+                        ModuleStatus::ERROR    => __('Error'),
                     })
                     ->color(match ($module->status) {
-                        ModuleStatus::ENABLED => Color::Green,
+                        ModuleStatus::ENABLED  => Color::Green,
                         ModuleStatus::DISABLED => Color::Neutral,
-                        ModuleStatus::ERROR => Color::Red,
+                        ModuleStatus::ERROR    => Color::Red,
                     })
                     ->icon(match (true) {
                         Modules::canBeDisabled($module->identifier) => Heroicon::Stop,
-                        Modules::canBeEnabled($module->identifier) => Heroicon::Play,
-                        default => null,
+                        Modules::canBeEnabled($module->identifier)  => Heroicon::Play,
+                        default                                     => null,
                     })->badge()
 
                     // Modal configuration
@@ -109,14 +109,13 @@ class ManageModules extends Page implements HasActions, HasSchemas
                     ->modalIcon(fn () => $module->status !== ModuleStatus::DISABLED ? Heroicon::Stop : Heroicon::Play)
                     ->modalIconColor(fn () => $module->status !== ModuleStatus::DISABLED ? Color::Red : Color::Green)
                     ->modalSubmitAction(fn (Action $action) => $action->label(match ($module->status) {
-                        ModuleStatus::ENABLED,ModuleStatus::ERROR => __('Disable'),
+                        ModuleStatus::ENABLED, ModuleStatus::ERROR => __('Disable'),
                         ModuleStatus::DISABLED => __('Enable'),
                     })->color(match ($module->status) {
-                        ModuleStatus::ENABLED,ModuleStatus::ERROR => Color::Red,
+                        ModuleStatus::ENABLED, ModuleStatus::ERROR => Color::Red,
                         ModuleStatus::DISABLED => Color::Green,
                     }))
                     ->modalCancelAction(fn (Action $action) => $action->hidden())
-
                     ->disabled(! Modules::canBeDisabled($module->identifier) && ! Modules::canBeEnabled($module->identifier))
                     ->action(function (Action $action) use ($module) {
 
@@ -208,14 +207,15 @@ class ManageModules extends Page implements HasActions, HasSchemas
                 $color = match ($state) {
                     ConditionState::SKIPPED => Color::Neutral,
                     ConditionState::INVALID => Color::Red,
-                    ConditionState::VALID => Color::Green,
+                    ConditionState::VALID   => Color::Green,
                 };
 
                 return TextEntry::make($condition->name())->hiddenLabel()
                     ->iconColor($color)->color($color)
                     ->getConstantStateUsing(fn () => $condition->name())
+                    ->tooltip($condition->getMessage())
                     ->icon(match ($state) {
-                        ConditionState::VALID => Heroicon::Check,
+                        ConditionState::VALID   => Heroicon::Check,
                         ConditionState::INVALID => Heroicon::XMark,
                         ConditionState::SKIPPED => Heroicon::Minus,
                     })->iconPosition(IconPosition::Before);

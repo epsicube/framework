@@ -5,11 +5,8 @@ declare(strict_types=1);
 namespace EpsicubeModules\ExecutionPlatform\Integrations\McpServer;
 
 use EpsicubeModules\ExecutionPlatform\Contracts\Activity;
-use EpsicubeModules\ExecutionPlatform\Contracts\Workflow;
 use EpsicubeModules\ExecutionPlatform\Facades\Activities;
-use EpsicubeModules\ExecutionPlatform\Facades\Workflows;
 use EpsicubeModules\ExecutionPlatform\Integrations\McpServer\Proxies\ActivityToolProxy;
-use EpsicubeModules\ExecutionPlatform\Integrations\McpServer\Proxies\WorkflowToolProxy;
 use EpsicubeModules\McpServer\Facades\Tools;
 
 class McpServerIntegration
