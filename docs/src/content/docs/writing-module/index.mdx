@@ -10,7 +10,7 @@ import { Steps, Aside } from '@astrojs/starlight/components';
 ## Module Structure
 
 A module is a standard **[Laravel Service Provider](https://laravel.com/docs/providers)** that additionally implements the
-[`Epsicube\Support\Contracts\Module`](https://github.com/epsicube/framework/blob/main/packages/Foundation/Support/Module.php) interface.
+[`Epsicube\Support\Contracts\IsModule`](https://github.com/epsicube/framework/blob/main/packages/Foundation/Support/IsModule.php) interface.
 
 This contract exposes the metadata required by Epsicube to register, identify, and manage your module.
 
@@ -35,24 +35,21 @@ This contract exposes the metadata required by Epsicube to register, identify, a
 
    ```php
    use Illuminate\Support\ServiceProvider;
-   use Epsicube\Support\Contracts\Module;
-   use Epsicube\Support\ModuleIdentity;
+   use Epsicube\Support\Contracts\IsModule;
+   use Epsicube\Support\Modules\Identity;
+   use Epsicube\Support\Modules\Module;
 
-   class MyCustomModule extends ServiceProvider implements Module
+   class MyCustomModule extends ServiceProvider implements IsModule
    {
-       public function identifier(): string
+       public function module(): Module
        {
-           return 'custom::your-custom-module';
-       }
-
-       public function identity(): ModuleIdentity
-       {
-           return ModuleIdentity::make(
-               name: "MyCustomModule",
-               version: "0.0.1",
-               author: "", // Provide information about the author
-               description: '' // Add a description for your module
-           );
+           return Module::make('custom::your-module-identifier', '0.0.1')
+               ->providers(static::class)
+               ->identity(fn (Identity $identity) => $identity
+                   ->name('MyCustomModule')
+                   ->description('')
+                   ->author('Internal dev')
+               );
        }
 
        //...

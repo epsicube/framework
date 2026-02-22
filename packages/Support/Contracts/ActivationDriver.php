@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Epsicube\Support\Contracts;
 
+use Epsicube\Support\Modules\Module;
+
 /**
  * Contract responsible for persisting and resolving modules activation state.
  *

@@ -7,11 +7,11 @@ namespace EpsicubeModules\MailingSystem;
 use Carbon\Laravel\ServiceProvider;
 use Composer\InstalledVersions;
 use Epsicube\Schemas\Schema;
-use Epsicube\Support\Contracts\HasIntegrations;
-use Epsicube\Support\Contracts\HasOptions;
-use Epsicube\Support\Contracts\Module;
-use Epsicube\Support\Integrations;
-use Epsicube\Support\ModuleIdentity;
+use Epsicube\Support\Contracts\IsModule;
+use Epsicube\Support\Modules\Identity;
+use Epsicube\Support\Modules\Module;
+use Epsicube\Support\Modules\Support;
+use Epsicube\Support\Modules\Supports;
 use EpsicubeModules\MailingSystem\Facades\Mailers;
 use EpsicubeModules\MailingSystem\Facades\Templates;
 use EpsicubeModules\MailingSystem\Integrations\ExecutionPlatform\ExecutionPlatformIntegration;
@@ -22,27 +22,26 @@ use EpsicubeModules\MailingSystem\Registries\MailersRegistry;
 use EpsicubeModules\MailingSystem\Registries\TemplatesRegistry;
 use Illuminate\Contracts\Support\DeferrableProvider;
 
-class MailingSystemModule extends ServiceProvider implements DeferrableProvider, HasIntegrations, HasOptions, Module
+class MailingSystemModule extends ServiceProvider implements DeferrableProvider, IsModule
 {
-    public function identifier(): string
+    public function module(): Module
     {
-        return 'core::mailing-system';
-    }
-
-    public function identity(): ModuleIdentity
-    {
-        return ModuleIdentity::make(
-            name: __('Mailing System'),
-            version: InstalledVersions::getPrettyVersion('epsicube/framework')
-            ?? InstalledVersions::getPrettyVersion('epsicube/module-mailing-system'),
-            author: 'Core Team',
-            description: __('Mail delivery system, extensible and equipped with outbound message tracking.')
-        );
-    }
-
-    public function options(Schema $schema): void
-    {
-        $schema->append(MailingSystemOptions::definition());
+        return Module::make(
+            identifier: 'core::mailing-system',
+            version: InstalledVersions::getVersion('epsicube/framework')
+                ?? InstalledVersions::getVersion('epsicube/module-mailing-system')
+        )
+            ->providers(static::class)
+            ->identity(fn (Identity $identity) => $identity
+                ->name(__('Mailing System'))
+                ->author('Core Team')
+                ->description(__('Mail delivery system, extensible and equipped with outbound message tracking.'))
+            )
+            ->supports(fn (Supports $supports) => $supports->add(
+                Support::forModule('core::execution-platform', ExecutionPlatformIntegration::handle(...)),
+            ))->options(fn (Schema $schema) => $schema->append(
+                MailingSystemOptions::definition(),
+            ));
     }
 
     public function provides(): array
@@ -75,13 +74,5 @@ class MailingSystemModule extends ServiceProvider implements DeferrableProvider,
     public function boot(): void
     {
         $this->loadViewsFrom(__DIR__.'/resources/email-templates', 'epsicube-mail');
-    }
-
-    public function integrations(): Integrations
-    {
-        return Integrations::make()->forModule(
-            identifier: 'core::execution-platform',
-            whenEnabled: [ExecutionPlatformIntegration::class, 'handle']
-        );
     }
 }

@@ -41,7 +41,7 @@ class HypercoreModuleAdapter extends HypercoreAdapter
         $this->register();
         $applier->removeModules([$this->moduleIdentifier()]);
 
-        $activator = new HypercoreModuleActivator(app());
+        $activator = new HypercoreIsModuleActivator(app());
         $applier->injectModules($activator);
         $applier->markAsMustUse($activator->identifier());
     }

@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace EpsicubeModules\Hypercore\Activation;
 
 use Epsicube\Support\Contracts\ActivationDriver;
-use Epsicube\Support\Contracts\Module;
+use Epsicube\Support\Contracts\IsModule;
 use EpsicubeModules\Hypercore\Facades\HypercoreActivator;
 use EpsicubeModules\Hypercore\Models\Module as ModuleModel;
 
@@ -33,7 +33,7 @@ class TenantActivationDriver implements ActivationDriver
         }
     }
 
-    public function enable(Module $module): void
+    public function enable(IsModule $module): void
     {
         $identifier = $module->identifier();
         ModuleModel::on(HypercoreActivator::centralConnectionName())->updateOrCreate(
@@ -43,7 +43,7 @@ class TenantActivationDriver implements ActivationDriver
         $this->state[$identifier] = true;
     }
 
-    public function disable(Module $module): void
+    public function disable(IsModule $module): void
     {
         $identifier = $module->identifier();
         ModuleModel::on(HypercoreActivator::centralConnectionName())
@@ -53,19 +53,19 @@ class TenantActivationDriver implements ActivationDriver
         $this->state[$identifier] = false;
     }
 
-    public function isEnabled(Module $module): bool
+    public function isEnabled(IsModule $module): bool
     {
         $this->ensureStateIsLoaded();
 
         return $this->state[$module->identifier()] ?? false;
     }
 
-    public function isMustUse(Module $module): bool
+    public function isMustUse(IsModule $module): bool
     {
         return isset($this->mustUseModules[$module->identifier()]);
     }
 
-    public function markAsMustUse(Module $module): void
+    public function markAsMustUse(IsModule $module): void
     {
         $this->mustUseModules[$module->identifier()] = true;
     }

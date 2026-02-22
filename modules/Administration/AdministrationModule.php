@@ -7,41 +7,39 @@ namespace EpsicubeModules\Administration;
 use Carbon\Laravel\ServiceProvider;
 use Composer\InstalledVersions;
 use Epsicube\Schemas\Schema;
-use Epsicube\Support\Contracts\HasOptions;
-use Epsicube\Support\Contracts\Module;
+use Epsicube\Support\Contracts\IsModule;
 use Epsicube\Support\Facades\Epsicube;
-use Epsicube\Support\ModuleIdentity;
+use Epsicube\Support\Modules\Identity;
+use Epsicube\Support\Modules\Module;
 use EpsicubeModules\Administration\View\Components\ApplicationGroupIcon;
 use Filament\FilamentServiceProvider;
 use Filament\PanelRegistry;
 use Throwable;
 
-class AdministrationModule extends ServiceProvider implements HasOptions, Module
+class AdministrationModule extends ServiceProvider implements IsModule
 {
-    public function identifier(): string
+    public function module(): Module
     {
-        return 'core::administration';
-    }
-
-    public function identity(): ModuleIdentity
-    {
-        return ModuleIdentity::make(
-            name: __('Administration'),
-            version: InstalledVersions::getPrettyVersion('epsicube/framework')
-            ?? InstalledVersions::getPrettyVersion('epsicube/module-administration'),
-            author: 'Core Team',
-            description: __('Provides administrative tools and management features for the system.')
-        );
-    }
-
-    public function options(Schema $schema): void
-    {
-        $schema->append(AdministrationOptions::definition());
+        return Module::make(
+            identifier: 'core::administration',
+            version: InstalledVersions::getVersion('epsicube/framework')
+            ?? InstalledVersions::getVersion('epsicube/module-administration')
+        )
+            ->providers(static::class)
+            ->identity(fn (Identity $identity) => $identity
+                ->name(__('Administration'))
+                ->author('Core Team')
+                ->description(__('Provides administrative tools and management features for the system.'))
+            )
+            ->options(fn (Schema $schema) => $schema->append(
+                AdministrationOptions::definition()
+            ));
     }
 
     public function register(): void
     {
         $this->app->booted(function (): void {
+
             try {
                 $callback = function (PanelRegistry $registry): void {
                     $registry->register(Administration::make()->id('epsicube-administration'));

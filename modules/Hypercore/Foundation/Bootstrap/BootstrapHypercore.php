@@ -60,7 +60,7 @@ class BootstrapHypercore
         $this->applyTenantAdapters($app, $tenant, $registry, $tenantDriver);
 
         // Override epsicube
-        $registry->setDriver($tenantDriver);
+        $registry->driver = $tenantDriver;
         $tenant->setConnection(HypercoreActivator::centralConnectionName());
 
         /**

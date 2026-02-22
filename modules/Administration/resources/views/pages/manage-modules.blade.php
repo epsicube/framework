@@ -1,3 +1,3 @@
 <x-filament-panels::page>
-    {{$this->modulesInfolist}}
+    {{$this->content}}
 </x-filament-panels::page>

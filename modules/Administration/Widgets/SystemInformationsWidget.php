@@ -90,7 +90,7 @@ class SystemInformationsWidget extends BaseWidget implements HasForms
                 if (@is_file('/sys/fs/cgroup/cpu.max')) {
                     $content = @file_get_contents('/sys/fs/cgroup/cpu.max');
                     if ($content) {
-                        $parts = explode(' ', trim($content));
+                        $parts = explode(' ', mb_trim($content));
                         if (isset($parts[0], $parts[1]) && $parts[0] !== 'max') {
                             return (float) $parts[0] / (float) $parts[1];
                         }
@@ -116,13 +116,13 @@ class SystemInformationsWidget extends BaseWidget implements HasForms
 
                 $sysctl = @shell_exec('sysctl -n hw.ncpu');
                 if ($sysctl) {
-                    return (float) trim($sysctl);
+                    return (float) mb_trim($sysctl);
                 }
 
                 if (str_contains(PHP_OS, 'WIN')) {
                     $winCores = @shell_exec('echo %NUMBER_OF_PROCESSORS%');
                     if ($winCores) {
-                        return (float) trim($winCores);
+                        return (float) mb_trim($winCores);
                     }
                 }
             } catch (Exception $e) {

@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Epsicube\Foundation\Utilities;
 
 use Epsicube\Support\Contracts\ActivationDriver;
-use Epsicube\Support\Contracts\Module;
+use Epsicube\Support\Modules\Module;
 use Illuminate\Filesystem\Filesystem;
 
 class FilesystemActivationDriver implements ActivationDriver
@@ -20,7 +20,7 @@ class FilesystemActivationDriver implements ActivationDriver
     {
         $this->ensureStateIsLoaded();
 
-        $this->state[$module->identifier()] = true;
+        $this->state[$module->identifier] = true;
 
         $this->saveState($this->state);
     }
@@ -29,7 +29,7 @@ class FilesystemActivationDriver implements ActivationDriver
     {
         $this->ensureStateIsLoaded();
 
-        $this->state[$module->identifier()] = false;
+        $this->state[$module->identifier] = false;
 
         $this->saveState($this->state);
     }
@@ -38,17 +38,17 @@ class FilesystemActivationDriver implements ActivationDriver
     {
         $this->ensureStateIsLoaded();
 
-        return $this->state[$module->identifier()] ?? false;
+        return $this->state[$module->identifier] ?? false;
     }
 
     public function isMustUse(Module $module): bool
     {
-        return isset($this->mustUseModules[$module->identifier()]);
+        return isset($this->mustUseModules[$module->identifier]);
     }
 
     public function markAsMustUse(Module $module): void
     {
-        $this->mustUseModules[$module->identifier()] = true;
+        $this->mustUseModules[$module->identifier] = true;
     }
 
     protected function ensureStateIsLoaded(): void
@@ -90,5 +90,9 @@ class FilesystemActivationDriver implements ActivationDriver
         $contents = "<?php\n\nreturn ".var_export($this->state, true).";\n";
 
         $this->files->replace($this->path, $contents);
+
+        if (function_exists('opcache_invalidate')) {
+            @opcache_invalidate($this->path, true);
+        }
     }
 }

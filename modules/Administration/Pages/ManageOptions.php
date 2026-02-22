@@ -6,10 +6,9 @@ namespace EpsicubeModules\Administration\Pages;
 
 use BackedEnum;
 use Epsicube\Schemas\Contracts\Property;
-use Epsicube\Support\Contracts\HasOptions;
-use Epsicube\Support\Contracts\Module;
 use Epsicube\Support\Facades\Modules;
 use Epsicube\Support\Facades\Options;
+use Epsicube\Support\Modules\Module;
 use EpsicubeModules\Administration\Enums\ApplicationGroup;
 use EpsicubeModules\Administration\Enums\Icons;
 use Filament\Actions\Action;
@@ -267,8 +266,7 @@ class ManageOptions extends Page implements HasSchemas
     public function getSubNavigation(): array
     {
         return collect(Modules::enabled())
-            ->filter(fn (Module $module) => $module instanceof HasOptions)
-            ->map(fn (Module $module, string $identifier) => NavigationGroup::make($module->identity()->name)->items([
+            ->map(fn (Module $module, string $identifier) => NavigationGroup::make($module->identity->name)->items([
                 NavigationItem::make(__('General'))
                     ->url(static::getUrl([
                         'module' => $identifier,

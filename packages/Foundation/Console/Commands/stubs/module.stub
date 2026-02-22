@@ -4,54 +4,28 @@ namespace {{ namespace }};
 
 use Epsicube\Schemas\Properties\BooleanProperty;
 use Epsicube\Schemas\Schema;
-use Epsicube\Support\Contracts\HasOptions;
-use Epsicube\Support\Contracts\Module;
-use Epsicube\Support\ModuleIdentity;
+use Epsicube\Support\Contracts\IsModule;
+use Epsicube\Support\Modules\Identity;
+use Epsicube\Support\Modules\Module;
 use Illuminate\Support\ServiceProvider;
 
-class {{ class }} extends ServiceProvider implements HasOptions, Module
+class {{ class }} extends ServiceProvider implements IsModule
 {
-    /**
-     * Returns the unique identifier of the module.
-     *
-     * @return string
-     */
-    public function identifier(): string
+    public function module(): Module
     {
-         return '{{ identifier }}';
-    }
-
-    /**
-     * Builds and returns the module's identity metadata.
-     *
-     * @return ModuleIdentity
-     */
-    public function identity(): ModuleIdentity
-    {
-        return ModuleIdentity::make(
-            name: "{{ name }}",
-            version: "0.0.1",
-            author: "",
-            description: ""
-        );
-    }
-
-    /**
-     * Declares the configurable options exposed by this module.
-     *
-     * @link https://epsicube.dev/writing-module/registering-options/
-     *
-     * @param Schema $schema Schema used to append option definitions.
-     * @return void
-     */
-    public function options(Schema $schema): void
-    {
-        $schema->append([
-            'your-option' => BooleanProperty::make()
-                ->title('Your Option')
-                ->optional()
-                ->default(true),
-        ]);
+         return Module::make('{{ identifier }}', '0.0.1')
+            ->providers(static::class)
+            ->identity(fn (Identity $identity) => $identity
+                ->name('{{ name }}')
+                ->description('')
+                ->author('Internal dev')
+            )
+            ->options(fn (Schema $options) => $options->append([
+                'your-option' => BooleanProperty::make()
+                    ->title('Your Option')
+                    ->optional()
+                    ->default(true),
+            ]));
     }
 
     /**

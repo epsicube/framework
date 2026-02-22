@@ -6,10 +6,11 @@ namespace EpsicubeModules\ExecutionPlatform;
 
 use Carbon\Laravel\ServiceProvider;
 use Composer\InstalledVersions;
-use Epsicube\Support\Contracts\HasIntegrations;
-use Epsicube\Support\Contracts\Module;
-use Epsicube\Support\Integrations;
-use Epsicube\Support\ModuleIdentity;
+use Epsicube\Support\Contracts\IsModule;
+use Epsicube\Support\Modules\Identity;
+use Epsicube\Support\Modules\Module;
+use Epsicube\Support\Modules\Support;
+use Epsicube\Support\Modules\Supports;
 use EpsicubeModules\ExecutionPlatform\Console\Commands\ActivitiesListCommand;
 use EpsicubeModules\ExecutionPlatform\Console\Commands\ActivitiesRunCommand;
 use EpsicubeModules\ExecutionPlatform\Console\Commands\WorkflowsListCommand;
@@ -21,22 +22,26 @@ use EpsicubeModules\ExecutionPlatform\Integrations\McpServer\McpServerIntegratio
 use EpsicubeModules\ExecutionPlatform\Registries\ActivitiesRegistry;
 use EpsicubeModules\ExecutionPlatform\Registries\WorkflowsRegistry;
 
-class ExecutionPlatformModule extends ServiceProvider implements HasIntegrations, Module
+class ExecutionPlatformModule extends ServiceProvider implements IsModule
 {
-    public function identifier(): string
+    public function module(): Module
     {
-        return 'core::execution-platform';
-    }
-
-    public function identity(): ModuleIdentity
-    {
-        return ModuleIdentity::make(
-            name: __('Execution Platform'),
-            version: InstalledVersions::getPrettyVersion('epsicube/framework')
-            ?? InstalledVersions::getPrettyVersion('epsicube/module-execution-platform'),
-            author: 'Core Team',
-            description: __('Provides support for asynchronous workflows and activities, enabling modules to extend these capabilities')
-        );
+        return Module::make(
+            identifier: 'core::execution-platform',
+            version: InstalledVersions::getVersion('epsicube/framework')
+                ?? InstalledVersions::getVersion('epsicube/module-execution-platform')
+        )
+            ->providers(static::class)
+            ->identity(fn (Identity $identity) => $identity
+                ->name(__('Execution Platform'))
+                ->author('Core Team')
+                ->description(__('Provides support for asynchronous workflows and activities, enabling modules to extend these capabilities'))
+            )
+            ->supports(fn (Supports $supports) => $supports->add(
+                Support::forModule('core::administration', AdministrationIntegration::handle(...)),
+                Support::forModule('core::mcp-server', McpServerIntegration::handle(...)),
+                Support::forModule('core::json-rpc-server', JsonRpcServerIntegration::handle(...)),
+            ));
     }
 
     public function register(): void
@@ -57,19 +62,5 @@ class ExecutionPlatformModule extends ServiceProvider implements HasIntegrations
             ActivitiesRunCommand::class,
             ActivitiesListCommand::class,
         ]);
-    }
-
-    public function integrations(): Integrations
-    {
-        return Integrations::make()->forModule(
-            identifier: 'core::administration',
-            whenEnabled: [AdministrationIntegration::class, 'handle']
-        )->forModule(
-            identifier: 'core::mcp-server',
-            whenEnabled: [McpServerIntegration::class, 'handle']
-        )->forModule(
-            identifier: 'core::json-rpc-server',
-            whenEnabled: [JsonRpcServerIntegration::class, 'handle']
-        );
     }
 }

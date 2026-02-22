@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 namespace Epsicube\Foundation\Console\Commands;
 
-use Epsicube\Support\Contracts\Module;
 use Epsicube\Support\Facades\Modules;
+use Epsicube\Support\Modules\Module;
 use Illuminate\Console\Command;
-use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Blade;
 
-use function Laravel\Prompts\table;
+use function Termwind\parse;
 
 class ModulesStatusCommand extends Command
 {
@@ -19,45 +19,52 @@ class ModulesStatusCommand extends Command
 
     protected $description = 'Displays all available modules with their metadata and activation status.';
 
-    public function handle(): void
+    public function handle(): int
     {
-        // Détection du mode sans ANSI
-        $noAnsi = $this->option('no-ansi');
+        $html = Blade::render(file_get_contents(__DIR__.'/ui/modules-status.blade.php'), [
+            'modules' => Modules::all(),
+        ]);
 
-        // Helper simple pour gérer couleur + fallback
-        $fmt = function (string $text, string $ansi) use ($noAnsi) {
-            $text = preg_replace('/[\p{So}\p{Cn}]/u', '', $text); // <- remove emoji
+        $this->output->write($this->stripAnsi(parse($html)));
 
-            return $noAnsi ? $text : "<{$ansi}>{$text}</>";
-        };
+        return static::SUCCESS;
+    }
 
-        $rows = array_map(function (Module $module) use ($fmt) {
-            $enabled = Modules::isEnabled($module);
-            $identity = $module->identity();
+    protected function stripAnsi(string $string): string
+    {
+        if (! $this->option('no-ansi')) {
+            return $string;
+        }
 
-            return [
-                $fmt($module->identifier(), 'fg=cyan;options=bold'),
-                $fmt($identity->name, 'fg=yellow'),
-                $fmt(Str::limit($identity->description ?? '', 50), 'fg=gray'),
-                $fmt($identity->author, 'fg=magenta'),
-                $fmt($identity->version, 'fg=green'),
-                match (true) {
-                    Modules::isMustUse($module) => $fmt('MUST-USE', 'fg=yellow'),
-                    $enabled                    => $fmt('ENABLED', 'fg=green'),
-                    ! $enabled                  => $fmt('DISABLED', 'fg=red'),
-                },
+        return preg_replace('/(\x1b\[[0-9;]*[mK]|\x1b]8;;.*?\x1b\|\x1b]8;;.*?\x07)/', '', $string);
+    }
+
+    protected function gatherRequirements(Module $module): array
+    {
+        $results = $module->requirements->check();
+        $conditions = $results['conditions']; // C'est un array d'objets Condition
+
+        $groups = [];
+
+        foreach ($conditions as $condition) {
+            // On exécute la condition (ce qui remplit resultState et resultMessage)
+            $state = $condition->run();
+            $groupName = $condition->group();
+
+            if (! isset($groups[$groupName])) {
+                $groups[$groupName] = [
+                    'name'   => $groupName,
+                    'checks' => [],
+                ];
+            }
+
+            $groups[$groupName]['checks'][] = [
+                'label'   => $condition->name(),
+                'state'   => $state->value, // Utilise la valeur de l'Enum ConditionState
+                'message' => $condition->getMessage(),
             ];
-        }, Modules::all());
+        }
 
-        $headers = [
-            $fmt('Identifier', 'fg=cyan;options=bold'),
-            $fmt('Name', 'fg=yellow;options=bold'),
-            $fmt('Description', 'fg=gray;options=bold'),
-            $fmt('Author', 'fg=magenta;options=bold'),
-            $fmt('Version', 'fg=green;options=bold'),
-            $fmt('Status', 'fg=white;options=bold'),
-        ];
-
-        table($headers, $rows);
+        return array_values($groups);
     }
 }

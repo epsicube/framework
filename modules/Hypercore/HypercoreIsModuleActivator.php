@@ -7,14 +7,14 @@ namespace EpsicubeModules\Hypercore;
 use Carbon\Laravel\ServiceProvider;
 use Composer\InstalledVersions;
 use Epsicube\Support\Contracts\HasIntegrations;
-use Epsicube\Support\Contracts\Module;
+use Epsicube\Support\Contracts\IsModule;
 use Epsicube\Support\Integrations;
 use Epsicube\Support\ModuleIdentity;
 use EpsicubeModules\Administration\Administration;
 use EpsicubeModules\Administration\Pages\ManageModules;
 use Filament\View\PanelsRenderHook;
 
-class HypercoreModuleActivator extends ServiceProvider implements HasIntegrations, Module
+class HypercoreIsModuleActivator extends ServiceProvider implements HasIntegrations, IsModule
 {
     public function identifier(): string
     {

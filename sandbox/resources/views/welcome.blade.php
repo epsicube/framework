@@ -34,7 +34,9 @@
             }
         }
 
-        * { box-sizing: border-box; }
+        * {
+            box-sizing: border-box;
+        }
 
         body {
             background-color: var(--bg-color);
@@ -69,7 +71,9 @@
             text-transform: uppercase;
         }
 
-        .logo span { color: var(--accent-orange); }
+        .logo span {
+            color: var(--accent-orange);
+        }
 
         .header-links {
             display: flex;
@@ -85,7 +89,9 @@
             transition: color 0.2s;
         }
 
-        .header-link:hover { color: var(--text-main); }
+        .header-link:hover {
+            color: var(--text-main);
+        }
 
         .btn-admin {
             text-decoration: none;
@@ -98,9 +104,14 @@
             transition: opacity 0.2s;
         }
 
-        .btn-admin:hover { opacity: 0.9; }
+        .btn-admin:hover {
+            opacity: 0.9;
+        }
 
-        main { width: 100%; max-width: 1100px; }
+        main {
+            width: 100%;
+            max-width: 1100px;
+        }
 
         .hero {
             display: grid;
@@ -127,12 +138,22 @@
         }
 
         /* Gestion des logos selon le mode */
-        .logo-light { display: block; }
-        .logo-dark { display: none; }
+        .logo-light {
+            display: block;
+        }
+
+        .logo-dark {
+            display: none;
+        }
 
         @media (prefers-color-scheme: dark) {
-            .logo-light { display: none; }
-            .logo-dark { display: block; }
+            .logo-light {
+                display: none;
+            }
+
+            .logo-dark {
+                display: block;
+            }
         }
 
         .grid {
@@ -154,7 +175,10 @@
             position: relative;
         }
 
-        .card.wide { grid-column: span 3; }
+        .card.wide {
+            grid-column: span 3;
+        }
+
         .card.full {
             grid-column: span 6;
             flex-direction: row;
@@ -195,12 +219,29 @@
             transition: all 0.3s ease;
         }
 
-        .card:hover .icon-box { border-color: inherit; }
+        .card:hover .icon-box {
+            border-color: inherit;
+        }
 
-        .card.full .icon-box { margin-bottom: 0; width: 64px; height: 64px; }
+        .card.full .icon-box {
+            margin-bottom: 0;
+            width: 64px;
+            height: 64px;
+        }
 
-        .card h3 { font-size: 1.5rem; margin: 0 0 12px 0; font-weight: 700; letter-spacing: -0.02em; }
-        .card p { font-size: 1rem; color: var(--text-muted); margin: 0; line-height: 1.6; }
+        .card h3 {
+            font-size: 1.5rem;
+            margin: 0 0 12px 0;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+        }
+
+        .card p {
+            font-size: 1rem;
+            color: var(--text-muted);
+            margin: 0;
+            line-height: 1.6;
+        }
 
         .badge {
             font-size: 0.7rem;
@@ -218,13 +259,34 @@
             filter: drop-shadow(0 20px 40px rgba(245, 48, 3, 0.1));
         }
 
-        .hero-img svg { width: 220px; height: 220px; }
+        .hero-img svg {
+            width: 220px;
+            height: 220px;
+        }
 
         @media (max-width: 900px) {
-            .hero { grid-template-columns: 1fr; text-align: center; gap: 40px; }
-            .hero-img { display: none; }
-            .card.wide, .card.full { grid-column: span 6; flex-direction: column; text-align: left; }
-            header { flex-direction: column; gap: 30px; text-align: center; margin-bottom: 60px; }
+            .hero {
+                grid-template-columns: 1fr;
+                text-align: center;
+                gap: 40px;
+            }
+
+            .hero-img {
+                display: none;
+            }
+
+            .card.wide, .card.full {
+                grid-column: span 6;
+                flex-direction: column;
+                text-align: left;
+            }
+
+            header {
+                flex-direction: column;
+                gap: 30px;
+                text-align: center;
+                margin-bottom: 60px;
+            }
         }
     </style>
 </head>
@@ -235,7 +297,7 @@
     <div class="header-links">
         <a href="https://epsicube.dev" class="header-link">Docs</a>
         <a href="https://github.com/epsicube/epsicube" class="header-link">GitHub</a>
-        @if(\Epsicube\Support\Facades\Modules::isEnabled('core::administration'))
+        @if(\Epsicube\Support\Facades\Modules::safeGet('core::administration')?->status===\Epsicube\Support\Enums\ModuleStatus::ENABLED)
             <a href="{{\Filament\Facades\Filament::getPanel('epsicube-administration')->getUrl()}}" class="btn-admin">Administration</a>
         @endif
     </div>
@@ -245,7 +307,8 @@
     <section class="hero">
         <div>
             <h1>Scale faster.<br>Stay modular.</h1>
-            <p>Epsicube is the foundational layer for your Laravel applications. Built for clean, decoupled, and ultra-scalable architecture.</p>
+            <p>Epsicube is the foundational layer for your Laravel applications. Built for clean, decoupled, and
+                ultra-scalable architecture.</p>
         </div>
         <div class="hero-img">
             <div class="logo-light">@include('partials.logo')</div>
@@ -254,22 +317,34 @@
     </section>
 
     <div class="grid">
-        @if(\Epsicube\Support\Facades\Modules::isEnabled('core::administration'))
-            <a href="{{\Filament\Facades\Filament::getPanel('epsicube-administration')->getUrl()}}" class="card full admin-card">
+        @if(\Epsicube\Support\Facades\Modules::safeGet('core::administration')?->status===\Epsicube\Support\Enums\ModuleStatus::ENABLED)
+            <a href="{{\Filament\Facades\Filament::getPanel('epsicube-administration')->getUrl()}}"
+               class="card full admin-card">
                 <div class="icon-box" style="color: var(--accent-orange);">
-                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M21 9H3"/><path d="M9 21V9"/></svg>
+                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                         stroke-linecap="round" stroke-linejoin="round">
+                        <rect width="18" height="18" x="3" y="3" rx="2"/>
+                        <path d="M21 9H3"/>
+                        <path d="M9 21V9"/>
+                    </svg>
                 </div>
                 <div>
                     <span class="badge" style="color: var(--accent-orange)">Internal Tool</span>
                     <h3>Administration</h3>
-                    <p>Live-manage your ecosystem, toggle modules, and configure your core options through a unified interface.</p>
+                    <p>Live-manage your ecosystem, toggle modules, and configure your core options through a unified
+                        interface.</p>
                 </div>
             </a>
         @endif
 
         <a href="https://epsicube.dev/usage/overview/" class="card wide docs-card">
             <div class="icon-box" style="color: var(--accent-purple);">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1-2.5-2.5Z"/><path d="M8 7h6"/><path d="M8 11h8"/></svg>
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                     stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1-2.5-2.5Z"/>
+                    <path d="M8 7h6"/>
+                    <path d="M8 11h8"/>
+                </svg>
             </div>
             <span class="badge">Resources</span>
             <h3>Explore Concepts</h3>
@@ -278,7 +353,13 @@
 
         <a href="https://epsicube.dev/writing-module/" class="card wide dev-card">
             <div class="icon-box" style="color: var(--accent-green);">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/><path d="M9 15h6"/><path d="M12 12v6"/></svg>
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                     stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/>
+                    <polyline points="14 2 14 8 20 8"/>
+                    <path d="M9 15h6"/>
+                    <path d="M12 12v6"/>
+                </svg>
             </div>
             <span class="badge">Development</span>
             <h3>Build a Module</h3>

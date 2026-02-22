@@ -2,47 +2,67 @@
 title: Adding Dependencies
 description: "Declare and enforce dependencies across modules."
 sidebar:
-    order: 2
+    order: 3
 ---
 
 import { Aside, Steps } from '@astrojs/starlight/components';
 
-Dependencies allow a module to require other modules to be **enabled** before it can function. This ensures that your module only operates in an environment where its prerequisites are met.
+Dependencies allow a module to require other modules to be **enabled** and within a **compatible version** before it can function.
+
+This ensures that your module operates in a stable environment where its prerequisites are met.
 
 By declaring dependencies, you can:
 
 * Guarantee that shared functionality or services provided by other modules are available.
-* Prevent errors or misbehavior caused by missing modules.
+* Prevent fatal errors or misbehavior caused by missing components.
 * Control the activation order of modules in a predictable way.
 
-Dependencies are checked automatically when enabling modules via the **Administration interface** or **CLI commands**, ensuring that all requirements are satisfied before a module becomes active.
 
+<Aside type="note">
+Dependencies are checked automatically whenever you enable a module via the **Administration interface** or **CLI commands**.
+</Aside>
 
 ## How to add dependencies ?
 <br/>
 <Steps>
-1. ### Implement the Interface
+1. ### Configure your module
 
-   Your module must implement the [`Epsicube\Support\Contracts\HasDependencies`](https://github.com/epsicube/framework/blob/main/packages/Support/Contracts/HasDependencies.php) interface.
+   Your module must import the [`Epsicube\Support\Modules\Dependencies`](https://github.com/epsicube/framework/blob/main/packages/Support/Modules/Dependencies.php) class.
 
     ```php
-    use Epsicube\Support\Contracts\HasDependencies;
-    use Epsicube\Support\Dependencies;
+    use Illuminate\Support\ServiceProvider;
+    use Epsicube\Support\Contracts\IsModule;
+    use Epsicube\Support\Modules\{Module,Dependencies};
 
-    class BrandingModule extends ServiceProvider implements HasDependencies, Module
+    class BrandingModule extends ServiceProvider implements IsModule
     {
         // ...
-        public function dependencies(): Dependencies
+        public function module(): Module
         {
-            return Dependencies::make('core::execution-platform', 'core::administration');
+            return Module::make('custom::mycustommodule', '0.0.1')
+                //...
+                ->dependencies(function(Dependencies $dependencies) {
+                    $dependencies->module('target-module', '^2.0');
+                    $dependencies->module('target-module2', '*'); // Any version (default)
+                });
         }
     }
     ```
+2. ### Versioning Format (Semver)
+
+    The versioning system follows the **Semver** format, exactly like **Composer**. You can use the full range of version constraints:
+    * `1.2.3`: An exact version.
+    * `^1.2`: Any version greater than or equal to 1.2.0 and less than 2.0.0.
+    * `>=5.0 <6.0`: A specific range of versions.
+    * `*`: Any available version.
+
+    <br />
+
 2. ### Understand Constraints
 
-   <Aside type="tip" title="Constraints" icon="approve-check">
-   * A module cannot be enabled unless all of its dependencies are satisfied.
-   * All dependent modules must be enabled to activate this module.
+   <Aside type="tip" title="Activation Rules" icon="approve-check">
+   * A module cannot be enabled unless all of its dependencies (modules) are satisfied.
+   * All dependent modules must be installed AND enabled to activate the current module.
    </Aside>
 
 </Steps>

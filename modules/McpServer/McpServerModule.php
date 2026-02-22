@@ -9,9 +9,9 @@ use Composer\InstalledVersions;
 use Epsicube\Schemas\Enums\StringFormat;
 use Epsicube\Schemas\Properties\StringProperty;
 use Epsicube\Schemas\Schema;
-use Epsicube\Support\Contracts\HasOptions;
-use Epsicube\Support\Contracts\Module;
-use Epsicube\Support\ModuleIdentity;
+use Epsicube\Support\Contracts\IsModule;
+use Epsicube\Support\Modules\Identity;
+use Epsicube\Support\Modules\Module;
 use EpsicubeModules\McpServer\Facades\Resources;
 use EpsicubeModules\McpServer\Facades\Tools;
 use EpsicubeModules\McpServer\Mcp\Servers\McpServer;
@@ -19,41 +19,36 @@ use EpsicubeModules\McpServer\Registries\ResourcesRegistry;
 use EpsicubeModules\McpServer\Registries\ToolsRegistry;
 use Laravel\Mcp\Facades\Mcp;
 
-class McpServerModule extends ServiceProvider implements HasOptions, Module
+class McpServerModule extends ServiceProvider implements IsModule
 {
-    public function identifier(): string
+    public function module(): Module
     {
-        return 'core::mcp-server';
-    }
-
-    public function identity(): ModuleIdentity
-    {
-        return ModuleIdentity::make(
-            name: __('MCP Server'),
-            version: InstalledVersions::getPrettyVersion('epsicube/framework')
-            ?? InstalledVersions::getPrettyVersion('epsicube/module-mcp-server'),
-            author: 'Core Team',
-            description: __('Integrates MCP capabilities into the application, allowing modules to declare and expose MCP resources.')
-        );
-    }
-
-    public function options(Schema $schema): void
-    {
-        $schema->append([
-            'name' => StringProperty::make()
-                ->title('Server name')
-                ->optional()
-                ->default(fn () => __(':app_name internal MCP Server', ['app_name' => config('app.name')])),
-            'version' => StringProperty::make()
-                ->title('Server version')
-                ->optional()
-                ->default(fn () => $this->identity()->version),
-            'instructions' => StringProperty::make()
-                ->title('Server instructions')
-                ->format(StringFormat::MARKDOWN)
-                ->optional()
-                ->default(fn () => file_get_contents(__DIR__.'/resources/stubs/INSTRUCTIONS.md')),
-        ]);
+        return Module::make(
+            identifier: 'core::mcp-server',
+            version: InstalledVersions::getVersion('epsicube/framework')
+                ?? InstalledVersions::getVersion('epsicube/module-mcp-server')
+        )
+            ->providers(static::class)
+            ->identity(fn (Identity $identity) => $identity
+                ->name(__('MCP Server'))
+                ->author('Core Team')
+                ->description(__('Integrates MCP capabilities into the application, allowing modules to declare and expose MCP resources.'))
+            )
+            ->options(fn (Schema $schema) => $schema->append([
+                'name' => StringProperty::make()
+                    ->title('Server name')
+                    ->optional()
+                    ->default(fn () => __(':app_name internal MCP Server', ['app_name' => config('app.name')])),
+                'version' => StringProperty::make()
+                    ->title('Server version')
+                    ->optional()
+                    ->default(fn () => $this->module()->version),
+                'instructions' => StringProperty::make()
+                    ->title('Server instructions')
+                    ->format(StringFormat::MARKDOWN)
+                    ->optional()
+                    ->default(fn () => file_get_contents(__DIR__.'/resources/stubs/INSTRUCTIONS.md')),
+            ]));
     }
 
     public function register(): void

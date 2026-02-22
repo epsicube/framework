@@ -12,6 +12,7 @@ use Epsicube\Foundation\Console\Commands\InstallCommand;
 use Epsicube\Foundation\Console\Commands\MakeModuleCommand;
 use Epsicube\Foundation\Console\Commands\ModulesDisableCommand;
 use Epsicube\Foundation\Console\Commands\ModulesEnableCommand;
+use Epsicube\Foundation\Console\Commands\ModuleShowCommand;
 use Epsicube\Foundation\Console\Commands\ModulesStatusCommand;
 use Epsicube\Foundation\Console\Commands\OptionsListCommand;
 use Epsicube\Foundation\Console\Commands\OptionsSetCommand;
@@ -25,9 +26,6 @@ use Epsicube\Foundation\Proxy\NumberTranslator;
 use Epsicube\Foundation\Utilities\DatabaseOptionStore;
 use Epsicube\Foundation\Utilities\FilesystemActivationDriver;
 use Epsicube\Foundation\Utilities\Manifest;
-use Epsicube\Schemas\Schema;
-use Epsicube\Support\Contracts\HasOptions;
-use Epsicube\Support\Contracts\Module;
 use Epsicube\Support\Facades\Epsicube;
 use Epsicube\Support\Facades\Modules;
 use Epsicube\Support\Facades\Options;
@@ -64,11 +62,25 @@ class EpsicubeServiceProvider extends ServiceProvider
             );
 
             // Load modules from manifest (composer)
-            $manifestModules = array_map(function (string $moduleClass) {
-                /** @var class-string<Module> $moduleClass */
-                return $this->app->make($moduleClass, ['app' => $this->app]);
-            }, $this->app->get(\Epsicube\Support\Facades\Manifest::$accessor)->config('modules'));
-            $registry->register(...$manifestModules);
+            try {
+                $manifestModules = $this->app->get(\Epsicube\Support\Facades\Manifest::$accessor)->config('modules');
+            } catch (Throwable $e) {
+                throw new RuntimeException('Failed to load modules from composer manifest.', $e->getCode(), $e);
+            }
+
+            foreach ($manifestModules as $module) {
+                try {
+                    $registry->register($this->app->make($module, ['app' => $this->app]));
+                } catch (Throwable $e) {
+                    $identifier = is_string($module) ? $module : get_debug_type($module);
+                    $wrappedError = new RuntimeException("Failed to register module '{$identifier}' from composer manifest.", $e->getCode(), $e);
+                    if ($this->app->isLocal()) {
+                        throw $wrappedError;
+                    }
+
+                    report($wrappedError);
+                }
+            }
 
             // Load modules from bootstrap/modules.php
             $file = new Filesystem;
@@ -77,35 +89,30 @@ class EpsicubeServiceProvider extends ServiceProvider
                 return $registry;
             }
             try {
-                $modules = array_map(function (string $moduleClass) {
-                    /** @var class-string<Module> $moduleClass */
-                    return $this->app->make($moduleClass, ['app' => $this->app]);
-                }, $file->getRequire($modulesPath));
-                $registry->register(...$modules);
-
+                $modules = $file->getRequire($modulesPath);
             } catch (Throwable $e) {
-                throw new RuntimeException("Failed to register modules from 'bootstrap/modules.php' file.", $e->getCode(), $e);
+                throw new RuntimeException("Failed to load modules from 'bootstrap/modules.php' file.", $e->getCode(), $e);
+            }
+
+            foreach ($modules as $module) {
+                try {
+                    $registry->register($this->app->make($module, ['app' => $this->app]));
+                } catch (Throwable $e) {
+                    $identifier = is_string($module) ? $module : get_debug_type($module);
+                    $wrappedError = new RuntimeException("Failed to register module '{$identifier}' from 'bootstrap/modules.php'.", $e->getCode(), $e);
+                    if ($this->app->isLocal()) {
+                        throw $wrappedError;
+                    }
+
+                    report($wrappedError);
+                }
             }
 
             return $registry;
         });
 
         $this->app->singleton('foundation-options', function () {
-            $manager = new OptionsManager(new DatabaseOptionStore);
-
-            foreach ($this->app->get(Modules::$accessor)->enabled() as $moduleIdentifier => $module) {
-                if ($module instanceof HasOptions) {
-                    $schema = Schema::create(
-                        identifier: $moduleIdentifier,
-                        title: __(':module_name options', ['module_name' => $module->identity()->name]),
-                        description: __('Registered options for :module_name', ['module_name' => $module->identity()->name]),
-                    );
-                    $module->options($schema);
-                    $manager->registerSchema($schema);
-                }
-            }
-
-            return $manager;
+            return new OptionsManager(new DatabaseOptionStore);
         });
 
         // TODO merge manifest into Epsicube
@@ -131,6 +138,7 @@ class EpsicubeServiceProvider extends ServiceProvider
             ModulesStatusCommand::class,
             ModulesEnableCommand::class,
             ModulesDisableCommand::class,
+            ModuleShowCommand::class,
             OptionsListCommand::class,
             OptionsSetCommand::class,
             OptionsUnsetCommand::class,

@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Epsicube\Foundation\Console\Commands;
 
-use Epsicube\Support\Contracts\Module;
 use Epsicube\Support\Facades\Modules;
+use Epsicube\Support\Modules\Module;
 use Illuminate\Console\Command;
 use Illuminate\Contracts\Console\PromptsForMissingInput;
 use Throwable;
@@ -28,7 +28,7 @@ class ModulesDisableCommand extends Command implements PromptsForMissingInput
             'identifier' => fn () => multiselect(
                 label: 'Which modules would you like to disable?',
                 options: array_map(
-                    fn (Module $module) => $module->identity()->name,
+                    fn (Module $module) => $module->identity->name,
                     array_filter(Modules::all(), fn (Module $module) => Modules::canBeDisabled($module))
                 ),
                 required: 'You must select at least one module'
@@ -38,7 +38,6 @@ class ModulesDisableCommand extends Command implements PromptsForMissingInput
 
     public function handle(): int
     {
-
         $identifiers = $this->argument('identifier');
 
         if (empty($identifiers)) {

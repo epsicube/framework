@@ -5,38 +5,70 @@ declare(strict_types=1);
 namespace Epsicube\Foundation\Managers;
 
 use Epsicube\Support\Contracts\ActivationDriver;
-use Epsicube\Support\Contracts\HasDependencies;
-use Epsicube\Support\Contracts\HasIntegrations;
-use Epsicube\Support\Contracts\Module;
-use Epsicube\Support\Exceptions\CircularDependencyException;
-use Epsicube\Support\Registry;
+use Epsicube\Support\Contracts\IsModule;
+use Epsicube\Support\Enums\ConditionState;
+use Epsicube\Support\Enums\ModuleStatus;
+use Epsicube\Support\Exceptions\DuplicateItemException;
+use Epsicube\Support\Exceptions\UnresolvableItemException;
+use Epsicube\Support\Facades\Options;
+use Epsicube\Support\Modules\Module;
 use Illuminate\Contracts\Foundation\Application;
-use Illuminate\Support\ServiceProvider;
+use Illuminate\Foundation\Bootstrap\RegisterProviders;
 use RuntimeException;
 use Throwable;
 
-/**
- * @extends Registry<Module>
- */
-class ModulesManager extends Registry
+class ModulesManager
 {
-    public function __construct(
-        protected ActivationDriver $driver,
-    ) {}
+    public function __construct(public ActivationDriver $driver) {}
 
-    public function getRegistrableType(): string
+    /**
+     * @var array<string, Module>
+     */
+    protected array $modules = [];
+
+    protected array $logs = [];
+
+    protected KahnResolver $resolver;
+
+    protected bool $booted = false;
+
+    public function register(IsModule ...$modules): void
     {
-        return Module::class;
+        foreach ($modules as $module) {
+            $identifier = $module->module()->identifier;
+            if (array_key_exists($identifier, $this->modules)) {
+                throw new DuplicateItemException($identifier);
+            }
+
+            $this->modules[$identifier] = $module->module();
+            if ($this->booted) {
+                unset($this->resolver);
+                $this->modules[$identifier]->mustUse = false;
+                $this->modules[$identifier]->status = ModuleStatus::DISABLED;
+            }
+        }
     }
 
-    public function setDriver(ActivationDriver $driver): void
+    public function get(string $identifier): Module
     {
-        $this->driver = $driver;
+        if (! array_key_exists($identifier, $this->all())) {
+            throw new UnresolvableItemException($identifier);
+        }
+
+        return $this->all()[$identifier];
     }
 
-    public function getDriver(): ActivationDriver
+    public function safeGet(string $identifier): ?Module
     {
-        return $this->driver;
+        return $this->modules[$identifier] ?? null;
+    }
+
+    /**
+     * @return array<string,Module>
+     */
+    public function all(): array
+    {
+        return $this->modules;
     }
 
     /**
@@ -44,7 +76,7 @@ class ModulesManager extends Registry
      */
     public function enabled(): array
     {
-        return array_filter($this->all(), fn (Module $module) => $this->isEnabled($module));
+        return array_filter($this->all(), fn (Module $module) => $module->status === ModuleStatus::ENABLED);
     }
 
     /**
@@ -52,487 +84,150 @@ class ModulesManager extends Registry
      */
     public function disabled(): array
     {
-        return array_filter($this->all(), fn (Module $module) => ! $this->isEnabled($module));
+        return array_filter($this->all(), fn (Module $module) => $module->status === ModuleStatus::DISABLED);
     }
 
-    public function enable(string|Module $module): void
+    public function getResolver(): KahnResolver
     {
-        if (is_string($module)) {
-            $module = $this->get($module);
-        }
-        if (! $this->canBeEnabled($module)) {
-            $missing = $this->missingDependencies($module);
-            if ($missing !== []) {
-                throw new RuntimeException(
-                    __('This module cannot be enabled: missing dependencies [:list].', ['list' => implode(', ', $missing)])
-                );
-            }
-
-            throw new RuntimeException(__('This module cannot be enabled (must-use or already enabled).'));
-        }
-        $this->driver->enable($module);
+        return $this->resolver ??= new KahnResolver(...array_values($this->modules));
     }
 
-    public function markAsMustUse(string|Module $module): void
+    public function bootstrap(Application $app): void
     {
-        if (is_string($module)) {
-            $module = $this->get($module);
-        }
-        if (! $this->canBeEnabled($module)) {
-            $missing = $this->missingDependencies($module);
-            if ($missing !== []) {
-                throw new RuntimeException(
-                    __('This module cannot be enabled: missing dependencies [:list].', ['list' => implode(', ', $missing)])
-                );
-            }
-
-            throw new RuntimeException(__('This module cannot be enabled (must-use or already enabled).'));
-        }
-        $this->driver->markAsMustUse($module);
-    }
-
-    public function disable(string|Module $module): void
-    {
-        if (is_string($module)) {
-            $module = $this->get($module);
+        if ($this->booted) {
+            return;
         }
 
-        // Hard block: must-use or already disabled
-        if (! $this->isEnabled($module) || $this->isMustUse($module)) {
-            throw new RuntimeException(__('This module cannot be disabled (must-use or already disabled).'));
-        }
+        $this->logs = [];
+        $wanted = array_filter(
+            $this->modules,
+            fn (Module $m) => $this->driver->isMustUse($m) || $this->driver->isEnabled($m)
+        );
 
-        // Prevent disabling a module that is a dependency of any enabled module
-        $blocking = $this->enabledDependentsOf($module);
-        if ($blocking !== []) {
-            throw new RuntimeException(
-                __('This module cannot be disabled: it is required by [:list].', ['list' => implode(', ', $blocking)])
-            );
-        }
-        $this->driver->disable($module);
-    }
+        $candidates = array_filter($wanted, function (Module $m) {
+            if (! $m->requirements->passes()) {
+                foreach ($m->requirements->conditions as $condition) {
+                    if ($condition->resultState === ConditionState::INVALID) {
+                        $this->log($m, 'Requirement condition failed: '.$condition->getMessage());
+                    }
+                }
 
-    public function isEnabled(string|Module $module): bool
-    {
-        if (is_string($module)) {
-            if (! $module = $this->safeGet($module)) {
                 return false;
             }
-        }
 
-        // MU are always enabled
-        if ($this->isMustUse($module)) {
             return true;
+        });
+
+        $registrables = $this->getResolver()->resolve($this->log(...), ...array_values($candidates));
+        $registrableIdentifiers = array_map(fn (Module $m) => $m->identifier, $registrables);
+
+        // Fill modules with activation information
+        foreach ($this->modules as $identifier => $module) {
+            $module->mustUse = $this->driver->isMustUse($module);
+            $module->status = match (true) {
+                in_array($identifier, $registrableIdentifiers, true) => ModuleStatus::ENABLED,
+                array_key_exists($identifier, $wanted)               => ModuleStatus::ERROR,
+                default                                              => ModuleStatus::DISABLED,
+            };
         }
 
-        // Consider module enabled only if marked enabled by driver AND all dependencies are satisfied
-        if (! $this->driver->isEnabled($module)) {
-            return false;
+        foreach ($registrables as $module) {
+            // TODO run bootstrappers if needed
+
+            $app->afterBootstrapping(RegisterProviders::class, function () use ($module, &$app) {
+                Options::registerSchema($module->options);
+                foreach ($module->providers as $provider) {
+                    $app->register($provider);
+                }
+            });
+
+            $app->booting(function () use ($module) {
+                $module->supports->execute();
+            });
         }
-        try {
-            return $this->missingDependencies($module) === [];
-        } catch (CircularDependencyException) {
-            // A cycle means we cannot safely consider the module enabled
-            return false;
-        }
+
+        $this->booted = true;
     }
 
-    /**
-     * Determine if a module is marked as Must-Use (always enabled) by the driver.
-     */
-    public function isMustUse(string|Module $module): bool
-    {
-        if (is_string($module)) {
-            if (! $module = $this->safeGet($module)) {
-                return false; // Unknown identifier is not MU
-            }
-        }
-
-        return $this->driver->isMustUse($module);
-    }
-
+    // ACTIVATION MANAGEMENT
     public function canBeEnabled(string|Module $module): bool
     {
-        if (is_string($module)) {
-            $module = $this->get($module);
-        }
+        $module = is_string($module) ? $this->get($module) : $module;
 
-        if ($this->isMustUse($module)) {
+        if ($module->status !== ModuleStatus::DISABLED || $this->driver->isMustUse($module)) {
             return false;
         }
 
-        // Cannot enable if dependencies are missing
-        if ($this->missingDependencies($module) !== []) {
+        if (! $module->requirements->passes()) {
             return false;
         }
 
-        return ! $this->isEnabled($module);
+        try {
+            $chain = $this->getResolver()->resolveEnableChain($module->identifier, fn () => null);
+
+            return in_array($module, $chain, true);
+        } catch (Throwable) {
+            return false;
+        }
     }
 
     public function canBeDisabled(string|Module $module): bool
     {
-        if (is_string($module)) {
-            $module = $this->get($module);
-        }
+        $module = is_string($module) ? $this->get($module) : $module;
 
-        if ($this->isMustUse($module)) {
-            return false;
-        }
-
-        if (! $this->isEnabled($module)) {
-            return false;
-        }
-
-        // Cannot be disabled if some enabled module depends on it
-        return $this->enabledDependentsOf($module) === [];
-    }
-
-    /**
-     * Compute the cascade disable chain for a module: all enabled dependents first (top-down),
-     * then the target module last. Throws when a Must-Use module is encountered in the dependent chain
-     * or when a dependency cycle is detected among dependents traversal.
-     *
-     * @return string[] Ordered list of identifiers to disable
-     */
-    public function resolveDisableChain(string|Module $module): array
-    {
-        if (is_string($module)) {
-            $module = $this->get($module);
-        }
-
-        $order = [];
-        $perm = [];
-        $temp = [];
-
-        $visit = function (Module $m) use (&$visit, &$order, &$perm, &$temp): void {
-            $id = $m->identifier();
-            if (isset($perm[$id])) {
-                return;
-            }
-            if (isset($temp[$id])) {
-                throw new CircularDependencyException('Circular dependency detected while resolving disable chain.');
-            }
-
-            // If this module is Must-Use, it cannot be disabled in a cascade
-            if ($this->isMustUse($m)) {
-                throw new RuntimeException(__('Cannot disable because module [:module] is Must-Use.', ['module' => $id]));
-            }
-
-            // Only consider enabled dependents; disabled ones are irrelevant
-            $temp[$id] = true;
-            foreach ($this->all() as $depId => $candidate) {
-                if ($depId === $id) {
-                    continue;
-                }
-                // Skip if candidate not enabled
-                if (! $this->isEnabled($candidate)) {
-                    continue;
-                }
-                // If candidate depends on current module, it must be disabled before current
-                $deps = $this->dependenciesOf($candidate);
-                if (in_array($id, $deps, true)) {
-                    $visit($candidate);
-                }
-            }
-
-            $perm[$id] = true;
-            unset($temp[$id]);
-
-            // Only include modules that are currently enabled (idempotent behavior)
-            if ($this->isEnabled($id) && ! $this->isMustUse($id)) {
-                $order[] = $id;
-            }
-        };
-
-        // Target must be enabled and not MU to consider cascade
-        if ($this->isMustUse($module)) {
-            throw new RuntimeException(__('This module cannot be disabled (must-use).'));
-        }
-        if (! $this->isEnabled($module)) {
-            // Nothing to do: return empty chain
-            return [];
-        }
-
-        $visit($module);
-
-        return $order;
-    }
-
-    /**
-     * Disable a module and all its enabled dependents in a safe order.
-     * Idempotent: skips already disabled modules and never tries to disable Must-Use.
-     */
-    public function disableWithDependents(string|Module $module): void
-    {
-        $chain = $this->resolveDisableChain($module);
-
-        foreach ($chain as $id) {
-            if ($this->isMustUse($id)) {
-                continue; // extra safety
-            }
-            if ($this->isEnabled($id)) {
-                $this->driver->disable($this->get($id));
-            }
-        }
-    }
-
-    /**
-     * Return whether a module can be disabled together with its dependents.
-     * Returns false if target is Must-Use or not enabled, or if the chain cannot be resolved
-     * because of Must-Use dependents or cycles.
-     */
-    public function canDisableWithDependents(string|Module $module): bool
-    {
-        try {
-            if ($this->isMustUse($module) || ! $this->isEnabled($module)) {
-                return false;
-            }
-            $chain = $this->resolveDisableChain($module);
-
-            return $chain !== [];
-        } catch (Throwable) {
-            return false;
-        }
-    }
-
-    public function registerInApp(Application $app): void
-    {
-        $enabledModules = $this->enabled();
-        foreach ($enabledModules as $module) {
-            if (! is_a($module, ServiceProvider::class)) {
-                throw new RuntimeException(sprintf('module [%s] is not instance of [%s].', get_class($module), ServiceProvider::class));
-            }
-            $app->register($module);
-        }
-
-        // Run integrations
-        foreach ($enabledModules as $module) {
-            if (! ($module instanceof HasIntegrations)) {
-                continue;
-            }
-
-            foreach ($module->integrations()->registrations() as $target => $callbacks) {
-                if (isset($enabledModules[$target])) {
-                    foreach ($callbacks['enabled'] as $cb) {
-                        $cb();
-                    }
-                } else {
-                    foreach ($callbacks['disabled'] as $cb) {
-                        $cb();
-                    }
-                }
-            }
-        }
-    }
-
-    /**
-     * Returns the list of dependency identifiers declared by the given module.
-     *
-     * @return string[]
-     */
-    public function dependenciesOf(string|Module $module): array
-    {
-        if (is_string($module)) {
-            $module = $this->get($module);
-        }
-
-        if (! ($module instanceof HasDependencies)) {
-            return [];
-
-        }
-
-        return $module->dependencies()->requiredModules();
-    }
-
-    /**
-     * Returns the list of missing dependencies for a module. A dependency is considered satisfied
-     * if it is Must-Use or effectively enabled in the registry.
-     *
-     * @return string[]
-     */
-    public function missingDependencies(string|Module $module): array
-    {
-        if (is_string($module)) {
-            $module = $this->get($module);
-        }
-
-        return $this->missingDependenciesInternal($module, []);
-    }
-
-    /**
-     * Returns the list of enabled modules identifiers that depend (directly) on the given module.
-     * Used to prevent disabling a module that is required by others.
-     *
-     * @return string[]
-     */
-    protected function enabledDependentsOf(string|Module $module): array
-    {
-        if (is_string($module)) {
-            $module = $this->get($module);
-        }
-
-        $target = $module->identifier();
-        $dependents = [];
-
-        foreach ($this->all() as $identifier => $candidate) {
-            if ($identifier === $target) {
-                continue;
-            }
-
-            // Skip if candidate is not enabled; only enabled dependents block disabling
-            if (! $this->isEnabled($candidate)) {
-                continue;
-            }
-
-            $deps = $this->dependenciesOf($candidate);
-            if (in_array($target, $deps, true)) {
-                $dependents[] = $identifier;
-            }
-        }
-
-        return $dependents;
-    }
-
-    /**
-     * Internal helper to compute missing dependencies and detect cycles.
-     * Returns a flat list of dependency identifiers that are not satisfied.
-     * A dependency is satisfied if it is Must-Use or effectively enabled, and its
-     * own dependencies are also satisfied. Unknown dependencies are reported as missing.
-     *
-     * @param  array<int,string>  $path  Current DFS path for cycle detection
-     * @return string[]
-     */
-    protected function missingDependenciesInternal(Module $module, array $path): array
-    {
-        $id = $module->identifier();
-        if (in_array($id, $path, true)) {
-            throw new CircularDependencyException('Circular dependency detected: '.implode(' -> ', array_merge($path, [$id])));
-        }
-
-        $path[] = $id;
-
-        $missing = [];
-        foreach ($this->dependenciesOf($module) as $depId) {
-            $dep = $this->safeGet($depId);
-            if (! $dep) {
-                $missing[] = $depId; // Unknown dependency
-
-                continue;
-            }
-
-            // If dependency is not MU and not marked enabled by driver, it is missing.
-            if (! $this->isMustUse($dep) && ! $this->driver->isEnabled($dep)) {
-                $missing[] = $depId;
-
-                // Still check deeper to collect unknowns/cycles under this branch
-                // but only if needed; we continue to next dependency.
-                continue;
-            }
-
-            // Recurse to ensure the dependency's own deps are satisfied
-            $childMissing = $this->missingDependenciesInternal($dep, $path);
-            foreach ($childMissing as $m) {
-                $missing[] = $m;
-            }
-        }
-
-        // Deduplicate while preserving order
-        return array_values(array_unique($missing));
-    }
-
-    /**
-     * Resolve the activation chain for a module (dependencies first, target last).
-     * Throws when encountering unknown dependencies or a cycle.
-     *
-     * @return string[] Ordered list of identifiers to enable
-     */
-    public function resolveEnableChain(string|Module $module): array
-    {
-        if (is_string($module)) {
-            $module = $this->get($module);
-        }
-
-        $order = [];
-        $perm = [];
-        $temp = [];
-
-        $visit = function (Module $m) use (&$visit, &$order, &$perm, &$temp): void {
-            $id = $m->identifier();
-            if (isset($perm[$id])) {
-                return;
-            }
-            if (isset($temp[$id])) {
-                throw new CircularDependencyException('Circular dependency detected while resolving enable chain.');
-            }
-
-            $temp[$id] = true;
-            foreach ($this->dependenciesOf($m) as $depId) {
-                $dep = $this->safeGet($depId);
-                if (! $dep) {
-                    throw new RuntimeException(__('Unknown dependency [:dep] for module [:module].', ['dep' => $depId, 'module' => $id]));
-                }
-                $visit($dep);
-            }
-            $perm[$id] = true;
-            unset($temp[$id]);
-            $order[] = $id;
-        };
-
-        $visit($module);
-
-        return $order;
-    }
-
-    /**
-     * Enable a module alongside its required dependencies, in order. Idempotent.
-     */
-    public function enableWithDependencies(string|Module $module): void
-    {
-        $chain = $this->resolveEnableChain($module);
-
-        foreach ($chain as $id) {
-            if ($this->isMustUse($id)) {
-                continue; // Must-Use considered already enabled
-            }
-
-            if (! $this->isEnabled($id)) {
-                $this->driver->enable($this->get($id));
-            }
-        }
-    }
-
-    /**
-     * Return whether a module can be enabled together with its dependencies.
-     * Returns false when the chain cannot be resolved (unknown deps or cycles),
-     * or when the module is Must-Use or already effectively enabled.
-     */
-    public function canEnableWithDependencies(string|Module $module): bool
-    {
-        try {
-            // If already enabled or MU, no need for the flow
-            if ($this->isMustUse($module) || $this->isEnabled($module)) {
-                return false;
-            }
-
-            $this->resolveEnableChain($module);
-
-            return true;
-        } catch (Throwable) {
-            return false;
-        }
-    }
-
-    /**
-     * Return true when the given module has unresolved dependencies
-     * (i.e. at least one dependency is missing/unknown or a cycle is detected).
-     */
-    public function hasUnresolvedDependencies(string|Module $module): bool
-    {
-        try {
-            return $this->missingDependencies($module) !== [];
-        } catch (CircularDependencyException) {
-            // A detected cycle is considered unresolved
+        if ($module->status === ModuleStatus::ERROR && ! $this->driver->isMustUse($module)) {
             return true;
         }
+
+        if ($module->status === ModuleStatus::DISABLED || $this->driver->isMustUse($module)) {
+            return false;
+        }
+
+        $chain = $this->getResolver()->resolveDisableChain($module->identifier);
+        foreach ($chain as $dependent) {
+            if ($dependent->identifier === $module->identifier) {
+                continue;
+            }
+
+            if ($dependent->status === ModuleStatus::ENABLED) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    public function enable(string|Module $module): void
+    {
+        $module = is_string($module) ? $this->get($module) : $module;
+        if (! $this->canBeEnabled($module)) {
+            throw new RuntimeException(__('This module cannot be enabled.'));
+        }
+        $this->driver->enable($module);
+        $module->status = ModuleStatus::ENABLED;
+    }
+
+    public function disable(string|Module $module): void
+    {
+        $module = is_string($module) ? $this->get($module) : $module;
+        if (! $this->canBeDisabled($module)) {
+            throw new RuntimeException(__('This module cannot be disabled.'));
+        }
+        $this->driver->disable($module);
+        $module->status = ModuleStatus::DISABLED;
+    }
+
+    public function getBootstrapLogs(?string $identifier = null): array
+    {
+        if ($identifier) {
+            return $this->logs[$identifier] ?? [];
+        }
+
+        return $this->logs;
+    }
+
+    protected function log(Module $module, string $string): void
+    {
+        $this->logs[$module->identifier][] = $string;
     }
 }

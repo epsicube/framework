@@ -1,0 +1,110 @@
+---
+title: Declare Supports
+description: "Dynamically adapt module behavior based on environment conditions, PHP extensions, or other modules."
+sidebar:
+    order: 4
+---
+
+import { Aside, Steps } from '@astrojs/starlight/components';
+
+The **Support** system allows your module to **interact and adapt** to its environment dynamically.
+
+By defining supports, your module can execute specific logic based on whether certain conditions—such as the presence of other modules or specific environment variables—are met, failed, or skipped.
+
+
+
+## Why use Supports?
+
+* **Adaptive Behavior**: Automatically switch between features (e.g., enable Real-time Sync if `inotify` is present, otherwise fallback to Polling).
+* **Safe Inter-Module Communication**: Execute code that interacts with another module's API only when that module is actually present and compatible.
+* **System Transparency**: Information about which optional features are active is displayed directly in the Administration UI.
+
+## How to declare Supports?
+
+<Steps>
+1. ### Import Required Classes
+
+    Ensure your module imports the necessary classes and interfaces from the framework:
+    * [`Epsicube\Support\Modules\Support`](https://github.com/epsicube/framework/blob/main/packages/Support/Modules/Support.php)
+    * [`Epsicube\Support\Modules\Supports`](https://github.com/epsicube/framework/blob/main/packages/Support/Modules/Supports.php)
+    * [`Epsicube\Support\Modules\Condition`](https://github.com/epsicube/framework/blob/main/packages/Support/Modules/Condition.php)
+    * [`Epsicube\Support\Enums\ModuleCondition`](https://github.com/epsicube/framework/blob/main/packages/Support/Enums/ModuleCondition.php)
+    <br />
+
+2. ### Define Supports in your Module
+
+    In your `module()` method, use the `supports()` method to register one or more support conditions.
+
+    ```php
+    use Illuminate\Support\ServiceProvider;
+    use Epsicube\Support\Contracts\IsModule;
+    use Epsicube\Support\Enums\ModuleCondition;
+    use Epsicube\Support\Modules\{Module,Supports,Support,Condition};
+
+    class YourModule extends ServiceProvider implements IsModule
+    {
+        public function module(): Module
+        {
+            return Module::make('custom::my-module', '1.0.0')
+                //...
+                ->supports(fn (Supports $supports) => $supports->add(
+
+                    // Example: Conditional registration based on another module
+                    Support::forModule(
+                        identifiers: ['core::execution-platform' => '^1.0'],
+                        whenPass: fn () => Workflows::register(MyCustomWorkflow::make()),
+                        state: ModuleCondition::ENABLED,
+                    ),
+
+                    // Example: Adapting logic to the PHP environment
+                    Support::for(
+                        condition: Condition::all(
+                            Condition::phpExtensions('inotify'),
+                            Condition::phpExtensions('curl'),
+                        ),
+                        whenPass: $this->enableRealTimeSync(...),
+                        whenFail: $this->enablePollingSync(...),
+                    ),
+                ));
+        }
+        //...
+    }
+    ```
+</Steps>
+
+## Available Conditions
+
+The `Condition` helper provides several static methods to check the environment.
+
+### Environment Checks
+| Method                             | Description                                          |
+|:-----------------------------------|:-----------------------------------------------------|
+| `phpVersion(string $version)`      | Checks the current PHP version (e.g., `^8.2`).       |
+| `epsicubeVersion(string $version)` | Checks the version of the Epsicube Framework.        |
+| `phpExtensions(string ...$ext)`    | Checks if one or multiple PHP extensions are loaded. |
+
+### Logical Wrappers
+| Method                                  | Description                                             |
+|:----------------------------------------|:--------------------------------------------------------|
+| `all(Condition ...$cond)`               | **AND** logic: All conditions must be met.              |
+| `any(Condition ...$cond)`               | **OR** logic: At least one condition must be met.       |
+| `when(Condition $cond, array $targets)` | Skips a list of conditions unless the first one is met. |
+
+## Module Condition States
+
+When using `Support::forModule()`, the `ModuleCondition` enum defines the requirement:
+
+| State      | Use Case                                                                         |
+|:-----------|:---------------------------------------------------------------------------------|
+| `PRESENT`  | Satisfied if the module exists, even if disabled. Great for class/file access.   |
+| `ABSENT`   | Satisfied only if the module is **not** installed. Ideal for avoiding conflicts. |
+| `ENABLED`  | Satisfied if the module is active. Use this when you need the module's services. |
+| `DISABLED` | Satisfied if the module is installed but turned OFF.                             |
+| `INACTIVE` | Satisfied if the module is either missing OR disabled.                           |
+| `ACTIVE`   | Alias for `ENABLED`.                                                             |
+
+<Aside type="caution" title="Bootstrap Performance">
+Keep your `whenPass`, `whenFail`, and `whenSkipped` callbacks lightweight.
+
+These are executed during the module booting process; avoid heavy database queries or complex processing here.
+</Aside>

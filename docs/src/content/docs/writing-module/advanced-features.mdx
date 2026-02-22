@@ -2,7 +2,7 @@
 title: Advanced Features
 description: "Use advanced module capabilities."
 sidebar:
-    order: 5
+    order: 6
 ---
 
 Epsicube exposes several advanced utilities for module developers through the
@@ -15,7 +15,7 @@ If your module requires a persistent background process, you can register it, se
 ```php
 use Epsicube\Support\Facades\Epsicube;
 
-class YourModule extends ServiceProvider
+class YourModule extends ServiceProvider implements IsModule
 {
     public function boot(): void
     {

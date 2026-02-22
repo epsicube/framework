@@ -19,7 +19,7 @@ trait CleanupProvider
     public function registerProviderWithCleanup(string $provider): Closure
     {
         $initialBindings = array_keys($this->getBindings());
-        $this->register($provider);
+        $providerInstance = $this->register($provider);
         $addedBindings = array_diff(array_keys($this->getBindings()), $initialBindings);
 
         return function () use ($provider, $addedBindings): void {

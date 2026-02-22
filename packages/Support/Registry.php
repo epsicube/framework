@@ -42,7 +42,7 @@ abstract class Registry
             }
 
             if (array_key_exists($identifier, $this->items)) {
-                throw new DuplicateItemException($identifier, $this);
+                throw new DuplicateItemException($identifier);
             }
 
             $this->registerItem($identifier, $item);

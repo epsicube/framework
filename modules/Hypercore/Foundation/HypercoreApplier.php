@@ -8,14 +8,14 @@ use Closure;
 use Epsicube\Foundation\Managers\ModulesManager;
 use Epsicube\Support\Contracts\ActivationDriver;
 use Epsicube\Support\Contracts\HasIntegrations;
-use Epsicube\Support\Contracts\Module;
+use Epsicube\Support\Contracts\IsModule;
 use InvalidArgumentException;
 
 class HypercoreApplier
 {
     public function __construct(
         protected ModulesManager $registry,
-        protected Module $recordingModule,
+        protected IsModule $recordingModule,
         protected ActivationDriver $activationDriver
     ) {}
 
@@ -26,7 +26,7 @@ class HypercoreApplier
         });
     }
 
-    public function injectModules(Module ...$modules): void
+    public function injectModules(IsModule ...$modules): void
     {
         $this->registry->register(...$modules);
     }
@@ -56,7 +56,7 @@ class HypercoreApplier
         $module->integrations()->forModule($identifier, $whenEnabled, $whenDisabled);
     }
 
-    public function getModule(string $identifier): ?Module
+    public function getModule(string $identifier): ?IsModule
     {
         return $this->registry->safeGet($identifier);
     }

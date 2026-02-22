@@ -28,13 +28,18 @@ To view the status of all modules:
 php artisan modules:status
 ```
 ```text
- ┌──────────────────────────┬────────────────────┬───────────────────────────────────────────────────────┬───────────┬──────────┬──────────┐
- │ Identifier               │ Name               │ Description                                           │ Author    │ Version  │ Status   │
- ├──────────────────────────┼────────────────────┼───────────────────────────────────────────────────────┼───────────┼──────────┼──────────┤
- │ core::administration     │ Administration     │ Provides administrative tools and management features │ Core Team │ dev-main │ ENABLED  │
- │ core::execution-platform │ Execution Platform │ Supports asynchronous workflows and activities        │ Core Team │ dev-main │ DISABLED │
- │ core::mailing-system     │ Mailing System     │ Extensible mail delivery system with notifications    │ Core Team │ dev-main │ DISABLED │
- └──────────────────────────┴────────────────────┴───────────────────────────────────────────────────────┴───────────┴──────────┴──────────┘
+  ┌──────────────────────────┬────────────────────┬──────────────────────────────────────────────────────────────┬───────────┬──────────┬──────────┬──────────────┬─────────────────────────────┐
+  │ Identifier               │ Name               │ Description                                                  │ Author    │ Version  │ Status   │ Requirements │ Dependencies                │
+  ├──────────────────────────┼────────────────────┼──────────────────────────────────────────────────────────────┼───────────┼──────────┼──────────┼──────────────┼─────────────────────────────┤
+  │ core::accounts-manager   │ Accounts Manager   │                                                              │ Core Team │ dev-main │ DISABLED │ NONE         │ NONE                        │
+  │ core::administration     │ Administration     │ Provides administrative tools and management features for t… │ Core Team │ dev-main │ ENABLED  │ NONE         │ NONE                        │
+  │ core::execution-platform │ Execution Platform │ Provides support for asynchronous workflows and activities,… │ Core Team │ dev-main │ DISABLED │ NONE         │ NONE                        │
+  │ core::hypercore          │ Execution Platform │ Turn it into a multi-app manager, enabling multi-tenant set… │ Core Team │ dev-main │ DISABLED │ NONE         │ NONE                        │
+  │ core::mailing-system     │ Mailing System     │ Mail delivery system, extensible and equipped with outbound… │ Core Team │ dev-main │ DISABLED │ NONE         │ NONE                        │
+  │ core::mcp-server         │ MCP Server         │ Integrates MCP capabilities into the application, allowing…  │ Core Team │ dev-main │ ENABLED  │ NONE         │ NONE                        │
+  │ core::json-rpc-server    │ JSON-RPC Server    │ Provides a JSON-RPC server implementation, enabling modules… │ Core Team │ dev-main │ DISABLED │ NONE         │ NONE                        │
+  │ inventory-manager        │ Inventory Manager  │ Inventory Manager                                            │ Epsicube  │ 1.0.0    │ ENABLED  │ PASSED (4/4) │ 1. core::administration [*] │
+  └──────────────────────────┴────────────────────┴──────────────────────────────────────────────────────────────┴───────────┴──────────┴──────────┴──────────────┴─────────────────────────────┘
 ```
 ---
 

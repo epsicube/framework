@@ -1,0 +1,78 @@
+---
+title: Managing Requirements
+description: "Enforce strict environmental prerequisites for your modules to ensure stability."
+sidebar:
+    order: 2
+---
+
+import { Aside, Steps } from '@astrojs/starlight/components';
+
+**Requirements** are hard prerequisites that must be satisfied for a module to be enabled. Unlike **Supports**, which gracefully adapt the module's behavior, Requirements will block the module from starting entirely if they are not met.
+
+## Why use Requirements?
+
+* **Prevention**: Stop the module from running on incompatible environments.
+* **Stability**: Ensure critical system components are loaded before execution.
+* **Complex Validation**: Use logical operators to define sophisticated environmental needs.
+
+<Aside type="danger" title="Strict Enforcement">
+If any requirement fails, the framework will mark the module with an **Error** status in the Administration interface and provide a detailed report of the failing conditions.
+</Aside>
+
+## How to define Requirements?
+
+<Steps>
+1. ### Import Required Classes
+
+    Ensure your module imports the necessary classes from the framework:
+    * [`Epsicube\Support\Modules\Requirements`](https://github.com/epsicube/framework/blob/main/packages/Support/Modules/Requirements.php)
+    * [`Epsicube\Support\Modules\Condition`](https://github.com/epsicube/framework/blob/main/packages/Support/Modules/Condition.php)
+    <br />
+
+2. ### Add Requirements to your Module
+
+    Use the `requirements()` method in your `module()` definition. You can chain multiple conditions together.
+
+    ```php
+    use Illuminate\Support\ServiceProvider;
+    use Epsicube\Support\Contracts\IsModule;
+    use Epsicube\Support\Modules\{Module, Requirements, Condition};
+
+    class ImageProcessorModule extends ServiceProvider implements IsModule
+    {
+        public function module(): Module
+        {
+            return Module::make('image-processor', '1.1.0')
+                ->requirements(fn (Requirements $requirements) => $requirements->add(
+
+                    // Base system prerequisite
+                    Condition::phpVersion('>= 8.2'),
+                    Condition::phpExtensions('fileinfo'), // Mandatory for MIME detection
+
+                    // The module needs at least one valid engine to function
+                    Condition::any(
+                        Condition::phpExtensions('gd'),
+                        Condition::phpExtensions('imagick'),
+                        Condition::all(
+                            Condition::phpExtensions('vips'),
+                            Condition::phpVersion('>= 8.3') // VIPS requires PHP 8.3+ here
+                        )
+                    ),
+
+                    // Conditional Requirement (Condition::when)
+                    // If 'imagick' is used, we strictly require PHP 8.3
+                    ...Condition::when(Condition::phpExtensions('imagick'), [
+                        Condition::phpVersion('>= 8.3'),
+                    ])
+                ));
+        }
+    }
+    ```
+
+3. ### Learn how to define Conditions
+    The `Condition` helper provides several static methods to check the environment.
+
+    These are the same conditions used in the **Support** system.
+
+    See the [**Available Conditions**](/writing-module/declare-supports/#available-conditions).
+</Steps>

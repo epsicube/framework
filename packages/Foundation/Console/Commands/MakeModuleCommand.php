@@ -46,7 +46,7 @@ class MakeModuleCommand extends GeneratorCommand
                 ));
             } catch (DuplicateItemException) {
             }
-            $this->callSilent(ModulesEnableCommand::class, ['identifier' => [$this->getModuleIdentifier()]]);
+            $this->call(ModulesEnableCommand::class, ['identifier' => [$this->getModuleIdentifier()]]);
         }
 
         return $result;

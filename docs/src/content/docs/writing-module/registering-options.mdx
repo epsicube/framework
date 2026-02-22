@@ -2,7 +2,7 @@
 title: Registering Options
 description: "Create and manage custom configuration options for your module."
 sidebar:
-    order: 3
+    order: 5
 ---
 
 import { Aside, Steps } from '@astrojs/starlight/components';
@@ -19,22 +19,28 @@ Options can be managed either via the **CLI** or the **Administration interface*
 ## How to declare your options ?
 <br/>
 <Steps>
-1. ### Implement the Interface
-   Your module must implement the [`Epsicube\Support\Contracts\HasOptions`](https://github.com/epsicube/framework/blob/main/packages/Support/Contracts/HasOptions.php) interface.
+1. ### Configure your module
+   Your module must import the [`Epsicube\Schemas\Schema`](https://github.com/epsicube/framework/blob/main/packages/Schemas/Schema.php) class.
 
     ```php
-    use Epsicube\Support\Contracts\HasOptions;
+    use Illuminate\Support\ServiceProvider;
     use Epsicube\Schemas\Properties\StringProperty;
     use Epsicube\Schemas\Schema;
+    use Epsicube\Support\Contracts\IsModule;
+    use Epsicube\Support\Modules\Module;
 
-    class ExternalApiModule extends ServiceProvider implements HasOptions, Module
+    class ExternalApiModule extends ServiceProvider implements IsModule
     {
         //...
-        public function options(Schema $schema): void
+        public function module(): Module
         {
-            $schema->append([
-                'api_token' => StringProperty::make()->title('Api Token')->default('XXX-XXXXX-XXX'),
-            ]);
+            return Module::make('custom::mycustommodule', '0.0.1')
+                //...
+                ->options(function(Schema $options){
+                    $options->append([
+                        'api_token' => StringProperty::make()->title('Api Token')->default('XXX-XXXXX-XXX'),
+                    ]);
+                });
         }
     }
     ```

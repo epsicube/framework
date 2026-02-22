@@ -14,8 +14,10 @@
   "require": {
     "ext-intl": "*",
     "ext-pcntl": "*",
-    "php": "^8.3",
+    "php": "^8.4",
+    "composer/semver": "^3.4",
     "laravel/framework": "^12.41",
+    "nunomaduro/termwind": "^2.0",
     "laravel/mcp": "^0.5",
     "spatie/mjml-php": "^1.2.5",
     "phiki/phiki": "^2.0.4",
