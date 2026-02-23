@@ -30,7 +30,7 @@ Route::domain('epsicube.internal')->group(function () {
         ], status: $exception ? 500 : 200);
     });
 
-    Route::fallback(function () {
+    Route::any('{any}', function () {
         return response('', 204);
-    });
+    })->where('any', '.*');
 });
