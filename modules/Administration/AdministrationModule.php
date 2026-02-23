@@ -24,6 +24,7 @@ class AdministrationModule extends ServiceProvider implements IsModule
             ?? InstalledVersions::getVersion('epsicube/module-administration')
         )
             ->providers(static::class)
+
             ->identity(fn (Identity $identity) => $identity
                 ->name(__('Administration'))
                 ->author('Core Team')

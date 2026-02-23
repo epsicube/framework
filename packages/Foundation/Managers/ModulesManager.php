@@ -15,7 +15,6 @@ use Epsicube\Support\Exceptions\UnresolvableItemException;
 use Epsicube\Support\Facades\Options;
 use Epsicube\Support\Modules\Module;
 use Illuminate\Contracts\Foundation\Application;
-use Illuminate\Foundation\Bootstrap\RegisterProviders;
 use RuntimeException;
 use Throwable;
 
@@ -134,14 +133,11 @@ class ModulesManager
         }
 
         foreach ($registrables as $module) {
-            // TODO run bootstrappers if needed
 
-            $app->afterBootstrapping(RegisterProviders::class, function () use ($module, &$app) {
-                Options::registerSchema($module->options);
-                foreach ($module->providers as $provider) {
-                    $app->register($provider);
-                }
-            });
+            Options::registerSchema($module->options);
+            foreach ($module->providers as $provider) {
+                $app->register($provider);
+            }
 
             $app->booting(function () use ($module) {
                 $module->supports->execute();

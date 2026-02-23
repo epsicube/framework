@@ -21,7 +21,7 @@ class FoundationSubscriber
         $events->listen(PreparingModuleActivationPlan::class, function (PreparingModuleActivationPlan $plan) {
 
             $plan->addTask(__('Clear cache'), $this->clearCache(...));
-            $plan->addTask(__('Run migrations'), $this->terminateWorker(...));
+            $plan->addTask(__('Run migrations'), $this->runMigrations(...));
             if (app()->isProduction() || app()->routesAreCached()) {
                 $plan->addTask(__('Generate cache'), $this->generateCache(...));
             }
