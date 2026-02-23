@@ -6,7 +6,9 @@ namespace Epsicube\Foundation\Utilities;
 
 use Epsicube\Support\Contracts\ActivationDriver;
 use Epsicube\Support\Modules\Module;
+use Illuminate\Contracts\Filesystem\FileNotFoundException;
 use Illuminate\Filesystem\Filesystem;
+use Throwable;
 
 class FilesystemActivationDriver implements ActivationDriver
 {
@@ -57,28 +59,15 @@ class FilesystemActivationDriver implements ActivationDriver
             return;
         }
 
-        $this->state = $this->loadState();
-    }
-
-    protected function loadState(): array
-    {
-        $this->files->ensureDirectoryExists(dirname($this->path));
-
-        if (! $this->files->exists($this->path)) {
-            $this->saveState([]);
-
-            return [];
+        try {
+            $data = $this->files->getRequire($this->path);
+            $this->state = is_array($data) ? $data : [];
+        } catch (FileNotFoundException) {
+            $this->state = [];
+        } catch (Throwable $e) {
+            report($e);
+            $this->state = [];
         }
-
-        $data = @include $this->path;
-
-        if (is_array($data)) {
-            return $data;
-        }
-
-        $this->saveState([]);
-
-        return [];
     }
 
     protected function saveState(array $state): void
@@ -92,7 +81,7 @@ class FilesystemActivationDriver implements ActivationDriver
         $this->files->replace($this->path, $contents);
 
         if (function_exists('opcache_invalidate')) {
-            @opcache_invalidate($this->path, true);
+            @opcache_invalidate($this->path, true); // ensure next require don't use cache
         }
     }
 }

@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Epsicube\Foundation\Listeners;
 
-use Epsicube\Foundation\Events\ModuleDisabled;
-use Epsicube\Foundation\Events\ModuleEnabled;
+use Epsicube\Foundation\Events\PreparingModuleActivationPlan;
+use Epsicube\Foundation\Events\PreparingModuleDeactivationPlan;
 use Illuminate\Contracts\Process\ProcessResult;
 use Illuminate\Events\Dispatcher;
 use Illuminate\Support\Facades\Log;
@@ -18,25 +18,55 @@ class FoundationSubscriber
 {
     public function subscribe(Dispatcher $events): void
     {
-        $events->listen([ModuleEnabled::class, ModuleDisabled::class], function () {
-            $this->refreshOptimizations();
-            $this->terminateWorker();
+        $events->listen(PreparingModuleActivationPlan::class, function (PreparingModuleActivationPlan $plan) {
+
+            $plan->addTask(__('Clear cache'), $this->clearCache(...));
+            $plan->addTask(__('Run migrations'), $this->terminateWorker(...));
+            if (app()->isProduction() || app()->routesAreCached()) {
+                $plan->addTask(__('Generate cache'), $this->generateCache(...));
+            }
+            $plan->addTask(__('Terminate worker'), $this->terminateWorker(...));
+
+            // TODO per-module migrations
         });
 
-        // TODO re-run migration module
-        // TODO rollback migration module
+        $events->listen(PreparingModuleDeactivationPlan::class, function (PreparingModuleDeactivationPlan $plan) {
+            $plan->addTask(__('Clear cache'), $this->clearCache(...));
+            if (app()->isProduction() || app()->routesAreCached()) {
+                $plan->addTask(__('Generate cache'), $this->generateCache(...));
+            }
+            $plan->addTask(__('Terminate worker'), $this->terminateWorker(...));
+
+            // TODO rollback migration module
+        });
+
     }
 
-    protected function refreshOptimizations(): void
+    protected function clearCache(): void
     {
-        $commands = ['optimize:clear', 'optimize'];
-        foreach ($commands as $command) {
-            $process = $this->callArtisanCommand($command);
-            if (! $process->successful()) {
-                Log::error("Failed to refresh optimization: {$command}", ['output' => $process->errorOutput()]);
-                break;
-            }
+        $process = $this->callArtisanCommand('optimize:clear');
+        if (! $process->successful()) {
+            Log::error('Failed to clear cache', ['output' => $process->errorOutput()]);
+
         }
+    }
+
+    protected function runMigrations(): void
+    {
+        $process = $this->callArtisanCommand('migrate --force');
+        if (! $process->successful()) {
+            Log::error('Failed to run migrations', ['output' => $process->errorOutput()]);
+        }
+    }
+
+    protected function generateCache(): void
+    {
+        $process = $this->callArtisanCommand('optimize');
+        if (! $process->successful()) {
+            Log::error('Failed to generate cache', ['output' => $process->errorOutput()]);
+
+        }
+
     }
 
     protected function terminateWorker(): void

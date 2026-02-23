@@ -54,7 +54,7 @@ class JsonRpcServerModule extends ServiceProvider implements IsModule
             }
 
             Route::rpc(
-                Options::get($this->identifier(), 'endpoint'),
+                Options::get($this->module()->identifier, 'endpoint'),
                 array_values(array_map('get_class', Procedures::all()))
             )->name('rpc.endpoint');
         });

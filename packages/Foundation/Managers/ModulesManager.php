@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Epsicube\Foundation\Managers;
 
-use Epsicube\Foundation\Events\ModuleDisabled;
-use Epsicube\Foundation\Events\ModuleEnabled;
+use Epsicube\Foundation\Events\PreparingModuleActivationPlan;
+use Epsicube\Foundation\Events\PreparingModuleDeactivationPlan;
 use Epsicube\Support\Contracts\ActivationDriver;
 use Epsicube\Support\Contracts\IsModule;
 use Epsicube\Support\Enums\ConditionState;
@@ -199,27 +199,42 @@ class ModulesManager
         return true;
     }
 
-    public function enable(string|Module $module): void
+    public function activationPlan(string|Module $module): PreparingModuleActivationPlan
     {
         $module = is_string($module) ? $this->get($module) : $module;
         if (! $this->canBeEnabled($module)) {
             throw new RuntimeException(__('This module cannot be enabled.'));
         }
-        $this->driver->enable($module);
-        $module->status = ModuleStatus::ENABLED;
 
-        event(new ModuleEnabled($module));
+        $plan = new PreparingModuleActivationPlan($module);
+        event($plan);
+
+        $plan->addTask('Mark module as enabled', function () use (&$module) {
+            $this->driver->enable($module);
+            $module->status = ModuleStatus::ENABLED;
+        }, -1);
+
+        // TODO class Plan/Task and use array return $tasks = event()
+        return $plan;
     }
 
-    public function disable(string|Module $module): void
+    public function deactivationPlan(string|Module $module): PreparingModuleDeactivationPlan
     {
         $module = is_string($module) ? $this->get($module) : $module;
         if (! $this->canBeDisabled($module)) {
             throw new RuntimeException(__('This module cannot be disabled.'));
         }
-        $this->driver->disable($module);
-        $module->status = ModuleStatus::DISABLED;
-        event(new ModuleDisabled($module));
+
+        $plan = new PreparingModuleDeactivationPlan($module);
+        event($plan);
+
+        $plan->addTask('Mark module as disabled', function () use (&$module) {
+            $this->driver->disable($module);
+            $module->status = ModuleStatus::DISABLED;
+        }, -1);
+
+        // TODO class Plan/Task and use array return $tasks = event()
+        return $plan;
     }
 
     public function getBootstrapLogs(?string $identifier = null): array

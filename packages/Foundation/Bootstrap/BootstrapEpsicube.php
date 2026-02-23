@@ -8,11 +8,9 @@ use Epsicube\Foundation\EpsicubeApplication;
 use Epsicube\Foundation\Providers\EpsicubeServiceProvider;
 use Epsicube\Support\Facades\Modules;
 use Illuminate\Contracts\Foundation\Application;
-use Illuminate\Database\DatabaseServiceProvider;
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Filesystem\FilesystemServiceProvider;
 use Illuminate\Foundation\Bootstrap\RegisterFacades;
-use Illuminate\View\ViewServiceProvider;
+use Illuminate\Foundation\Bootstrap\RegisterProviders;
+use Throwable;
 
 class BootstrapEpsicube
 {
@@ -21,25 +19,15 @@ class BootstrapEpsicube
         $app->register(EpsicubeServiceProvider::class); // <- force registering self provider
 
         $app->afterBootstrapping(RegisterFacades::class, function (EpsicubeApplication $app): void {
-            $cleanups = [];
-            // Ensure proper error handling is available (omitted without debug for performance)
-            if ($app->hasDebugModeEnabled()) {
-                $cleanups[] = $app->registerProviderWithCleanup(FilesystemServiceProvider::class);
-                $cleanups[] = $app->registerProviderWithCleanup(ViewServiceProvider::class);
+            try {
+                $modulesManager = $app->make(Modules::$accessor);
+                $modulesManager->bootstrap($app);
+            } catch (Throwable $e) {
+                // Defer error throwing after ExceptionHandler was registered
+                $app->afterBootstrapping(RegisterProviders::class, function () use ($e): void {
+                    throw $e;
+                });
             }
-
-            // Preload database services required for eloquent-dependent module activation
-            $cleanups[] = $app->registerProviderWithCleanup(DatabaseServiceProvider::class);
-
-            Model::setConnectionResolver($app['db']);
-            Model::unsetEventDispatcher(); // <- prevent booting callback to persist across requests
-
-            // Bootstrap all enabled modules that provide custom bootstrapper (without events)
-            $modulesManager = $app->make(Modules::$accessor);
-            $modulesManager->bootstrap($app);
-
-            // Remove injected services from container
-            array_walk($cleanups, 'call_user_func');
         });
     }
 }

@@ -20,7 +20,6 @@ use Filament\Actions\Action;
 use Filament\Actions\Concerns\InteractsWithActions;
 use Filament\Actions\Contracts\HasActions;
 use Filament\Infolists\Components\TextEntry;
-use Filament\Notifications\Notification;
 use Filament\Pages\Page;
 use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Section;
@@ -31,6 +30,7 @@ use Filament\Support\Colors\Color;
 use Filament\Support\Enums\IconPosition;
 use Filament\Support\Enums\Width;
 use Filament\Support\Icons\Heroicon;
+use Throwable;
 use UnitEnum;
 
 class ManageModules extends Page implements HasActions, HasSchemas
@@ -100,6 +100,30 @@ class ManageModules extends Page implements HasActions, HasSchemas
                         default                                     => null,
                     })->badge()
 
+                    // Display plan
+                    ->schema(function () use ($module): array {
+                        if (Modules::canBeDisabled($module->identifier)) {
+                            $plan = Modules::deactivationPlan($module);
+                        } elseif (Modules::canBeEnabled($module->identifier)) {
+                            $plan = Modules::activationPlan($module);
+                        } else {
+                            return [];
+                        }
+
+                        $tasks = $plan->getTasks();
+
+                        return [
+                            Section::make(__('Planned execution steps'))
+                                ->icon(Heroicon::CommandLine)
+                                ->dense()->compact()->secondary()
+                                ->schema(array_map(function (array $task, int $index) {
+                                    return TextEntry::make("task_{$index}")
+                                        ->hiddenLabel()
+                                        ->getConstantStateUsing(fn () => $task['label'])
+                                        ->icon(Heroicon::ChevronRight)->iconColor(Color::Gray);
+                                }, $tasks, array_keys($tasks))),
+                        ];
+                    })
                     // Modal configuration
                     ->requiresConfirmation()->modalWidth(Width::Small)
                     ->modalHeading(fn () => $module->status !== ModuleStatus::DISABLED ? __('Disable Module') : __('Enable Module'))
@@ -119,14 +143,23 @@ class ManageModules extends Page implements HasActions, HasSchemas
                     ->disabled(! Modules::canBeDisabled($module->identifier) && ! Modules::canBeEnabled($module->identifier))
                     ->action(function (Action $action) use ($module) {
 
-                        if ($module->status !== ModuleStatus::DISABLED) {
-                            Modules::disable($module->identifier);
-                            Notification::make()->danger()->title(__('Module disabled'))->send();
+                        if (Modules::canBeDisabled($module->identifier)) {
+                            $plan = Modules::deactivationPlan($module);
+                            $action->successNotificationTitle(__('Module disabled'));
+                        } elseif (Modules::canBeEnabled($module->identifier)) {
+                            $plan = Modules::activationPlan($module);
+                            $action->successNotificationTitle(__('Module enabled'));
                         } else {
-                            Modules::enable($module->identifier);
-                            Notification::make()->success()->title(__('Module enabled'))->send();
+                            $action->halt();
                         }
+                        try {
+                            $plan->execute();
+                        } catch (Throwable $e) {
+                            $action->failure();
 
+                            return;
+                        }
+                        $action->success();
                         $action->redirect(static::getUrl());
                     }),
             ])->dense()->columns(2)->schema([
@@ -162,9 +195,6 @@ class ManageModules extends Page implements HasActions, HasSchemas
                     fn (Support $support) => $support->condition,
                     $module->supports->supports
                 )),
-            ])
-            ->footer([
-
             ]), Modules::all());
     }
 
