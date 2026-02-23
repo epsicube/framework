@@ -6,15 +6,13 @@ namespace EpsicubeModules\Administration;
 
 use Carbon\Laravel\ServiceProvider;
 use Composer\InstalledVersions;
-use Epsicube\Schemas\Schema;
 use Epsicube\Support\Contracts\IsModule;
 use Epsicube\Support\Facades\Epsicube;
 use Epsicube\Support\Modules\Identity;
 use Epsicube\Support\Modules\Module;
 use EpsicubeModules\Administration\View\Components\ApplicationGroupIcon;
-use Filament\FilamentServiceProvider;
-use Filament\PanelRegistry;
-use Throwable;
+use Filament\Facades\Filament;
+use Filament\Panel;
 
 class AdministrationModule extends ServiceProvider implements IsModule
 {
@@ -31,34 +29,12 @@ class AdministrationModule extends ServiceProvider implements IsModule
                 ->author('Core Team')
                 ->description(__('Provides administrative tools and management features for the system.'))
             )
-            ->options(fn (Schema $schema) => $schema->append(
-                AdministrationOptions::definition()
-            ));
+            ->options(AdministrationOptions::configure(...));
     }
 
     public function register(): void
     {
-        $this->app->booted(function (): void {
-
-            try {
-                $callback = function (PanelRegistry $registry): void {
-                    $registry->register(Administration::make()->id('epsicube-administration'));
-                };
-
-                $this->app->resolving(PanelRegistry::class, $callback);
-                if ($this->app->resolved(PanelRegistry::class)) {
-                    $callback(app(PanelRegistry::class));
-
-                    // Force routes to register because filament cannot handle that
-                    (function (): void {
-                        /** @var FilamentServiceProvider $this */
-                        $this->bootPackageRoutes();
-                    })->call($this->app->getProvider(FilamentServiceProvider::class));
-                }
-            } catch (Throwable $e) {
-                report($e);
-            }
-        });
+        Filament::registerPanel(static fn (): Panel => Administration::configure(Panel::make()));
     }
 
     public function boot(): void

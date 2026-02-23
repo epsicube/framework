@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace EpsicubeModules\Administration\Features;
 
-use EpsicubeModules\Administration\Administration;
 use EpsicubeModules\Administration\AdministrationOptions;
 use EpsicubeModules\Administration\Contracts\ApplicationGroup as ApplicationGroupContract;
 use EpsicubeModules\Administration\Enums\ApplicationGroup;
@@ -21,12 +20,12 @@ use Illuminate\Support\HtmlString;
 class PanelApplicationNavigation
 {
     public function __construct(
-        protected Administration $administration
+        protected Panel $panel
     ) {}
 
     public function configure(): void
     {
-        $this->administration
+        $this->panel
             ->navigation(fn (NavigationBuilder $builder) => $this->customNavigation($builder))
             ->renderHook(PanelsRenderHook::STYLES_AFTER, function () {
                 return new HtmlString(<<<'HTML'
@@ -176,6 +175,6 @@ class PanelApplicationNavigation
             } finally {
                 $this->navigationBuilder = $initial;
             }
-        })->call($this->administration);
+        })->call($this->panel);
     }
 }

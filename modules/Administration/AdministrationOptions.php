@@ -6,13 +6,14 @@ namespace EpsicubeModules\Administration;
 
 use Epsicube\Schemas\Properties\BooleanProperty;
 use Epsicube\Schemas\Properties\StringProperty;
+use Epsicube\Schemas\Schema;
 use Epsicube\Support\Facades\Options;
 
 class AdministrationOptions
 {
-    public static function definition(): array
+    public static function configure(Schema $options): void
     {
-        return [
+        $options->append([
             'enable-modules-manager' => BooleanProperty::make()
                 ->title(__('Enable Module Manager'))
                 ->description(__('Enables the integrated module management system, allowing modules to be enabled, disabled, or configured.'))
@@ -56,7 +57,7 @@ class AdministrationOptions
                 ->nullable()
                 ->optional()
                 ->default(null),
-        ];
+        ]);
     }
 
     public static function all(): array
