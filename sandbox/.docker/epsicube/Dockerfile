@@ -77,7 +77,9 @@ FROM base AS web
 ENV SERVER_NAME=":80"
 ENV SERVER_ROOT="/app/public"
 
+COPY Caddyfile /etc/caddy/Caddyfile.d/custom.caddyfile
+
 HEALTHCHECK --interval=30s --timeout=5s --start-period=3s --retries=3 \
-    CMD curl -f -s -o /dev/null -w "%{http_code}" http://localhost/up | grep -qE "200|404" || exit 1
+    CMD curl --fail http://localhost:2020/health || exit 1
 
 CMD ["frankenphp", "run", "--config", "/etc/caddy/Caddyfile"]

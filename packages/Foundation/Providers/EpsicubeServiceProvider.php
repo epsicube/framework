@@ -158,5 +158,7 @@ class EpsicubeServiceProvider extends ServiceProvider
             'Version' => InstalledVersions::getPrettyVersion('epsicube/framework')
                 ?? InstalledVersions::getPrettyVersion('epsicube/foundation'),
         ]);
+
+        $this->loadRoutesFrom(__DIR__.'/../routes.php');
     }
 }

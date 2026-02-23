@@ -1,0 +1,6 @@
+# Custom healthcheck endpoint
+:2020 {
+    root {$SERVER_ROOT:public/}
+    request_header Host epsicube.internal
+    php_server
+}
