@@ -11,10 +11,6 @@ use Illuminate\Support\Facades\Facade;
 
 class Epsicube extends Facade
 {
-    /**
-     * keep reference to ensure ide helper works
-     * TODO declare contracts or use static phpdoc
-     */
     public static string $accessor = EpsicubeManager::class;
 
     protected static function getFacadeAccessor(): string

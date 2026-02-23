@@ -28,7 +28,7 @@ class HypercoreModule extends ServiceProvider implements InjectBootstrappers, Is
         )
             ->providers(static::class)
             ->identity(fn (Identity $identity) => $identity
-                ->name(__('Execution Platform'))
+                ->name(__('Hypercore'))
                 ->author('Core Team')
                 ->description(__('Turn it into a multi-app manager, enabling multi-tenant setups and effortless handling of multiple applications.'))
             )

@@ -17,7 +17,7 @@ class ClearCommand extends Command
     {
         $this->components->info('Clearing cached Epsicube files.');
 
-        $commands = Epsicube::optimizeCommands();
+        $commands = Epsicube::clearCommands();
 
         foreach ($commands as $key => $command) {
             $this->components->task($key, fn () => $this->callSilently($command) === 0);

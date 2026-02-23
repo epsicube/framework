@@ -1,4 +1,4 @@
-FROM dunglas/frankenphp:1.11-php8.4-trixie
+FROM dunglas/frankenphp:1.11-php8.5-trixie AS base
 
 ENV TZ=UTC
 ENV DEBIAN_FRONTEND=noninteractive
@@ -65,19 +65,19 @@ RUN mkdir -p $XDG_CONFIG_HOME $XDG_DATA_HOME $XDG_CACHE_HOME && \
     chown -R nonroot:nonroot /home/nonroot
 
 ENV HOST="0.0.0.0"
+WORKDIR /app
+USER nonroot
+
+FROM base AS worker
+HEALTHCHECK --interval=30s --timeout=5s --start-period=3s --retries=3 \
+    CMD pgrep -f "artisan epsicube:work" || exit 1
+CMD ["php", "artisan", "epsicube:work"]
+
+FROM base AS web
 ENV SERVER_NAME=":80"
 ENV SERVER_ROOT="/app/public"
 
-RUN echo '#!/bin/bash\n\
-if [ -f "artisan" ]; then\n\
-    php artisan epsicube:work &\n\
-fi\n\
-exec "$@"' > /usr/local/bin/docker-entrypoint.sh && \
-    chmod +x /usr/local/bin/docker-entrypoint.sh
-
-USER nonroot
-WORKDIR /app
-
-ENTRYPOINT ["docker-entrypoint.sh"]
+HEALTHCHECK --interval=30s --timeout=5s --start-period=3s --retries=3 \
+    CMD curl -f -s -o /dev/null -w "%{http_code}" http://localhost/up | grep -qE "200|404" || exit 1
 
 CMD ["frankenphp", "run", "--config", "/etc/caddy/Caddyfile"]

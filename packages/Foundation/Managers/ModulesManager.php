@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Epsicube\Foundation\Managers;
 
+use Epsicube\Foundation\Events\ModuleDisabled;
+use Epsicube\Foundation\Events\ModuleEnabled;
 use Epsicube\Support\Contracts\ActivationDriver;
 use Epsicube\Support\Contracts\IsModule;
 use Epsicube\Support\Enums\ConditionState;
@@ -205,6 +207,8 @@ class ModulesManager
         }
         $this->driver->enable($module);
         $module->status = ModuleStatus::ENABLED;
+
+        event(new ModuleEnabled($module));
     }
 
     public function disable(string|Module $module): void
@@ -215,6 +219,7 @@ class ModulesManager
         }
         $this->driver->disable($module);
         $module->status = ModuleStatus::DISABLED;
+        event(new ModuleDisabled($module));
     }
 
     public function getBootstrapLogs(?string $identifier = null): array

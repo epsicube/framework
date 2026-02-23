@@ -56,9 +56,17 @@ class WorkCommand extends Command
             $this->shouldKeepRunning = false;
         });
 
+        // Handle terminate and reload
+        $startTime = now()->timestamp;
         $lastReload = $this->cache->get('epsicube:work:reload', 0);
-
         while ($this->shouldKeepRunning) {
+            if ($this->checkTermination($startTime)) {
+                $this->log('Termination signal detected. Stopping all sub-processes and exiting…', 'info');
+                $this->stopRunningProcesses();
+
+                break;
+            }
+
             $this->checkProcesses($subCommands);
             $lastReload = $this->checkReload($subCommands, (int) $lastReload);
             usleep(500_000);
@@ -104,6 +112,13 @@ class WorkCommand extends Command
             $this->log('Process stopped unexpectedly. Restarting…', 'warn', $key);
             $this->processes[$key] = $this->startProcess($key, $subCommands[$key]);
         }
+    }
+
+    protected function checkTermination(int $startTime): bool
+    {
+        $terminateTimestamp = (int) $this->cache->get('epsicube:work:terminate', 0);
+
+        return $terminateTimestamp >= $startTime;
     }
 
     protected function checkReload(array $subCommands, int $lastReload): int

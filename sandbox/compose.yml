@@ -1,29 +1,45 @@
+x-epsicube-common: &epsicube-common
+  environment:
+    DB_CONNECTION: pgsql
+    DB_HOST: pgsql
+    DB_DATABASE: ${DB_DATABASE:-epsicube}
+    DB_USERNAME: ${DB_USERNAME:-postgres}
+    DB_PASSWORD: ${DB_PASSWORD:-secret}
+    SERVER_NAME: ${SERVER_NAME:-:80}
+    SERVER_ROOT: "/app/sandbox/public"
+  volumes:
+    - '../:/app'
+  working_dir: /app/sandbox
+  networks:
+    - epsicube
+
+x-epsicube-build: &epsicube-build
+  context: .docker/epsicube
+  args:
+    DOCKER_GID: '${DOCKER_GID:-999}'
+    DOCKER_UID: '${DOCKER_UID:-999}'
+    PHP_EXTENSIONS: '${PHP_EXTENSIONS:-bcmath curl intl mbstring opcache pcntl pdo_sqlite pdo_pgsql pgsql readline sockets xml zip}'
+
 services:
-  epsicube:
+  web:
+    <<: *epsicube-common
+    restart: unless-stopped
     build:
-      context: .docker/epsicube
-      args:
-        DOCKER_GID: '${DOCKER_GID:-999}'
-        DOCKER_UID: '${DOCKER_UID:-999}'
-        PHP_EXTENSIONS: '${PHP_EXTENSIONS:-bcmath curl intl mbstring opcache pcntl pdo_sqlite pdo_pgsql pgsql readline sockets xml zip}'
-    init: true # <- or install tini (schedule:run specific)
+      <<: *epsicube-build
+      target: web
     ports:
       - "80:80"
       - "443:443"
       - "443:443/udp"
       - "4321:4321" # Documentation
-    environment:
-      DB_CONNECTION: pgsql
-      DB_HOST: pgsql
-      DB_DATABASE: ${DB_DATABASE:-epsicube}
-      DB_USERNAME: ${DB_USERNAME:-postgres}
-      DB_PASSWORD: ${DB_PASSWORD:-secret}
-      SERVER_ROOT: "/app/sandbox/public"
-    volumes:
-      - '../:/app'
-    working_dir: /app/sandbox
-    networks:
-      - epsicube
+
+  worker:
+    <<: *epsicube-common
+    restart: unless-stopped
+    build:
+      <<: *epsicube-build
+      target: worker
+    init: true # <- or install tini (schedule:run specific)
 
   pgsql:
     image: "postgres:18.1-alpine3.23"
