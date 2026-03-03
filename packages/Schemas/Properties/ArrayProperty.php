@@ -15,7 +15,6 @@ use Epsicube\Schemas\Schema;
 use Epsicube\Schemas\Types\UndefinedValue;
 use Filament\Forms\Components\Field;
 use Filament\Forms\Components\Repeater;
-use Filament\Infolists\Components\Entry;
 use Filament\Infolists\Components\RepeatableEntry;
 use Filament\Schemas\Components\Component;
 use Filament\Support\Enums\Operation;
@@ -102,29 +101,9 @@ class ArrayProperty extends BaseProperty
         }
 
         if ($exporter->operation === Operation::View) {
-
-            $entry = RepeatableEntry::make($name)
-                ->contained(false)
-                ->schema([$childComponent])
-                ->inlineLabel();
-
-            // Handle scalar type
-            if ($childComponent instanceof Entry) {
-                $entry->getStateUsing(function (RepeatableEntry $component) use (&$childComponent) {
-                    // Resolve initial state
-                    (function (): void {
-                        $this->hasConstantState = false;
-                    })->call($component);
-                    $initialState = $component->getState();
-                    (function (): void {
-                        $this->hasConstantState = true;
-                    })->call($component);
-
-                    return array_map(fn ($i) => ['_s_' => $i], $initialState ?? []);
-                })->schema([$childComponent->inlineLabel(false)->statePath('_s_')]);
-            }
-
-            return $entry;
+            return RepeatableEntry::make($name)
+                ->contained(false)->inlineLabel()
+                ->schema([$childComponent->statePath('')->inlineLabel(false)]);
         }
 
         // TODO support nullable, and empty array without nullable
