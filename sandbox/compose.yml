@@ -43,6 +43,7 @@ services:
 
   pgsql:
     image: "postgres:18.1-alpine3.23"
+    restart: unless-stopped
     environment:
       PGPASSWORD: '${DB_PASSWORD:-secret}'
       POSTGRES_DB: '${DB_DATABASE:-epsicube}'
@@ -62,6 +63,7 @@ services:
   # DEV
   mailpit:
     profiles: [ 'dev' ]
+    restart: unless-stopped
     image: "axllent/mailpit:v1.28.2"
     ports:
       - '8025:8025'
@@ -70,6 +72,7 @@ services:
 
   pgadmin:
     profiles: [ 'dev' ]
+    restart: unless-stopped
     depends_on:
       pgsql:
         condition: service_healthy
