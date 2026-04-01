@@ -20,34 +20,29 @@ use EpsicubeModules\MailingSystem\Mails\Templates\Blank;
 use EpsicubeModules\MailingSystem\Mails\Templates\Html;
 use EpsicubeModules\MailingSystem\Registries\MailersRegistry;
 use EpsicubeModules\MailingSystem\Registries\TemplatesRegistry;
-use Illuminate\Contracts\Support\DeferrableProvider;
 
-class MailingSystemModule extends ServiceProvider implements DeferrableProvider, IsModule
+class MailingSystemModule extends ServiceProvider implements IsModule
 {
     public function module(): Module
     {
         return Module::make(
             identifier: 'core::mailing-system',
             version: InstalledVersions::getVersion('epsicube/framework')
-                ?? InstalledVersions::getVersion('epsicube/module-mailing-system')
+            ?? InstalledVersions::getVersion('epsicube/module-mailing-system')
         )
             ->providers(static::class)
-            ->identity(fn (Identity $identity) => $identity
+            ->identity(fn(Identity $identity) => $identity
                 ->name(__('Mailing System'))
                 ->author('Core Team')
                 ->description(__('Mail delivery system, extensible and equipped with outbound message tracking.'))
             )
-            ->supports(fn (Supports $supports) => $supports->add(
+            ->supports(fn(Supports $supports) => $supports->add(
                 Support::forModule('core::execution-platform', ExecutionPlatformIntegration::handle(...)),
-            ))->options(fn (Schema $schema) => $schema->append(
+            ))->options(fn(Schema $schema) => $schema->append(
                 MailingSystemOptions::definition(),
             ));
     }
 
-    public function provides(): array
-    {
-        return [Mailers::$accessor, Templates::$accessor];
-    }
 
     public function register(): void
     {
@@ -55,7 +50,7 @@ class MailingSystemModule extends ServiceProvider implements DeferrableProvider,
             $registry = new MailersRegistry;
             if (MailingSystemOptions::withInternalMailers()) {
                 $registry->register(...array_map(
-                    fn (string $name) => new LaravelMailer($name),
+                    fn(string $name) => new LaravelMailer($name),
                     array_keys(config()->array('mail.mailers', []))
                 ));
             }
@@ -73,6 +68,7 @@ class MailingSystemModule extends ServiceProvider implements DeferrableProvider,
 
     public function boot(): void
     {
-        $this->loadViewsFrom(__DIR__.'/resources/email-templates', 'epsicube-mail');
+        $this->loadViewsFrom(__DIR__ . '/resources/email-templates', 'epsicube-mail');
+        $this->loadMigrationsFrom(__DIR__ . '/database/migrations');
     }
 }
