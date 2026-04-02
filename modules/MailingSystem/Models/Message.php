@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace EpsicubeModules\MailingSystem\Models;
 
+use Carbon\CarbonImmutable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Support\Carbon;
 
 /**
  * @property-read int $id
@@ -16,8 +16,8 @@ use Illuminate\Support\Carbon;
  * @property string|null $message_id
  * @property string $status
  * @property array|null $meta
- * @property Carbon $created_at
- * @property Carbon|null $updated_at
+ * @property CarbonImmutable $created_at
+ * @property CarbonImmutable|null $updated_at
  *
  * RELATIONS
  * @property-read Outbox $outbox

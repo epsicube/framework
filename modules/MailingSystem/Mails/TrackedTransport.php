@@ -12,6 +12,7 @@ use Illuminate\Support\Str;
 use Symfony\Component\Mailer\Envelope;
 use Symfony\Component\Mailer\SentMessage;
 use Symfony\Component\Mailer\Transport\TransportInterface;
+use Symfony\Component\Mime\Address;
 use Symfony\Component\Mime\Email;
 use Symfony\Component\Mime\MessageConverter;
 use Symfony\Component\Mime\RawMessage;
@@ -46,12 +47,10 @@ class TrackedTransport implements TransportInterface
                 'status'      => 'pending',
             ]);
 
-            $recipientData = collect($envelope->getRecipients())->map(fn($recipient) => [
+            $recipientData = collect($envelope->getRecipients())->map(fn(Address $recipient) => [
                 'recipient'  => $recipient->getAddress(),
                 'type'       => $this->determineRecipientType($email, $recipient->getAddress()),
                 'status'     => 'pending',
-                'created_at' => now(),
-                'updated_at' => now(),
             ])->toArray();
 
             $outbox->messages()->createMany($recipientData);
