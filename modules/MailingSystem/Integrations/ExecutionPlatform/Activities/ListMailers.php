@@ -9,8 +9,8 @@ use Epsicube\Schemas\Properties\ObjectProperty;
 use Epsicube\Schemas\Properties\StringProperty;
 use Epsicube\Schemas\Schema;
 use EpsicubeModules\ExecutionPlatform\Contracts\Activity;
-use EpsicubeModules\MailingSystem\Contracts\Mailer;
-use EpsicubeModules\MailingSystem\Facades\Mailers;
+use EpsicubeModules\MailingSystem\Contracts\Driver;
+use EpsicubeModules\MailingSystem\Facades\Drivers;
 
 class ListMailers implements Activity
 {
@@ -42,10 +42,10 @@ class ListMailers implements Activity
     public function handle(array $inputs = []): array
     {
         return [
-            'mailers' => array_values(array_map(fn (Mailer $m) => [
+            'mailers' => array_values(array_map(fn (Driver $m) => [
                 'identifier' => $m->identifier(),
                 'name'       => $m->label(),
-            ], Mailers::all())),
+            ], Drivers::all())),
         ];
     }
 

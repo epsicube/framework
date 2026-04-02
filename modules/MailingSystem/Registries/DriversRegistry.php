@@ -5,15 +5,15 @@ declare(strict_types=1);
 namespace EpsicubeModules\MailingSystem\Registries;
 
 use Epsicube\Support\Registry;
-use EpsicubeModules\MailingSystem\Contracts\Mailer;
+use EpsicubeModules\MailingSystem\Contracts\Driver;
 
 /**
- * @extends Registry<Mailer>
+ * @extends Registry<Driver>
  */
-class MailersRegistry extends Registry
+class DriversRegistry extends Registry
 {
     public function getRegistrableType(): string
     {
-        return Mailer::class;
+        return Driver::class;
     }
 }

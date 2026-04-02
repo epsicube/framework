@@ -24,7 +24,7 @@ class Html implements HasInputSchema, MailTemplate
     public function content(array $with = []): Content
     {
         return new Content(
-            view: 'epsicube-mail::html',
+            html: 'epsicube-mail::html',
             with: $with,
         );
     }

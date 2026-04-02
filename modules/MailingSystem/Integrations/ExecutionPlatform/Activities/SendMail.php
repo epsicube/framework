@@ -12,11 +12,11 @@ use Epsicube\Schemas\Properties\StringProperty;
 use Epsicube\Schemas\Schema;
 use Epsicube\Schemas\Types\EnumCase;
 use EpsicubeModules\ExecutionPlatform\Contracts\Activity;
-use EpsicubeModules\MailingSystem\Contracts\Mailer;
 use EpsicubeModules\MailingSystem\Contracts\MailTemplate;
-use EpsicubeModules\MailingSystem\Facades\Mailers;
 use EpsicubeModules\MailingSystem\Facades\Templates;
 use EpsicubeModules\MailingSystem\Mails\EpsicubeMail;
+use EpsicubeModules\MailingSystem\Models\Mailer;
+use Symfony\Component\Mime\Address;
 
 class SendMail implements Activity
 {
@@ -46,10 +46,10 @@ class SendMail implements Activity
     public function inputSchema(Schema $schema): void
     {
         $schema->append([
-            'mailer' => EnumProperty::make()
-                ->title('Mailer identifier')
-                ->dynamic(fn () => collect(Mailers::all())
-                    ->map(static fn (Mailer $mailer, string $identifier) => new EnumCase($identifier, $mailer->label()))
+            'mailer_id' => EnumProperty::make()
+                ->title('Mailer ID')
+                ->dynamic(fn () => collect(Mailer::query()->pluck('name', 'id'))
+                    ->map(static fn (string $name, int $id) => new EnumCase($id, $name))
                     ->values()->all()
                 ),
             'template' => EnumProperty::make()
@@ -82,8 +82,10 @@ class SendMail implements Activity
 
     public function handle(array $inputs = []): array
     {
+        /** @var Mailer $mailer */
+        $mailer = Mailer::query()->where('id', $inputs['mailer_id'])->firstOrFail();
+
         $mail = (new EpsicubeMail)
-            ->mailer(data_get($inputs, 'mailer'))
             ->setTemplate(data_get($inputs, 'template'))
             ->subject(data_get($inputs, 'subject'))
             ->to(data_get($inputs, 'to', []))
@@ -91,9 +93,13 @@ class SendMail implements Activity
             ->bcc(data_get($inputs, 'bcc', []))
             ->with(data_get($inputs, 'template_configuration'));
 
-        $message = $mail->send();
+        $message = $mail->send($mailer->toMailer());
 
-        return ['messageId' => $message->getMessageId()];
+        return [
+            'messageId'  => $message->getMessageId(),
+            'recipients' => array_map(fn (Address $address) => $address->toString(), $message->getEnvelope()->getRecipients()),
+            'sender'     => $message->getEnvelope()->getSender()->toString(),
+        ];
     }
 
     public function outputSchema(Schema $schema): void

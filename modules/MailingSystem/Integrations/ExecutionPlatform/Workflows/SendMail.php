@@ -6,7 +6,7 @@ namespace EpsicubeModules\MailingSystem\Integrations\ExecutionPlatform\Workflows
 
 use EpsicubeModules\ExecutionPlatform\Concerns\Workflow;
 use EpsicubeModules\ExecutionPlatform\Contracts\HasInputSchema;
-use EpsicubeModules\MailingSystem\Facades\Mailers;
+use EpsicubeModules\MailingSystem\Facades\Drivers;
 use EpsicubeModules\MailingSystem\Facades\Templates;
 use EpsicubeModules\MailingSystem\Integrations\ExecutionPlatform\Activities\SendMail as SendMailActivity;
 use Filament\Forms\Components\Repeater;
@@ -45,7 +45,7 @@ class SendMail extends Workflow implements HasInputSchema
 
             Select::make('mailer')
                 ->label(__('Mailer'))
-                ->options(fn () => Mailers::toIdentifierLabelMap())
+                ->options(fn () => Drivers::toIdentifierLabelMap())
                 ->required(),
 
             TextInput::make('subject')
