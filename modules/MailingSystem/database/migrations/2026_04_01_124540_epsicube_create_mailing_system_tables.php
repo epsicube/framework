@@ -6,8 +6,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration
-{
+return new class extends Migration {
     /**
      * Run the migrations.
      */
@@ -60,6 +59,8 @@ return new class extends Migration
 
             $table->string('recipient', 255)->index();
             $table->string('type', 10)->default('to'); // to, cc, bcc
+
+            $table->unique(['outbox_id', 'recipient', 'type']);
 
             $table->string('message_id', 255)->nullable()->index(); // ID externe spécifique par destinataire si possible
 

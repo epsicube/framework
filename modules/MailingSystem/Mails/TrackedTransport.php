@@ -21,9 +21,11 @@ class TrackedTransport implements TransportInterface
 {
     public function __construct(
         protected TransportInterface $transport,
-        protected MailerModel $mailerModel,
-        protected Driver $driver
-    ) {}
+        protected MailerModel        $mailerModel,
+        protected Driver             $driver
+    )
+    {
+    }
 
     public function send(RawMessage $message, ?Envelope $envelope = null): ?SentMessage
     {
@@ -34,17 +36,17 @@ class TrackedTransport implements TransportInterface
         $campaignId = $email->getHeaders()->get('X-Epsicube-Campaign-ID')?->getBody();
         $email->getHeaders()->remove('X-Epsicube-Campaign-ID');
 
-        // --- PHASE 1 : Persistance initiale (Atomique) ---
+        // Generate database outbox + messages entries
         $outbox = DB::transaction(function () use ($email, $envelope, $campaignId) {
             $outbox = OutboxModel::create([
                 'mailer_id'   => $this->mailerModel->id,
-                'campaign_id' => $campaignId ? (int) $campaignId : null,
+                'campaign_id' => $campaignId ? (int)$campaignId : null,
                 'subject'     => $email->getSubject(),
                 'internal_id' => Str::uuid7()->toString(),
                 'status'      => 'pending',
             ]);
 
-            $recipientData = collect($envelope->getRecipients())->map(fn ($recipient) => [
+            $recipientData = collect($envelope->getRecipients())->map(fn($recipient) => [
                 'recipient'  => $recipient->getAddress(),
                 'type'       => $this->determineRecipientType($email, $recipient->getAddress()),
                 'status'     => 'pending',
@@ -57,18 +59,20 @@ class TrackedTransport implements TransportInterface
             return $outbox;
         });
 
-        // --- PHASE 2 : Envoi (Hors transaction) ---
+
+        // Send using initial transport
         try {
             $this->driver->configureMail($email, $outbox);
             $sentMessage = $this->transport->send($email, $envelope);
 
-            // --- PHASE 3 : Mise à jour finale (Atomique) ---
             DB::transaction(function () use ($outbox, $sentMessage) {
                 $externalId = $sentMessage->getMessageId();
 
                 $outbox->update(['message_id' => $externalId, 'status' => 'sent']);
                 $outbox->messages()->update(['message_id' => $externalId, 'status' => 'sent']);
             });
+
+            $this->driver->handleResponse($sentMessage, $outbox);
 
             return $sentMessage;
 
@@ -84,14 +88,14 @@ class TrackedTransport implements TransportInterface
 
     public function __toString(): string
     {
-        return (string) $this->transport;
+        return (string)$this->transport;
     }
 
     protected function determineRecipientType(Email $email, string $address): string
     {
         foreach (['To', 'Cc', 'Bcc'] as $type) {
             $header = $email->getHeaders()->get($type);
-            if (! $header) {
+            if (!$header) {
                 continue;
             }
 

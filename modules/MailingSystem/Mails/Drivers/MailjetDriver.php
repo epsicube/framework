@@ -8,9 +8,11 @@ use Epsicube\Schemas\Properties\BooleanProperty;
 use Epsicube\Schemas\Properties\StringProperty;
 use Epsicube\Schemas\Schema;
 use EpsicubeModules\MailingSystem\Contracts\Driver;
+use EpsicubeModules\MailingSystem\Mails\Drivers\Mailjet\MailjetSentMessage;
 use EpsicubeModules\MailingSystem\Models\Outbox;
 use Illuminate\Mail\Mailer;
 use Illuminate\Support\Facades\Mail;
+use Symfony\Component\Mailer\SentMessage;
 use Symfony\Component\Mime\Email;
 
 class MailjetDriver implements Driver
@@ -58,6 +60,44 @@ class MailjetDriver implements Driver
 
         if ($this->configuration['track_click'] ?? false) {
             $email->getHeaders()->addTextHeader('X-Mailjet-TrackClick', '1');
+        }
+    }
+
+    public function handleResponse(SentMessage $sentMessage, Outbox $outbox): void
+    {
+        if (!($sentMessage instanceof MailjetSentMessage)) {
+            return;
+        }
+
+        $result = $sentMessage->getResult();
+
+        // Ensure response CustomID are same as outbox
+        $customID = data_get($result, 'Messages.0.CustomID');
+        if ($customID !== $outbox->internal_id) {
+            return;
+        }
+
+        $messageResponse = data_get($result, 'Messages.0');
+
+        $updates = [];
+        foreach (['To', 'Cc', 'Bcc'] as $type) {
+            foreach (data_get($messageResponse, $type, []) as $message) {
+                $email = data_get($message, 'Email');
+                $messageId = data_get($message, 'MessageID');
+
+                if ($email && $messageId) {
+                    $updates[] = [
+                        'outbox_id' => $outbox->id,
+                        'recipient' => $email,
+                        'type'      => mb_strtolower($type),
+                        'message_id' => $messageId,
+                    ];
+                }
+            }
+        }
+
+        if (!empty($updates)) {
+            $outbox->messages()->upsert($updates, ['outbox_id', 'recipient', 'type'], ['message_id']);
         }
     }
 }
