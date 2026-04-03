@@ -8,7 +8,6 @@ use Epsicube\Schemas\Properties\EnumProperty;
 use Epsicube\Schemas\Schema;
 use Epsicube\Schemas\Types\EnumCase;
 use EpsicubeModules\MailingSystem\Contracts\Driver;
-use EpsicubeModules\MailingSystem\Mails\Drivers\Mailjet\MailjetSentMessage;
 use EpsicubeModules\MailingSystem\Models\Outbox;
 use Illuminate\Mail\Mailer;
 use Illuminate\Support\Facades\Mail;
@@ -32,7 +31,7 @@ class LaravelDriver implements Driver
         $schema->append([
             'name' => EnumProperty::make()
                 ->title(__('Name'))
-                ->cases(...array_map(fn(string $name) => EnumCase::make($name), array_keys(config('mail.mailers'))))
+                ->cases(...array_map(fn (string $name) => EnumCase::make($name), array_keys(config('mail.mailers'))))
                 ->nullable()->optional()->default(null)
                 ->description(__('Leave empty to use default Laravel driver')),
         ]);
@@ -45,10 +44,8 @@ class LaravelDriver implements Driver
 
     public function configureMail(Email $email, Outbox $model): void
     {
-        $email->getHeaders()->addTextHeader('X-Internal-ID', $model->internal_id);
+        $email->getHeaders()->addTextHeader('X-Internal-ID', (string) $model->id);
     }
 
-    public function handleResponse(SentMessage $sentMessage, Outbox $outbox): void
-    {
-    }
+    public function handleResponse(SentMessage $sentMessage, Outbox $outbox): void {}
 }

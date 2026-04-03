@@ -48,17 +48,17 @@ class SendMail implements Activity
         $schema->append([
             'mailer_id' => EnumProperty::make()
                 ->title('Mailer ID')
-                ->dynamic(fn() => collect(Mailer::query()->pluck('name', 'id'))
-                    ->map(static fn(string $name, int $id) => new EnumCase($id, $name))
+                ->dynamic(fn () => collect(Mailer::query()->pluck('name', 'id'))
+                    ->map(static fn (string $name, int $id) => new EnumCase($id, $name))
                     ->values()->all()
                 ),
-            'template'  => EnumProperty::make()
+            'template' => EnumProperty::make()
                 ->title('Template Identifier')
-                ->dynamic(fn() => collect(Templates::all())
-                    ->map(static fn(MailTemplate $template, string $identifier) => new EnumCase($identifier, $template->label()))
+                ->dynamic(fn () => collect(Templates::all())
+                    ->map(static fn (MailTemplate $template, string $identifier) => new EnumCase($identifier, $template->label()))
                     ->values()->all()
                 ),
-            'subject'   => StringProperty::make()->title('Subject')->minLength(2),
+            'subject' => StringProperty::make()->title('Subject')->minLength(2),
 
             'to' => ArrayProperty::make()->items(
                 StringProperty::make()->format(StringFormat::EMAIL),
@@ -68,7 +68,7 @@ class SendMail implements Activity
                 StringProperty::make()->format(StringFormat::EMAIL),
             )->title('CC')->optional(),
 
-            'bcc'                    => ArrayProperty::make()->items(
+            'bcc' => ArrayProperty::make()->items(
                 StringProperty::make()->format(StringFormat::EMAIL),
             )->title('BCC')->optional(),
 
@@ -97,7 +97,7 @@ class SendMail implements Activity
 
         return [
             'messageId'  => $message->getMessageId(),
-            'recipients' => array_map(fn(Address $address) => $address->toString(), $message->getEnvelope()->getRecipients()),
+            'recipients' => array_map(fn (Address $address) => $address->toString(), $message->getEnvelope()->getRecipients()),
             'sender'     => $message->getEnvelope()->getSender()->toString(),
         ];
     }

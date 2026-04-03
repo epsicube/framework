@@ -11,6 +11,7 @@
   "require": {
     "php": "^8.3",
     "illuminate/support": "^12.8",
+    "illuminate/contracts": "^12.8",
     "illuminate/mail": "^12.8",
     "epsicube/support": "*",
     "spatie/mjml-php": "^1.2.5"

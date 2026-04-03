@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace EpsicubeModules\MailingSystem\Integrations\Administration\Resources\Mailers;
 
 use BackedEnum;
-use EpsicubeModules\Administration\Enums\ApplicationGroup;
+use EpsicubeModules\MailingSystem\Integrations\Administration\Enums\ApplicationGroup;
 use EpsicubeModules\MailingSystem\Integrations\Administration\Resources\Mailers\Pages\CreateMailer;
 use EpsicubeModules\MailingSystem\Integrations\Administration\Resources\Mailers\Pages\EditMailer;
 use EpsicubeModules\MailingSystem\Integrations\Administration\Resources\Mailers\Pages\ListMailers;
@@ -24,11 +24,11 @@ class MailerResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
 
-    protected static ?int $navigationSort = 0;
+    protected static ?int $navigationSort = 100;
 
-    protected static string|null|UnitEnum $navigationGroup = ApplicationGroup::SYSTEM;
+    protected static string|null|UnitEnum $navigationGroup = ApplicationGroup::MAILS;
 
-    protected static ?string $slug = '/system/mailers';
+    protected static ?string $slug = '/mails/mailers';
 
     public static function form(Schema $schema): Schema
     {

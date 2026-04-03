@@ -6,7 +6,8 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration {
+return new class extends Migration
+{
     /**
      * Run the migrations.
      */
@@ -41,10 +42,9 @@ return new class extends Migration {
                 ->constrained('mail_campaigns', 'id')->cascadeOnDelete()->cascadeOnUpdate();
 
             $table->string('subject')->nullable();
-            $table->string('internal_id', 64)->unique()->index();
             $table->string('message_id', 255)->nullable()->index();
 
-            $table->string('status', 32)->default('pending')->index();
+            $table->enum('status', ['pending', 'sent', 'error'])->default('pending')->index();
             $table->jsonb('meta')->nullable();
 
             $table->timestampTz('created_at')->useCurrent()->index();
@@ -58,14 +58,17 @@ return new class extends Migration {
                 ->constrained('mail_outbox', 'id')->cascadeOnDelete()->cascadeOnUpdate();
 
             $table->string('recipient', 255)->index();
-            $table->string('type', 10)->default('to'); // to, cc, bcc
+            $table->enum('type', ['to', 'cc', 'bcc'])->default('to');
 
             $table->unique(['outbox_id', 'recipient', 'type']);
 
-            $table->string('message_id', 255)->nullable()->index(); // ID externe spécifique par destinataire si possible
+            $table->enum('status', ['received', 'delivered', 'deferred', 'bounced', 'dropped'])->nullable()->index();
+            $table->enum('engagement', ['opened', 'clicked', 'spam', 'unsubscribed'])->nullable()->index();
 
-            $table->string('status', 32)->default('pending')->index();
-            $table->jsonb('meta')->nullable();
+            $table->integer('opened_count')->default(0);
+            $table->integer('clicked_count')->default(0);
+
+            $table->jsonb('meta')->default('{}')->comment('object');
 
             $table->timestampTz('created_at')->useCurrent()->index();
             $table->timestampTz('updated_at')->nullable()->useCurrentOnUpdate();

@@ -16,6 +16,7 @@ use EpsicubeModules\MailingSystem\Facades\Drivers;
 use EpsicubeModules\MailingSystem\Facades\Templates;
 use EpsicubeModules\MailingSystem\Integrations\Administration\AdministrationIntegration;
 use EpsicubeModules\MailingSystem\Integrations\ExecutionPlatform\ExecutionPlatformIntegration;
+use EpsicubeModules\MailingSystem\Listeners\MessageTrackingSubscriber;
 use EpsicubeModules\MailingSystem\Mails\Drivers\LaravelDriver;
 use EpsicubeModules\MailingSystem\Mails\Drivers\Mailjet\MailjetServiceProvider;
 use EpsicubeModules\MailingSystem\Mails\Drivers\MailjetDriver;
@@ -26,6 +27,7 @@ use EpsicubeModules\MailingSystem\Models\Mailer as MailerModel;
 use EpsicubeModules\MailingSystem\Registries\DriversRegistry;
 use EpsicubeModules\MailingSystem\Registries\TemplatesRegistry;
 use Illuminate\Mail\Mailer;
+use Illuminate\Support\Facades\Event;
 
 class MailingSystemModule extends ServiceProvider implements IsModule
 {
@@ -70,18 +72,18 @@ class MailingSystemModule extends ServiceProvider implements IsModule
 
     public function boot(): void
     {
+        $this->loadRoutesFrom(__DIR__.'/routes/webhook.php');
         $this->loadViewsFrom(__DIR__.'/resources/email-templates', 'epsicube-mail');
         $this->loadMigrationsFrom(__DIR__.'/database/migrations');
 
+        Event::subscribe(MessageTrackingSubscriber::class);
+
         Mailer::macro('track', function (MailerModel $model, Driver $driver) {
             /** @var Mailer $this */
-            $this->setSymfonyTransport(new TrackedTransport(
-                $this->getSymfonyTransport(),
-                $model,
-                $driver
-            ));
+            $this->setSymfonyTransport(new TrackedTransport($this->getSymfonyTransport(), $model, $driver));
 
             return $this;
         });
+
     }
 }

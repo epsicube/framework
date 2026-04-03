@@ -5,10 +5,11 @@ declare(strict_types=1);
 namespace EpsicubeModules\MailingSystem\Mails;
 
 use EpsicubeModules\MailingSystem\Contracts\Driver;
+use EpsicubeModules\MailingSystem\Enums\MessageType;
+use EpsicubeModules\MailingSystem\Enums\OutboxStatus;
 use EpsicubeModules\MailingSystem\Models\Mailer as MailerModel;
 use EpsicubeModules\MailingSystem\Models\Outbox as OutboxModel;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Str;
 use Symfony\Component\Mailer\Envelope;
 use Symfony\Component\Mailer\SentMessage;
 use Symfony\Component\Mailer\Transport\TransportInterface;
@@ -22,11 +23,9 @@ class TrackedTransport implements TransportInterface
 {
     public function __construct(
         protected TransportInterface $transport,
-        protected MailerModel        $mailerModel,
-        protected Driver             $driver
-    )
-    {
-    }
+        protected MailerModel $mailerModel,
+        protected Driver $driver
+    ) {}
 
     public function send(RawMessage $message, ?Envelope $envelope = null): ?SentMessage
     {
@@ -41,16 +40,15 @@ class TrackedTransport implements TransportInterface
         $outbox = DB::transaction(function () use ($email, $envelope, $campaignId) {
             $outbox = OutboxModel::create([
                 'mailer_id'   => $this->mailerModel->id,
-                'campaign_id' => $campaignId ? (int)$campaignId : null,
+                'campaign_id' => $campaignId ? (int) $campaignId : null,
                 'subject'     => $email->getSubject(),
-                'internal_id' => Str::uuid7()->toString(),
-                'status'      => 'pending',
+                'status'      => OutboxStatus::PENDING,
             ]);
 
-            $recipientData = collect($envelope->getRecipients())->map(fn(Address $recipient) => [
-                'recipient'  => $recipient->getAddress(),
-                'type'       => $this->determineRecipientType($email, $recipient->getAddress()),
-                'status'     => 'pending',
+            $recipientData = collect($envelope->getRecipients())->map(fn (Address $recipient) => [
+                'recipient' => $recipient->getAddress(),
+                'type'      => $this->determineRecipientType($email, $recipient->getAddress()),
+                'meta'      => (object) [],
             ])->toArray();
 
             $outbox->messages()->createMany($recipientData);
@@ -58,53 +56,43 @@ class TrackedTransport implements TransportInterface
             return $outbox;
         });
 
-
         // Send using initial transport
         try {
             $this->driver->configureMail($email, $outbox);
             $sentMessage = $this->transport->send($email, $envelope);
 
-            DB::transaction(function () use ($outbox, $sentMessage) {
-                $externalId = $sentMessage->getMessageId();
-
-                $outbox->update(['message_id' => $externalId, 'status' => 'sent']);
-                $outbox->messages()->update(['message_id' => $externalId, 'status' => 'sent']);
-            });
-
-            $this->driver->handleResponse($sentMessage, $outbox);
-
-            return $sentMessage;
-
+            $outbox->update(['status' => OutboxStatus::SENT]);
         } catch (Throwable $e) {
-            DB::transaction(function () use ($outbox) {
-                $outbox->update(['status' => 'error']);
-                $outbox->messages()->update(['status' => 'error']);
-            });
+            $outbox->update(['status' => OutboxStatus::ERROR]);
 
             throw $e;
         }
+
+        $this->driver->handleResponse($sentMessage, $outbox);
+
+        return $sentMessage;
     }
 
     public function __toString(): string
     {
-        return (string)$this->transport;
+        return (string) $this->transport;
     }
 
-    protected function determineRecipientType(Email $email, string $address): string
+    protected function determineRecipientType(Email $email, string $address): MessageType
     {
         foreach (['To', 'Cc', 'Bcc'] as $type) {
             $header = $email->getHeaders()->get($type);
-            if (!$header) {
+            if (! $header) {
                 continue;
             }
 
             foreach ($header->getAddresses() as $headerAddress) {
                 if ($headerAddress->getAddress() === $address) {
-                    return mb_strtolower($type);
+                    return MessageType::from(mb_strtolower($type));
                 }
             }
         }
 
-        return 'to';
+        return MessageType::TO;
     }
 }

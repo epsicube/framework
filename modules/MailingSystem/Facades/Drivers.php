@@ -23,4 +23,9 @@ class Drivers extends Facade
             $registry->register(...$items);
         });
     }
+
+    public static function getWebhookUrl(string $driverIdentifier): string
+    {
+        return route('mailing-system.webhook', ['driver' => $driverIdentifier]);
+    }
 }

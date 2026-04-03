@@ -2,4 +2,6 @@
     /** @var string $content */
 @endphp
 
-{!! $content !!}
+{!! nl2br(e($content)) !!}
+
+<a href="https://google.fr">GOOGLE LIENJ</a>
