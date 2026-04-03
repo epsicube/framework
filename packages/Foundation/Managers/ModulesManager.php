@@ -93,6 +93,15 @@ class ModulesManager
         return $this->resolver ??= new KahnResolver(...array_values($this->modules));
     }
 
+    public function getPreventedProviders(): array
+    {
+        $allPrevented = array_reduce($this->modules, function (array $carry, Module $module) {
+            return array_merge($carry, $module->preventedProviders);
+        }, []);
+
+        return array_values(array_unique($allPrevented));
+    }
+
     public function bootstrap(Application $app): void
     {
         if ($this->booted) {

@@ -108,6 +108,9 @@ class Module
     /** @var array<class-string<ServiceProvider>> */
     public array $providers = [];
 
+    /** @var array<class-string<ServiceProvider>> */
+    public array $preventedProviders = [];
+
     public function __construct(public readonly string $identifier, public readonly string $version) {}
 
     public static function make(string $identifier, string $version = '0.0.0'): static
@@ -165,6 +168,25 @@ class Module
             }
         }
         $this->providers = array_unique(array_merge($this->providers, $providers));
+
+        return $this;
+    }
+
+    /**
+     * @param  class-string<ServiceProvider>  ...$providers
+     */
+    public function preventProviders(string ...$providers): static
+    {
+        foreach ($providers as $provider) {
+            if (! is_a($provider, ServiceProvider::class, true)) {
+                throw new InvalidArgumentException(sprintf(
+                    'The class [%s] must be an instance of [%s].',
+                    $provider,
+                    ServiceProvider::class
+                ));
+            }
+        }
+        $this->preventedProviders = array_unique(array_merge($this->preventedProviders, $providers));
 
         return $this;
     }
