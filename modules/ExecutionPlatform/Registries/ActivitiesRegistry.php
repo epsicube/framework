@@ -39,17 +39,15 @@ class ActivitiesRegistry extends Registry
         return $schema;
     }
 
-    public function run(string $identifier, array $input = []): Execution
+    public function run(string $identifier, array $input = [], bool $ignoreValidation = false): Execution
     {
-        $schema = $this->inputSchema($identifier);
-        $validated = $schema->validated($input);
         $execution = new Execution([
             'execution_type' => ExecutionType::ACTIVITY,
             'target'         => $identifier,
-            'input'          => $validated,
+            'input'          => $input, // default will be applied on creation
             'status'         => ExecutionStatus::QUEUED,
         ]);
 
-        return $execution->run();
+        return $execution->run($ignoreValidation);
     }
 }

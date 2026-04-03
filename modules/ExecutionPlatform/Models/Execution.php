@@ -5,8 +5,6 @@ declare(strict_types=1);
 namespace EpsicubeModules\ExecutionPlatform\Models;
 
 use Carbon\CarbonImmutable;
-use EpsicubeModules\ExecutionPlatform\Contracts\Activity;
-use EpsicubeModules\ExecutionPlatform\Contracts\Workflow;
 use EpsicubeModules\ExecutionPlatform\Enum\ExecutionStatus;
 use EpsicubeModules\ExecutionPlatform\Enum\ExecutionType;
 use EpsicubeModules\ExecutionPlatform\Facades\Activities;
@@ -72,6 +70,13 @@ class Execution extends Model
             if (empty($model->status)) {
                 $model->status = ExecutionStatus::QUEUED;
             }
+
+            // Force default input to be generated when creating to ensure determinism
+            $model->input = match ($model->execution_type) {
+                ExecutionType::ACTIVITY => Activities::inputSchema($model->target)->withDefaults($model->input ?? []),
+                // ExecutionType::WORKFLOW => Workflows::get($model->target)->toValidator($model->input ?? [])->validated(), TODO
+                default => $model->input
+            };
         });
     }
 
@@ -82,7 +87,7 @@ class Execution extends Model
      *
      * @throws Throwable
      */
-    public function run(): static
+    public function run(bool $ignoreValidation = false): static
     {
         if ($this->isDirty()) {
             $this->save();
@@ -124,19 +129,26 @@ class Execution extends Model
             return $this;
         }
 
-        $activity = $this->targetInstance();
+        $activity = Activities::get($this->target);
 
         // Activity handling, sync run
         $this->fill(['status' => ExecutionStatus::PROCESSING, 'started_at' => now()])->save();
 
         $error = null;
-
         $memoryBefore = memory_get_usage(false);
         if (function_exists('memory_reset_peak_usage')) {
             memory_reset_peak_usage();
         }
         $start = hrtime(true);
         try {
+            if (! $ignoreValidation) {
+                // Ensure the input matches the schema before processing.
+                // We don't use the schema's default values here because they were already
+                // persisted at creation to guarantee determinism (even if schema defaults change).
+                Activities::inputSchema($this->target)
+                    ->toValidator($this->input ?? [], prepend: ['bail'])
+                    ->validate();
+            }
             $result = $activity->handle($this->input ?? []);
         } catch (Throwable $e) {
             $error = $e;
@@ -166,13 +178,5 @@ class Execution extends Model
     public function cancel(?string $reason = null): static
     {
         throw new RuntimeException('Not implemented');
-    }
-
-    public function targetInstance(): Activity|Workflow
-    {
-        return match ($this->execution_type) {
-            ExecutionType::WORKFLOW => Workflows::get($this->target),
-            ExecutionType::ACTIVITY => Activities::get($this->target),
-        };
     }
 }

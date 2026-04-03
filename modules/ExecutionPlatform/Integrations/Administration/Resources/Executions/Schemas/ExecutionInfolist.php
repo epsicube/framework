@@ -17,6 +17,7 @@ use Filament\Schemas\Components\Text;
 use Filament\Schemas\Schema;
 use Filament\Support\Enums\Operation;
 use Filament\Support\Enums\TextSize;
+use Illuminate\Support\HtmlString;
 use Phiki\Grammar\Grammar;
 
 class ExecutionInfolist
@@ -58,6 +59,11 @@ class ExecutionInfolist
             ])->schema([
                 TextEntry::make('started_at')->label(__('Started at'))->dateTime(),
                 TextEntry::make('completed_at')->label(__('Completed at'))->dateTime(),
+
+                TextEntry::make('last_error')->hiddenLabel()->color('danger')
+                    ->visible(fn (Execution $record) => filled($record->last_error))
+                    ->label(__('Last Error'))->columnSpanFull()
+                    ->prefix(new HtmlString('<b>'.__('Last error').' : </b>')),
             ])->columns(2),
 
             // Input sections
