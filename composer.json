@@ -26,6 +26,7 @@
     "sajya/server": "^7.0.0",
     "filafly/filament-phosphor-icons": "^2.0",
     "laravel/serializable-closure": "^2.0.8",
+    "laravel-workflow/laravel-workflow": "^1.0.72",
     "symfony/var-exporter": "^8.0"
   },
   "replace": {

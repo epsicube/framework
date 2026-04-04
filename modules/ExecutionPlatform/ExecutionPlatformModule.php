@@ -14,6 +14,7 @@ use Epsicube\Support\Modules\Supports;
 use EpsicubeModules\ExecutionPlatform\Console\Commands\ActivitiesListCommand;
 use EpsicubeModules\ExecutionPlatform\Console\Commands\ActivitiesRunCommand;
 use EpsicubeModules\ExecutionPlatform\Console\Commands\WorkflowsListCommand;
+use EpsicubeModules\ExecutionPlatform\Engine\WorkflowEngine;
 use EpsicubeModules\ExecutionPlatform\Facades\Activities;
 use EpsicubeModules\ExecutionPlatform\Facades\Workflows;
 use EpsicubeModules\ExecutionPlatform\Integrations\Administration\AdministrationIntegration;
@@ -21,6 +22,10 @@ use EpsicubeModules\ExecutionPlatform\Integrations\JsonRpcServer\JsonRpcServerIn
 use EpsicubeModules\ExecutionPlatform\Integrations\McpServer\McpServerIntegration;
 use EpsicubeModules\ExecutionPlatform\Registries\ActivitiesRegistry;
 use EpsicubeModules\ExecutionPlatform\Registries\WorkflowsRegistry;
+use Laravel\SerializableClosure\SerializableClosure;
+use ReflectionClass;
+use Workflow\Providers\WorkflowServiceProvider;
+use Workflow\Webhooks;
 
 class ExecutionPlatformModule extends ServiceProvider implements IsModule
 {
@@ -32,6 +37,7 @@ class ExecutionPlatformModule extends ServiceProvider implements IsModule
                 ?? InstalledVersions::getVersion('epsicube/module-execution-platform')
         )
             ->providers(static::class)
+            ->preventProviders(WorkflowServiceProvider::class) // prevent booting
             ->identity(fn (Identity $identity) => $identity
                 ->name(__('Execution Platform'))
                 ->author('Core Team')
@@ -52,6 +58,9 @@ class ExecutionPlatformModule extends ServiceProvider implements IsModule
         $this->app->singleton(Activities::$accessor, function () {
             return new ActivitiesRegistry;
         });
+        $this->app->singleton(WorkflowEngine::class, function () {
+            return new WorkflowEngine;
+        });
     }
 
     public function boot(): void
@@ -62,5 +71,23 @@ class ExecutionPlatformModule extends ServiceProvider implements IsModule
             ActivitiesRunCommand::class,
             ActivitiesListCommand::class,
         ]);
+
+        // Laravel workflow (prevented)
+        if (class_exists(WorkflowServiceProvider::class)) {
+            SerializableClosure::setSecretKey(config('app.key'));
+
+            $reflection = new ReflectionClass(WorkflowServiceProvider::class);
+            $directory = dirname($reflection->getFileName());
+
+            // Migrations
+            //            $this->loadMigrationsFrom(realpath($directory.'/../migrations'));
+
+            // Config
+            $this->mergeConfigFrom(realpath($directory.'/../config/workflows.php'), 'workflows');
+
+            if (! $this->app->routesAreCached()) {
+                Webhooks::routes(__NAMESPACE__.'\\Workflows', __DIR__.'/Workflows');
+            }
+        }
     }
 }

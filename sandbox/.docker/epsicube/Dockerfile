@@ -68,6 +68,7 @@ ENV HOST="0.0.0.0"
 WORKDIR /app
 USER nonroot
 
+
 FROM base AS worker
 HEALTHCHECK --interval=30s --timeout=5s --start-period=3s --retries=3 \
     CMD pgrep -f "artisan epsicube:work" || exit 1
