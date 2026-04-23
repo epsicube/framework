@@ -61,7 +61,10 @@ class TrackedTransport implements TransportInterface
             $this->driver->configureMail($email, $outbox);
             $sentMessage = $this->transport->send($email, $envelope);
 
-            $outbox->update(['status' => OutboxStatus::SENT]);
+            $outbox->update([
+                'status'     => OutboxStatus::SENT,
+                'message_id' => $sentMessage->getMessageId(),
+            ]);
         } catch (Throwable $e) {
             $outbox->update(['status' => OutboxStatus::ERROR]);
 
