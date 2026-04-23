@@ -23,8 +23,6 @@ use Illuminate\Support\Carbon;
  * RELATIONS
  * @property int|null $mailer_id
  * @property-read Mailer|null $mailer
- * @property int|null $campaign_id
- * @property-read Campaign|null $campaign
  * @property-read Collection<Message> $messages
  */
 class Outbox extends Model
@@ -44,11 +42,6 @@ class Outbox extends Model
     public function mailer(): BelongsTo
     {
         return $this->belongsTo(Mailer::class);
-    }
-
-    public function campaign(): BelongsTo
-    {
-        return $this->belongsTo(Campaign::class);
     }
 
     public function messages(): HasMany
