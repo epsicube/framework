@@ -4,18 +4,18 @@ declare(strict_types=1);
 
 namespace EpsicubeModules\MailingSystem\Integrations\ExecutionPlatform\Workflows;
 
-use EpsicubeModules\ExecutionPlatform\Concerns\Workflow;
 use EpsicubeModules\ExecutionPlatform\Contracts\HasInputSchema;
-use EpsicubeModules\MailingSystem\Facades\Drivers;
+use EpsicubeModules\ExecutionPlatform\Contracts\Workflow;
 use EpsicubeModules\MailingSystem\Facades\Templates;
 use EpsicubeModules\MailingSystem\Integrations\ExecutionPlatform\Activities\SendMail as SendMailActivity;
+use EpsicubeModules\MailingSystem\Models\Mailer;
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Utilities\Get;
 
-class SendMail extends Workflow implements HasInputSchema
+class SendMail implements HasInputSchema, Workflow
 {
     public function identifier(): string
     {
@@ -43,9 +43,9 @@ class SendMail extends Workflow implements HasInputSchema
                         ->fill();
                 }),
 
-            Select::make('mailer')
+            Select::make('mailer_id')
                 ->label(__('Mailer'))
-                ->options(fn () => Drivers::toIdentifierLabelMap())
+                ->options(fn () => Mailer::query()->pluck('name', 'id'))
                 ->required(),
 
             TextInput::make('subject')
@@ -132,7 +132,7 @@ class SendMail extends Workflow implements HasInputSchema
         ];
     }
 
-    public function handle(array $input = []): mixed
+    public function run(array $input = []): mixed
     {
         return SendMailActivity::make()->handle($input);
     }

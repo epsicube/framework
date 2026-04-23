@@ -39,7 +39,7 @@ class ListTemplates implements Activity
 
     public function inputSchema(Schema $schema): void {}
 
-    public function handle(array $inputs = []): array
+    public function handle(array $input = []): array
     {
         return [
             'templates' => array_values(array_map(fn (MailTemplate $t) => [

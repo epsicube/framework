@@ -57,7 +57,7 @@ abstract class Registry
     public function get(string $identifier): Registrable
     {
         if (! array_key_exists($identifier, $this->all())) {
-            throw new UnresolvableItemException($identifier, $this);
+            throw new UnresolvableItemException($identifier);
         }
 
         return $this->all()[$identifier];

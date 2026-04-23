@@ -80,18 +80,18 @@ class SendMail implements Activity
         ]);
     }
 
-    public function handle(array $inputs = []): array
+    public function handle(array $input = []): array
     {
         /** @var Mailer $mailer */
-        $mailer = Mailer::query()->where('id', $inputs['mailer_id'])->firstOrFail();
+        $mailer = Mailer::query()->where('id', $input['mailer_id'])->firstOrFail();
 
         $mail = (new EpsicubeMail)
-            ->setTemplate(data_get($inputs, 'template'))
-            ->subject(data_get($inputs, 'subject'))
-            ->to(data_get($inputs, 'to', []))
-            ->cc(data_get($inputs, 'cc', []))
-            ->bcc(data_get($inputs, 'bcc', []))
-            ->with(data_get($inputs, 'template_configuration'));
+            ->setTemplate(data_get($input, 'template'))
+            ->subject(data_get($input, 'subject'))
+            ->to(data_get($input, 'to', []))
+            ->cc(data_get($input, 'cc', []))
+            ->bcc(data_get($input, 'bcc', []))
+            ->with(data_get($input, 'template_configuration'));
 
         $message = $mail->send($mailer->toMailer());
 

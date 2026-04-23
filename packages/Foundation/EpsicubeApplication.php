@@ -5,18 +5,11 @@ declare(strict_types=1);
 namespace Epsicube\Foundation;
 
 use Epsicube\Foundation\Bootstrap\BootstrapEpsicube;
-use Epsicube\Foundation\Traits\CleanupProvider;
 use Illuminate\Foundation\Application;
+use Override;
 
 class EpsicubeApplication extends Application
 {
-    use CleanupProvider;
-
-    public function bootstrapWith(array $bootstrappers): void
-    {
-        parent::bootstrapWith(array_merge([BootstrapEpsicube::class], $bootstrappers));
-    }
-
     /**
      * Append custom suffix to all cache file
      */
@@ -26,6 +19,13 @@ class EpsicubeApplication extends Application
         $_SERVER['APP_CACHE_SUFFIX'] = $prefix;
     }
 
+    #[Override]
+    public function bootstrapWith(array $bootstrappers): void
+    {
+        parent::bootstrapWith(array_merge([BootstrapEpsicube::class], $bootstrappers));
+    }
+
+    #[Override]
     public function bootstrapPath($path = ''): string
     {
         if (str_starts_with($path, 'cache') && ($_SERVER['APP_CACHE_SUFFIX'] ?? false)) {
@@ -35,6 +35,7 @@ class EpsicubeApplication extends Application
         return parent::bootstrapPath($path);
     }
 
+    #[Override]
     protected function normalizeCachePath($key, $default): string
     {
         if (! ($_SERVER['APP_CACHE_SUFFIX'] ?? null)) {
