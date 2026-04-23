@@ -132,7 +132,7 @@ class SendMail implements HasInputSchema, Workflow
         ];
     }
 
-    public function run(array $input = []): mixed
+    public function run(int $execution_id, array $input = []): mixed
     {
         return SendMailActivity::make()->handle($input);
     }
