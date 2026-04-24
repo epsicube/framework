@@ -50,22 +50,6 @@ class SendGridDriver implements Driver, HasMailerAdministrationPanel, HasWebhook
             'api_key' => StringProperty::make()
                 ->title(__('API key'))
                 ->minLength(20),
-            'host' => StringProperty::make()
-                ->title(__('SMTP host'))
-                ->optional()
-                ->default('smtp.sendgrid.net'),
-            'port' => IntegerProperty::make()
-                ->title(__('SMTP port'))
-                ->minimum(1)
-                ->maximum(65535)
-                ->optional()
-                ->default(587),
-            'scheme' => StringProperty::make()
-                ->title(__('Encryption'))
-                ->optional()
-                ->nullable()
-                ->default('tls')
-                ->description(__('Use `tls`, `smtps`, or leave empty if your relay requires no encryption.')),
             'click_tracking' => BooleanProperty::make()
                 ->title(__('Enable click tracking'))
                 ->optional()
@@ -101,9 +85,8 @@ class SendGridDriver implements Driver, HasMailerAdministrationPanel, HasWebhook
     {
         return Mail::build([
             'transport' => 'smtp',
-            'host'      => $configuration['host'] ?? 'smtp.sendgrid.net',
-            'port'      => $configuration['port'] ?? 587,
-            'scheme'    => blank($configuration['scheme'] ?? 'tls') ? null : $configuration['scheme'],
+            'host'      => 'smtp.sendgrid.net',
+            'port'      => 587,
             'username'  => 'apikey',
             'password'  => $configuration['api_key'],
         ]);
