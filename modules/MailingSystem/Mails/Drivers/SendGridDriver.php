@@ -98,7 +98,7 @@ class SendGridDriver implements Driver, HasMailerAdministrationPanel, HasWebhook
 
         $payload = $this->parseSmtpApiHeader($email);
         $payload['unique_args'] = array_merge($payload['unique_args'] ?? [], [
-            'outbox_id' => (string) $model->id,
+            'X-Epsicube-Outbox-ID' => (string) $model->id,
         ]);
 
         if (! empty($configuration['category'])) {
@@ -144,7 +144,7 @@ class SendGridDriver implements Driver, HasMailerAdministrationPanel, HasWebhook
         }
 
         return array_values(array_filter(array_map(function (array $payload) {
-            $outboxId = data_get($payload, 'unique_args.outbox_id');
+            $outboxId = data_get($payload, 'X-Epsicube-Outbox-ID', '');
             if (blank($outboxId)) {
                 return null;
             }
