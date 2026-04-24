@@ -27,8 +27,8 @@ class MailerForm
                         $component
                             ->getContainer()
                             ->getComponent('configuration', withHidden: true)
-                            ->getChildSchema()
-                            ->fill();
+                            ?->getChildSchema()
+                            ?->fill();
                     }),
             ])->columns(2),
 
