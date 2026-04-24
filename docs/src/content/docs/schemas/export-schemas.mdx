@@ -1,154 +1,146 @@
 ---
 title: "Export Schemas"
-description: "Export your Schemas in multiple formats"
+description: "Turn one schema into JSON Schema, Filament components, Laravel Prompts forms, or Laravel validators."
 sidebar:
-    order: 3
+    order: 5
 ---
-
 import { Aside } from '@astrojs/starlight/components';
 
-A **Schema** can be transformed into different formats depending on your needs.
-This is handled by **Exporters** , which take a schema and produce output suitable for a specific format, or use case.
+One of the main strengths of `epsicube/schemas` is that the same schema can be exported to multiple targets. The package ships with four built-in exporters and shortcut methods on `Schema`.
 
-## What is an Exporter?
+## JSON Schema
 
-An **Exporter** is a class responsible for converting a schema into another representation.
-
-- It defines how each property of the schema should be translated.
-- It can apply defaults, validation rules, or UI-specific settings.
-- Multiple exporters can coexist, each targeting a different output (e.g., JSON, forms, CLI prompts).
-
-<Aside type="note">
-An exporter allows a single schema to drive multiple outputs without redefining the schema for each context.
-</Aside>
-
-## Available Exporters
-
-Epsicube’s Schema system includes several **built-in exporters**, each designed to transform a schema into a specific format or usage context. Exporters do not modify the schema—they generate representations compatible with different systems.
-
-
-### JSON Schema
-
-The `JsonSchemaExporter` converts a schema into a **standard JSON Schema** format.
-This is useful for API documentation, validation, or front-end integrations.
-
-**Usage example:**
+Use JSON Schema when you need a portable machine-readable contract for APIs, front-end consumers, external tooling, or documentation.
 
 ```php
 use Epsicube\Schemas\Exporters\JsonSchemaExporter;
 
 $jsonSchema = $schema->export(new JsonSchemaExporter);
 
-// Or use the shortcut
+// Shortcut
 $jsonSchema = $schema->toJsonSchema();
 ```
 
-### FilamentPHP
+What the exporter does:
 
-The `FilamentExporter` converts a schema into **FilamentPHP forms or infolists**, compatible with the Filament admin panel.
+- wraps the root schema as an object
+- includes titles and descriptions when available
+- includes defaults when available
+- marks non-optional fields as `required`
+- sets `additionalProperties` to `false` at the root
+- adapts nullable fields to valid JSON Schema output
 
-**Usage example:**
+For example, a nullable string becomes a type array that includes `"null"`, and a nullable enum gets `null` added to its allowed values.
+
+## Filament components
+
+Use Filament export to generate forms or infolists from the same schema used for validation.
 
 ```php
-use Epsicube\Schemas\Exporters\FilamentComponentsExporter;
 use Filament\Support\Enums\Operation;
 
-$formComponents = $schema->export(new FilamentComponentsExporter(Operation::Edit)); // Or Operation::Create
-$infolistComponents = $schema->export(new FilamentComponentsExporter(Operation::View));
-
-// Or use the shortcut
-$schema->toFilamentComponents($operation);
+$formComponents = $schema->toFilamentComponents(Operation::Create);
+$editComponents = $schema->toFilamentComponents(Operation::Edit);
+$infolistComponents = $schema->toFilamentComponents(Operation::View);
 ```
 
-### Laravel Prompts
-
-The `LaravelPromptsFormExporter` generates **interactive CLI prompts** based on your schema properties.
-It is ideal for creating command-line wizards, setup scripts, or guided input flows.
-
-**Usage example:**
+You can also customize every generated component:
 
 ```php
-use Epsicube\Schemas\Exporters\LaravelPromptsFormExporter;
+use Filament\Support\Enums\Operation;
 
-// Export schema as CLI prompts and execute them
-$resultData = $schema->export(new LaravelPromptsFormExporter([
-    'username' => 'current' // Optional: pre-fill with current values
-]));
+$components = $schema->toFilamentComponents(
+    Operation::Edit,
+    function ($property, ?string $name, $component): void {
+        $component->columnSpanFull();
+    }
+);
+```
 
-// Shortcut method
-$resultData = $schema->toExecutedPrompts([
-    'username' => 'current' // Optional: pre-fill values
+What the exporter applies globally when possible:
+
+- default values on non-view operations
+- required state for non-optional non-nullable fields
+- labels from property titles
+- helper text or hints from property descriptions
+
+<Aside type="note">
+The exporter maps string formats to different Filament inputs. For example, `DATE` becomes `DatePicker`, `DATE_TIME` becomes `DateTimePicker`, `MARKDOWN` becomes `MarkdownEditor`, and `HTML` becomes `RichEditor`.
+</Aside>
+
+## Laravel Prompts
+
+Use prompt export to build interactive CLI configuration flows from the schema:
+
+```php
+$result = $schema->toExecutedPrompts();
+```
+
+You can pass current values to prefill the interaction:
+
+```php
+$result = $schema->toExecutedPrompts([
+    'endpoint' => '/rpc/v2/endpoint',
 ]);
-````
+```
 
-<Aside type="caution">
-The prompts exporter automatically triggers fields to appear and returns user input.
-It only works in a **CLI context**.
-</Aside>
+This exporter is used by Epsicube's interactive option management commands. It is especially useful when you want a typed CLI wizard without duplicating field definitions.
 
-### Laravel Validation Rules
+Property-specific behaviors include:
 
-The `LaravelValidationExporter` converts a schema into **Laravel validation rules** that can be applied directly in `$request->validate()` or FormRequest classes.
+- booleans map to confirm or select prompts
+- enums map to select prompts
+- objects build nested forms
+- arrays provide add, edit, delete, and finish interactions
 
-This exporter provides a custom Validator instance that respects schema defaults and optional fields.
+## Laravel validation
 
----
-
-#### Usage Example
-
-
-<Aside type="tip">
-Recommended to use method: `$schema->validated($data, bail: false)`
-
-This method injects missing default values from the schema, validates the data, and returns the validated dataset.
-</Aside>
+Use Laravel validation export when you need a validator instance:
 
 ```php
 use Epsicube\Schemas\Exporters\LaravelValidatorExporter;
 
-// Export validator
-$validator = $schema->export(new LaravelValidatorExporter($data));
+$validator = $schema->export(new LaravelValidatorExporter($payload));
 
-// Or use the shortcut
-$validator = $schema->toValidator($data);
+// Shortcut
+$validator = $schema->toValidator($payload);
+```
 
-// Example usage in a FormRequest
-$validated = $validator->validated();
-````
+In most cases, the higher-level API is simpler:
+
+```php
+$validated = $schema->validated($payload);
+```
+
+What the validator exporter handles:
+
+- `present` for non-optional fields
+- `nullable` for nullable fields
+- nested child rule generation for objects and arrays
+- prohibition or validation of unknown object keys through `additionalProperties()`
+- support for prepended rules such as `bail`
 
 <Aside type="caution">
-This exporter returns a **custom Validator instance**.
-
-Rules may not behave correctly if you extract them via `getRules()` and use them with the native Laravel Validator.
-
-This is due to differences in PHP handling of null vs undefined values, which can cause validation failures for empty strings.
+Do not assume that extracting raw rules and rebuilding a native Laravel validator will behave identically. The schema package intentionally uses a dedicated validator path to preserve Epsicube's handling of undefined values and empty strings.
 </Aside>
 
+## Create a custom exporter
 
-#### Notes
-
-##### 1. Data Parameter
-
-When exporting rules, it is recommended to pass the **current data** as the first argument (e.g., `$request->all()`).
-
-Some rules like `array` and `object` are **dynamic** and only apply based on the provided data.
+To target another output format, implement `Epsicube\Schemas\Contracts\SchemaExporter` and pass your exporter to `Schema::export(...)`.
 
 ```php
-$validator = $schema->toValidator($request->all());
+use Epsicube\Schemas\Contracts\SchemaExporter;
+use Epsicube\Schemas\Schema;
+
+class MyExporter implements SchemaExporter
+{
+    public function exportSchema(Schema $schema): mixed
+    {
+        // Convert $schema to your target format.
+    }
+}
+
+$result = $schema->export(new MyExporter);
 ```
 
-###### 2. Optional Parameter (`$prepend`)
-
-You can provide an optional array of rules to **prepend** to all fields.
-For example, `['bail']` stops validation on the first failure:
-
-```php
-$validator = $schema->toValidator($request->all(), prepend: ['bail']);
-```
-
-
-## Create custom Exporter
-
-<Aside type="tip">
-You can **create your own exporter** by implementing the standard [`Epsicube\Schemas\Contracts\SchemaExporter`](https://github.com/epsicube/framework/blob/main/packages/Schemas/Contracts/SchemaExporter.php) interface.
-</Aside>
+This is the right extension point when you want to generate another UI layer, API contract, cache artifact, or adapter on top of the same schema model.

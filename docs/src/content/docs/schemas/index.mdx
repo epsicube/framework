@@ -1,50 +1,105 @@
 ---
 title: "Overview"
-description: "Learn how to use the Schema to define structured, reusable, and validated data configurations in Epsicube."
+description: "Understand how Epsicube Schema models structured data, validates it, and exports it to multiple runtimes."
 sidebar:
     order: 1
 ---
-import { Steps, Aside } from '@astrojs/starlight/components';
+import { Aside, Card, CardGrid, Steps } from '@astrojs/starlight/components';
 
-The **Schema** is a feature of Epsicube, providing a robust system to define **structured, validated, and reusable data configurations**.
+Epsicube Schema is the framework's declarative data description layer. It is used to define structured data once, then reuse the same definition for validation, options management, Filament UIs, JSON Schema export, and interactive CLI prompts.
 
-It is fully integrated into the framework and can be leveraged anywhere in your application—whether for configuration, forms, options, or any structured data.
+The package is built around [`Epsicube\Schemas\Schema`](https://github.com/epsicube/framework/blob/main/packages/Schemas/Schema.php) and a set of property classes in `Epsicube\Schemas\Properties\*`.
 
-Using Schema, you can:
+## What a schema gives you
 
-- Declare fields with specific types, default values, and constraints.
-- Handle complex or nested data structures in a clean and maintainable way.
-- Validate and transform data consistently across multiple contexts:
-    - Laravel Validation Rules
-    - FilamentPHP Schema (Forms or Infolists)
-    - JSON Schema
-    - CLI prompts (via Laravel Prompts)
+- A typed description of a data structure.
+- A single source of truth for defaults and constraints.
+- Runtime validation with Laravel validators.
+- Automatic export to JSON Schema.
+- Automatic export to Filament components.
+- Automatic export to Laravel Prompts forms.
+- Reusable option definitions for Epsicube modules.
 
-
-<Aside title="Information">
-    The Schema is a feature that can be used in any context—configuration, options, forms, API data structures, or custom workflows.
+<Aside title="Where Epsicube uses schemas">
+Schemas are used heavily for module options in `module(): Module`, but they are not limited to options. The same package is also used for runtime input and output contracts, such as activity schemas and JSON-RPC payloads.
 </Aside>
 
-## Getting Started
+## Core building blocks
+
+At a high level, a schema is:
+
+1. A unique identifier.
+2. Optional human metadata: title and description.
+3. A map of named properties.
+
+Each property describes:
+
+- its type
+- whether it is optional
+- whether it accepts `null`
+- whether it has a default value
+- any type-specific constraints
+
+## Built-in property types
+
+- `StringProperty`
+- `BooleanProperty`
+- `IntegerProperty`
+- `FloatProperty`
+- `EnumProperty`
+- `ObjectProperty`
+- `ArrayProperty`
+
+## Main workflows
 
 <Steps>
-1. ### Install the package
+1. ### Define a schema
 
-    <Aside type="tip">
-    If you are using `epsicube/framework`, the Schema system is included by default and this step can be skipped.
-    </Aside>
+   Create a schema with `Schema::create()` and append properties with `->append([...])`.
 
-    ```bash
-    composer require epsicube/schemas
-    ```
+2. ### Reuse it at runtime
 
-2. ### Define your first schema
+   Use `->validated($data)` or `->toValidator($data)` to validate incoming data and apply defaults.
 
-    Schemas are defined using the [`Epsicube\Schemas\Schema`](https://github.com/epsicube/framework/blob/main/packages/Schemas/Schema.php) class and its field definitions..
-    See **[Defining Schemas](/schemas/defining-schemas)** for step-by-step instructions.
+3. ### Export it where needed
 
-3. ### Start using schemas
+   Use the same schema to generate:
 
-    Once defined, schemas can be used to validate, transform, and structure data anywhere in your application.
+   - JSON Schema with `->toJsonSchema()`
+   - Filament components with `->toFilamentComponents(...)`
+   - CLI prompts with `->toExecutedPrompts(...)`
 </Steps>
 
+## Documentation map
+
+<CardGrid stagger>
+  <Card title="Defining Schemas">
+    Learn the core model: identifiers, properties, `optional`, `nullable`, defaults, nested objects, and schema composition.
+  </Card>
+  <Card title="Property Types">
+    Browse a structured reference of every built-in property with signatures, fluent methods, behaviors, and examples.
+  </Card>
+  <Card title="Using Schemas">
+    See how to validate payloads, apply defaults, scope schemas with `only()` and `except()`, and use them in runtime flows.
+  </Card>
+  <Card title="Export Schemas">
+    Understand how the same schema becomes JSON Schema, Filament components, Laravel prompts, and Laravel validators.
+  </Card>
+</CardGrid>
+
+## Reading order
+
+- Start with [Defining Schemas](/schemas/defining-schemas/) if you are creating a schema from scratch.
+- Jump to [Property Types](/schemas/property-types/) when you need the exact API of a property class.
+- Use [Using Schemas](/schemas/using-schemas/) for runtime validation, defaults, and schema slicing.
+- Finish with [Export Schemas](/schemas/export-schemas/) when the schema must drive UI, CLI, or contracts.
+
+## Installation
+
+<Aside type="tip">
+If you are using `epsicube/framework`, `epsicube/schemas` is already included.
+</Aside>
+
+```bash
+composer require epsicube/schemas
+```

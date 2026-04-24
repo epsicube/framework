@@ -16,8 +16,9 @@ Use this skill for framework-level and module-level work in this repository.
    - user documentation in `docs/src/content/docs/`
 2. Inspect sibling modules before changing patterns. Epsicube allows several extension points, but consistency with nearby modules is the default.
 3. If the task concerns module authoring or behavior, read [module-workflow.md](references/module-workflow.md).
-4. If the task concerns package responsibilities or where to place code, read [architecture-map.md](references/architecture-map.md).
-5. If the task involves Artisan or PHP execution, follow [command-policy.md](references/command-policy.md) exactly.
+4. If the task concerns schemas, property types, validation/export behavior, or schema documentation, read [schema-workflow.md](references/schema-workflow.md).
+5. If the task concerns package responsibilities or where to place code, read [architecture-map.md](references/architecture-map.md).
+6. If the task involves Artisan or PHP execution, follow [command-policy.md](references/command-policy.md) exactly.
 
 ## Non-Negotiable Command Policy
 
@@ -53,6 +54,19 @@ When writing or editing a module:
 - Use `supports()` for optional integrations and adaptive behavior.
 - Use `options()` with `Epsicube\Schemas\Schema` and schema property objects.
 
+## Schema Rules
+
+When writing or editing Epsicube schemas:
+
+- Start from real implementations in `packages/Schemas` before documenting or extending behavior.
+- Treat `optional` and `nullable` as separate concerns.
+- Never define a default on a non-optional property.
+- Reuse existing property classes before introducing a new one.
+- When behavior changes, consider the four built-in exporters together: JSON Schema, Filament, Laravel Prompts, and Laravel validation.
+- For module options, prefer stable keys and titles because those keys are reused by CLI commands, persisted option storage, and administration UIs.
+- Use `only()` and `except()` when a workflow needs a focused subset of a larger schema.
+- Use `ObjectProperty` for nested keyed payloads and `ArrayProperty` for ordered lists.
+
 ## Implementation Heuristics
 
 - Follow existing naming and identifier patterns in neighboring modules before inventing a new structure.
@@ -75,5 +89,6 @@ When writing or editing a module:
 ## References
 
 - [module-workflow.md](references/module-workflow.md): authoring, lifecycle, requirements, dependencies, supports, options
+- [schema-workflow.md](references/schema-workflow.md): schema modeling, property types, exporters, validation, and common framework patterns
 - [architecture-map.md](references/architecture-map.md): package/module responsibility map
 - [command-policy.md](references/command-policy.md): required Docker command wrapper for PHP and Artisan

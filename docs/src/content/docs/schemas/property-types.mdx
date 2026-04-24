@@ -1,0 +1,302 @@
+---
+title: "Property Types"
+description: "Reference for all built-in Epsicube schema property classes and their constraints."
+sidebar:
+    order: 3
+---
+import { Aside } from '@astrojs/starlight/components';
+import SchemaPropertyCard from '../../../components/SchemaPropertyCard.astro';
+import SchemaReferenceLayout from '../../../components/SchemaReferenceLayout.astro';
+
+All built-in property types share the fluent API from `BaseProperty`:
+
+- `->title(?string $title)`
+- `->description(?string $description)`
+- `->optional(bool $optional = true)`
+- `->nullable(bool $nullable = true)`
+
+Each concrete property type also exposes its own `->default(...)` method with a type-safe signature.
+
+<SchemaReferenceLayout>
+  <Fragment slot="nav">
+    <p class="schema-reference__nav-title">On this page</p>
+    <div class="schema-reference__nav-links">
+      <a href="#quick-finder">Quick Finder</a>
+      <a href="#string-property">StringProperty</a>
+      <a href="#boolean-property">BooleanProperty</a>
+      <a href="#integer-property">IntegerProperty</a>
+      <a href="#float-property">FloatProperty</a>
+      <a href="#enum-property">EnumProperty</a>
+      <a href="#object-property">ObjectProperty</a>
+      <a href="#array-property">ArrayProperty</a>
+    </div>
+  </Fragment>
+
+  <section id="quick-finder">
+    <h2>Quick Finder</h2>
+
+    <p>
+      Use this table to find the right property quickly, then jump to the detailed section below.
+    </p>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Property</th>
+          <th>Category</th>
+          <th>Best for</th>
+          <th>Default</th>
+          <th>Key methods</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><a href="#string-property"><code>StringProperty</code></a></td>
+          <td>Scalar</td>
+          <td>Text and formatted string values</td>
+          <td><code>string|null|Closure</code></td>
+          <td><code>format</code>, <code>minLength</code>, <code>maxLength</code>, <code>pattern</code></td>
+        </tr>
+        <tr>
+          <td><a href="#boolean-property"><code>BooleanProperty</code></a></td>
+          <td>Scalar</td>
+          <td>Toggles and confirmations</td>
+          <td><code>bool|null|Closure</code></td>
+          <td><code>accepted</code></td>
+        </tr>
+        <tr>
+          <td><a href="#integer-property"><code>IntegerProperty</code></a></td>
+          <td>Scalar</td>
+          <td>Counters and whole numbers</td>
+          <td><code>int|null|Closure</code></td>
+          <td><code>minimum</code>, <code>maximum</code>, <code>multipleOf</code></td>
+        </tr>
+        <tr>
+          <td><a href="#float-property"><code>FloatProperty</code></a></td>
+          <td>Scalar</td>
+          <td>Rates, prices, and decimal values</td>
+          <td><code>float|null|Closure</code></td>
+          <td><code>minimum</code>, <code>maximum</code>, <code>multipleOf</code></td>
+        </tr>
+        <tr>
+          <td><a href="#enum-property"><code>EnumProperty</code></a></td>
+          <td>Choice</td>
+          <td>Controlled value sets</td>
+          <td><code>string|int|null|Closure</code></td>
+          <td><code>cases</code>, <code>dynamic</code>, <code>resolver</code></td>
+        </tr>
+        <tr>
+          <td><a href="#object-property"><code>ObjectProperty</code></a></td>
+          <td>Structured</td>
+          <td>Nested keyed objects</td>
+          <td><code>array|null|Closure</code></td>
+          <td><code>properties</code>, <code>additionalProperties</code></td>
+        </tr>
+        <tr>
+          <td><a href="#array-property"><code>ArrayProperty</code></a></td>
+          <td>Structured</td>
+          <td>Ordered lists</td>
+          <td><code>array|null|Closure</code></td>
+          <td><code>items</code>, <code>minItems</code>, <code>maxItems</code>, <code>uniqueItems</code></td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+    <SchemaPropertyCard
+      id="string-property"
+      title="StringProperty"
+      category="Scalar"
+      kind="String values"
+      useCase="Use for free text and formatted string values."
+      defaultSignature="->default(string|null|Closure $default)"
+      methods={['->format(?StringFormat $format)', '->minLength(?int $minLength)', '->maxLength(?int $maxLength)', '->pattern(?string $pattern)']}
+      constraints={['Supports plain text and format-aware strings such as `EMAIL`, `URL`, `DATE`, `TIME`, `MARKDOWN`, and `HTML`.', 'Regex patterns are exported to validation rules and JSON Schema when applicable.']}
+      exports={['Maps to specialized Filament inputs for several formats.', 'JSON Schema uses `type: string` and adds `format`, `minLength`, `maxLength`, or `pattern` when defined.']}
+    >
+      <Fragment slot="example">
+```php
+use Epsicube\Schemas\Enums\StringFormat;
+use Epsicube\Schemas\Properties\StringProperty;
+
+StringProperty::make()
+    ->title('Webhook URL')
+    ->format(StringFormat::URL)
+    ->maxLength(255)
+    ->optional();
+```
+      </Fragment>
+      <Fragment slot="notes">
+        Not every `StringFormat` currently maps to a dedicated Laravel rule. `EMAIL`, `URL`, `IPV4`, `IPV6`, `UUID`, `DATE`, `DATE_TIME`, and `TIME` are handled directly today.
+      </Fragment>
+    </SchemaPropertyCard>
+
+    <SchemaPropertyCard
+      id="boolean-property"
+      title="BooleanProperty"
+      category="Scalar"
+      kind="Boolean values"
+      useCase="Use for true/false values, confirmations, and acceptance gates."
+      defaultSignature="->default(bool|null|Closure $default)"
+      methods={['->accepted(bool $accepted = true)']}
+      constraints={['`accepted()` requires the final value to be `true`.', 'Nullable booleans are supported and rendered explicitly in prompts and Filament.']}
+      exports={['Validation exports `boolean`, plus `accepted` when requested.', 'Filament uses boolean toggle buttons and a nullable state cast when needed.']}
+    >
+      <Fragment slot="example">
+```php
+use Epsicube\Schemas\Properties\BooleanProperty;
+
+BooleanProperty::make()
+    ->title('Accept terms')
+    ->accepted()
+    ->optional();
+```
+      </Fragment>
+    </SchemaPropertyCard>
+
+    <SchemaPropertyCard
+      id="integer-property"
+      title="IntegerProperty"
+      category="Scalar"
+      kind="Integer values"
+      useCase="Use for counters, limits, retries, and any whole-number value."
+      defaultSignature="->default(int|null|Closure $default)"
+      methods={['->minimum(int $minimum, bool $exclusive = false)', '->maximum(int $maximum, bool $exclusive = false)', '->multipleOf(int $multiple)']}
+      constraints={['Supports inclusive and exclusive min/max boundaries.', 'Supports divisibility constraints with `multipleOf()`.']}
+      exports={['JSON Schema uses `type: integer` with boundary fields.', 'Validation exports `integer` plus min/max or custom exclusive checks.']}
+    >
+      <Fragment slot="example">
+```php
+use Epsicube\Schemas\Properties\IntegerProperty;
+
+IntegerProperty::make()
+    ->title('Retry count')
+    ->minimum(0)
+    ->maximum(10)
+    ->default(3)
+    ->optional();
+```
+      </Fragment>
+    </SchemaPropertyCard>
+
+    <SchemaPropertyCard
+      id="float-property"
+      title="FloatProperty"
+      category="Scalar"
+      kind="Float values"
+      useCase="Use for prices, rates, percentages, and any decimal value."
+      defaultSignature="->default(float|null|Closure $default)"
+      methods={['->minimum(float $minimum, bool $exclusive = false)', '->maximum(float $maximum, bool $exclusive = false)', '->multipleOf(float $multiple)']}
+      constraints={['Supports inclusive and exclusive min/max boundaries.', 'Supports step-like precision constraints with `multipleOf()`.']}
+      exports={['JSON Schema uses `type: number`.', 'Validation exports `numeric` plus boundaries and `multiple_of`.']}
+    >
+      <Fragment slot="example">
+```php
+use Epsicube\Schemas\Properties\FloatProperty;
+
+FloatProperty::make()
+    ->title('Tax rate')
+    ->minimum(0)
+    ->maximum(1)
+    ->multipleOf(0.01)
+    ->optional();
+```
+      </Fragment>
+    </SchemaPropertyCard>
+
+    <SchemaPropertyCard
+      id="enum-property"
+      title="EnumProperty"
+      category="Choice"
+      kind="Controlled values"
+      useCase="Use when a value must come from a controlled list of string or integer cases."
+      defaultSignature="->default(string|int|null|Closure $default)"
+      methods={['->resolver(?EnumResolver $resolver)', '->cases(EnumCase ...$cases)', '->dynamic(Closure $callback)']}
+      constraints={['Define exactly one enum source: static cases, dynamic callback, or a resolver.', 'Dynamic cases are evaluated lazily at runtime.']}
+      exports={['JSON Schema exports an `enum` array and optional `$meta` data.', 'Validation exports an `in:` rule based on resolved cases.', 'Filament and prompts both render a select-like choice UI.']}
+    >
+      <Fragment slot="example">
+```php
+use Epsicube\Schemas\Properties\EnumProperty;
+use Epsicube\Schemas\Types\EnumCase;
+
+EnumProperty::make()
+    ->title('Status')
+    ->cases(
+        EnumCase::make('draft', 'Draft'),
+        EnumCase::make('published', 'Published'),
+        EnumCase::make('archived', 'Archived'),
+    )
+    ->default('draft')
+    ->optional();
+```
+      </Fragment>
+      <Fragment slot="notes">
+        Calling `cases()` after `dynamic()`, or the reverse, raises a `LogicException`.
+      </Fragment>
+    </SchemaPropertyCard>
+
+    <SchemaPropertyCard
+      id="object-property"
+      title="ObjectProperty"
+      category="Structured"
+      kind="Nested objects"
+      useCase="Use for nested keyed data such as credentials, settings groups, or embedded payloads."
+      defaultSignature="->default(array|null|Closure $default)"
+      methods={['->properties(array $properties)', '->additionalProperties(bool|Property $additionalProperties = true)']}
+      constraints={['`properties()` defines the child property map.', '`additionalProperties(false)` prohibits unknown keys.', '`additionalProperties(true)` preserves unknown keys.', '`additionalProperties(Property)` validates unknown keys against a fallback property definition.']}
+      exports={['JSON Schema exports an object with `properties`, `required`, and `additionalProperties`.', 'Validation recursively exports child rules and can prohibit or type-check unknown keys.', 'Filament renders a grouped `Section` with nested fields.']}
+    >
+      <Fragment slot="example">
+```php
+use Epsicube\Schemas\Properties\BooleanProperty;
+use Epsicube\Schemas\Properties\ObjectProperty;
+use Epsicube\Schemas\Properties\StringProperty;
+
+ObjectProperty::make()
+    ->title('Credentials')
+    ->properties([
+        'username' => StringProperty::make()->title('Username'),
+        'password' => StringProperty::make()->title('Password'),
+        'remember' => BooleanProperty::make()->optional()->default(false),
+    ])
+    ->additionalProperties(false);
+```
+      </Fragment>
+    </SchemaPropertyCard>
+
+    <SchemaPropertyCard
+      id="array-property"
+      title="ArrayProperty"
+      category="Structured"
+      kind="Ordered lists"
+      useCase="Use for ordered lists of scalar or object items."
+      defaultSignature="->default(array|null|Closure $default)"
+      methods={['->items(Property $item)', '->minItems(?int $min)', '->maxItems(?int $max)', '->uniqueItems(bool $unique = true)']}
+      constraints={['`items()` defines the schema of each list item.', '`uniqueItems()` enforces distinct values.', 'Supports minimum and maximum list sizes.']}
+      exports={['JSON Schema exports `type: array` plus item and size constraints.', 'Validation generates child rules per index for clearer errors.', 'Prompts export a small array editor with add, edit, delete, and finish actions.']}
+    >
+      <Fragment slot="example">
+```php
+use Epsicube\Schemas\Properties\ArrayProperty;
+use Epsicube\Schemas\Properties\StringProperty;
+
+ArrayProperty::make()
+    ->title('Allowed hosts')
+    ->items(
+        StringProperty::make()->title('Host')
+    )
+    ->minItems(1)
+    ->uniqueItems()
+    ->optional();
+```
+      </Fragment>
+      <Fragment slot="notes">
+        Array validation is list-oriented. When `items()` is set, child rules are emitted per index to preserve precise error reporting.
+      </Fragment>
+    </SchemaPropertyCard>
+
+  <Aside type="tip">
+    Read this page as a reference, not as a tutorial. If you are deciding how to combine these types inside a real schema, go back to [Defining Schemas](/schemas/defining-schemas/). If you need runtime behavior, continue with [Using Schemas](/schemas/using-schemas/).
+  </Aside>
+</SchemaReferenceLayout>
