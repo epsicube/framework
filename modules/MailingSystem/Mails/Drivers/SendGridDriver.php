@@ -15,6 +15,8 @@ use EpsicubeModules\MailingSystem\Enums\MessageEngagement;
 use EpsicubeModules\MailingSystem\Enums\MessageStatus;
 use EpsicubeModules\MailingSystem\Events\MessageDeliveryEvent;
 use EpsicubeModules\MailingSystem\Events\MessageEngagementEvent;
+use EpsicubeModules\MailingSystem\Integrations\Administration\Contracts\HasMailerAdministrationPanel;
+use EpsicubeModules\MailingSystem\Integrations\Administration\Resources\Mailers\Schemas\DriverAdministration\SendGridAdministrationPanel;
 use EpsicubeModules\MailingSystem\Models\Outbox;
 use Illuminate\Http\Request;
 use Illuminate\Mail\Mailer;
@@ -25,8 +27,13 @@ use RuntimeException;
 use Symfony\Component\Mailer\SentMessage;
 use Symfony\Component\Mime\Email;
 
-class SendGridDriver implements Driver, HasWebhooks
+class SendGridDriver implements Driver, HasMailerAdministrationPanel, HasWebhooks
 {
+    public static function configureDriverPanel(\Filament\Schemas\Schema $schema, array $configuration = []): \Filament\Schemas\Schema
+    {
+        return SendGridAdministrationPanel::configure($schema, $configuration);
+    }
+
     public function identifier(): string
     {
         return 'sendgrid';
@@ -139,7 +146,12 @@ class SendGridDriver implements Driver, HasWebhooks
         $email->getHeaders()->addTextHeader('X-SMTPAPI', $this->encodeSmtpApiHeader($payload));
     }
 
-    public function handleResponse(SentMessage $sentMessage, Outbox $outbox): void {}
+    public function handleResponse(SentMessage $sentMessage, Outbox $outbox): void
+    {
+        $outbox->update([
+            'message_id' => $sentMessage->getMessageId(),
+        ]);
+    }
 
     public function parseWebhookEvent(Request $request): array
     {

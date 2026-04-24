@@ -9,7 +9,9 @@ use EpsicubeModules\MailingSystem\Integrations\Administration\Enums\ApplicationG
 use EpsicubeModules\MailingSystem\Integrations\Administration\Resources\Mailers\Pages\CreateMailer;
 use EpsicubeModules\MailingSystem\Integrations\Administration\Resources\Mailers\Pages\EditMailer;
 use EpsicubeModules\MailingSystem\Integrations\Administration\Resources\Mailers\Pages\ListMailers;
+use EpsicubeModules\MailingSystem\Integrations\Administration\Resources\Mailers\Pages\ViewMailer;
 use EpsicubeModules\MailingSystem\Integrations\Administration\Resources\Mailers\Schemas\MailerForm;
+use EpsicubeModules\MailingSystem\Integrations\Administration\Resources\Mailers\Schemas\MailerInfolist;
 use EpsicubeModules\MailingSystem\Integrations\Administration\Resources\Mailers\Tables\MailersTable;
 use EpsicubeModules\MailingSystem\Models\Mailer;
 use Filament\Resources\Resource;
@@ -35,6 +37,11 @@ class MailerResource extends Resource
         return MailerForm::configure($schema);
     }
 
+    public static function infolist(Schema $schema): Schema
+    {
+        return MailerInfolist::configure($schema);
+    }
+
     public static function table(Table $table): Table
     {
         return MailersTable::configure($table);
@@ -52,6 +59,7 @@ class MailerResource extends Resource
         return [
             'index'  => ListMailers::route('/'),
             'create' => CreateMailer::route('/create'),
+            'view'   => ViewMailer::route('/{record}'),
             'edit'   => EditMailer::route('/{record}/edit'),
         ];
     }
