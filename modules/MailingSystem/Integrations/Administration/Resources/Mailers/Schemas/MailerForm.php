@@ -25,10 +25,9 @@ class MailerForm
                     ->live()
                     ->afterStateUpdated(function (Select $component): void {
                         $component
-                            ->getContainer()
+                            ->getContainer()->getParentComponent()->getContainer()
                             ->getComponent('configuration', withHidden: true)
-                            ?->getChildSchema()
-                            ?->fill();
+                            ->getChildSchema()->fill();
                     }),
             ])->columns(2),
 
