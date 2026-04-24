@@ -17,23 +17,30 @@ class MailerForm
     public static function configure(Schema $schema): Schema
     {
         return $schema->components([
-            TextInput::make('name')->label(__('Name'))->required(),
+            Section::make(__('General'))->schema([
+                TextInput::make('name')->label(__('Name'))->required(),
+                Select::make('driver')->label(__('Driver'))
+                    ->options(fn () => Drivers::toIdentifierLabelMap())
+                    ->required()
+                    ->live()
+                    ->afterStateUpdated(function (Select $component): void {
+                        $component
+                            ->getContainer()
+                            ->getComponent('configuration', withHidden: true)
+                            ->getChildSchema()
+                            ->fill();
+                    }),
+            ])->columns(2),
 
-            Select::make('driver')->label(__('Driver'))
-                ->options(fn () => Drivers::toIdentifierLabelMap())
-                ->required()
-                ->live()
-                ->afterStateUpdated(function (Select $component): void {
-                    $component
-                        ->getContainer()
-                        ->getComponent('configuration', withHidden: true)
-                        ->getChildSchema()
-                        ->fill();
-                }),
+            Section::make(__('Sender'))
+                ->schema([
+                    TextInput::make('from_email')->label(__('Email'))->email()->required(),
+                    TextInput::make('from_name')->label(__('Name'))->nullable(),
+                ])->columns(2),
 
-            Section::make('configuration')->hiddenLabel()
-                ->heading(__('Configuration'))
+            Section::make(__('Configuration'))->columnSpanFull()
                 ->statePath('configuration')->key('configuration')
+                ->live()
                 ->schema(function (Get $get) {
                     $driver = $get('driver');
                     if (blank($driver)) {
@@ -44,19 +51,12 @@ class MailerForm
                     if (! $driverInstance) {
                         return [];
                     }
+
                     $schema = \Epsicube\Schemas\Schema::create('config');
                     $driverInstance->inputSchema($schema);
 
                     return $schema->toFilamentComponents(Operation::Create);
-
                 })->hiddenWhenAllChildComponentsHidden(),
-
-            Section::make('sender')->hiddenLabel()
-                ->heading(__('Sender'))
-                ->schema([
-                    TextInput::make('from_email')->label(__('Email'))->email()->required(),
-                    TextInput::make('from_name')->label(__('Name'))->nullable(),
-                ]),
         ]);
     }
 }

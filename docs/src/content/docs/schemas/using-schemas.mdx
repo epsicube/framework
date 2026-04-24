@@ -1,0 +1,141 @@
+---
+title: "Using Schemas"
+description: "Validate data, apply defaults, slice schemas, and integrate them into Epsicube runtime workflows."
+sidebar:
+    order: 4
+---
+import { Aside } from '@astrojs/starlight/components';
+
+Once a schema is defined, the main question becomes how to use it at runtime. This page covers the most useful methods on `Schema` itself and the main Epsicube integration patterns.
+
+## Validate data
+
+The simplest entrypoint is `validated()`:
+
+```php
+$validated = $schema->validated($request->all());
+```
+
+This method:
+
+- injects schema defaults into missing optional keys
+- builds a Laravel validator using the schema
+- validates the payload
+- returns the validated data
+
+Use `bail: true` to stop validation on the first error per field:
+
+```php
+$validated = $schema->validated($payload, bail: true);
+```
+
+## Build a validator manually
+
+If you need access to the validator object itself, use `toValidator()`:
+
+```php
+$validator = $schema->toValidator(
+    data: $request->all(),
+    messages: [],
+    attributes: [],
+    prepend: ['bail'],
+);
+
+$validated = $validator->validated();
+```
+
+<Aside type="caution">
+The schema package uses a custom validator implementation to preserve the distinction between omitted values, `null`, and empty strings. Prefer `toValidator()` or `validated()` over manually rebuilding rules elsewhere.
+</Aside>
+
+## Apply defaults without validating
+
+Use `withDefaults()` when you only want to merge schema defaults into an input array:
+
+```php
+$input = $schema->withDefaults([
+    'endpoint' => 'https://api.example.test',
+]);
+```
+
+This is useful when you want a fully hydrated payload before additional processing.
+
+## Filter a schema for one workflow
+
+Two helpers make a schema easier to reuse across contexts:
+
+```php
+$cliSchema = $schema->only('endpoint', 'timeout');
+$publicSchema = $schema->except('api_key');
+```
+
+This pattern is already used in Epsicube's option commands. For example, a command can extract one option with `->only($key)` before exporting that subset to prompts.
+
+## Read an individual property
+
+To inspect the property definition for one key:
+
+```php
+$property = $schema->property('endpoint');
+```
+
+This is useful for tooling, introspection, or custom exporters.
+
+## Cache a schema export
+
+Use `cacheExport()` when you want a stable PHP representation of the schema:
+
+```php
+$cached = $schema->cacheExport();
+```
+
+The package uses Symfony VarExporter internally, which makes this suitable for cached configuration or generated artifacts.
+
+## Common Epsicube usage patterns
+
+## Module options
+
+Module options are declared in `module(): Module` and then consumed through the `Options` facade:
+
+```php
+use Epsicube\Support\Facades\Options;
+
+$allOptions = Options::all('core::json-rpc-server');
+$endpoint = Options::get('core::json-rpc-server', 'endpoint');
+```
+
+If a stored value does not exist, the options system falls back to the schema default when one is defined.
+
+## Runtime input contracts
+
+Schemas are not limited to static options. They are also used to validate runtime inputs. A good example is wrapping a nested payload before execution:
+
+```php
+use Epsicube\Schemas\Properties\ObjectProperty;
+use Epsicube\Schemas\Schema;
+
+$inputSchema = Schema::create('input', properties: [
+    'input' => ObjectProperty::make()
+        ->optional()
+        ->properties($activityInputSchema->properties()),
+]);
+
+$validated = $inputSchema->validated($request->only('input'));
+```
+
+This pattern is used by the execution platform when validating activity inputs.
+
+## Schema generation at runtime
+
+You can also create schemas dynamically from runtime registries:
+
+```php
+$schema = Schema::create($identifier.'-input', 'Input Schema');
+$activity->inputSchema($schema);
+```
+
+That pattern is useful when a module or registry lets other components contribute fields.
+
+<Aside type="tip">
+When extending a schema dynamically, keep all field names stable. Dynamic composition works best when downstream consumers can rely on the same property keys for validation, export, and persisted state.
+</Aside>

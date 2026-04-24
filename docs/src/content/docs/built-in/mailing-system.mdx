@@ -10,6 +10,7 @@ The mailing system module extends Laravel’s mailer features.
 ## Features
 
 * Send standard email using Laravel’s drivers
+* Add provider-specific mailers such as Mailjet and SendGrid
 * Allow modules to register custom **email templates**
 * Provide **Activities** and **Workflows** dedicated to email sending
 
@@ -39,3 +40,52 @@ The mailing system module extends Laravel’s mailer features.
     php artisan config:clear
     ```
 </Steps>
+
+## Built-in drivers
+
+The module currently ships with these mailer drivers:
+
+* `laravel`: reuse any mailer declared in `config/mail.php`
+* `mailjet`: use Mailjet API transport
+* `sendgrid`: use SendGrid SMTP and inject provider features through the `X-SMTPAPI` header
+
+## SendGrid
+
+The `sendgrid` mailer builds an SMTP transport against `smtp.sendgrid.net` and authenticates with:
+
+* username: `apikey`
+* password: your SendGrid API key
+
+Supported mailer configuration fields:
+
+* `api_key`
+* `host` default `smtp.sendgrid.net`
+* `port` default `587`
+* `scheme` default `tls`
+* `click_tracking`
+* `open_tracking`
+* `subscription_tracking`
+* `category`
+* `asm_group_id`
+* `ip_pool`
+
+When sending, the module writes a single `X-SMTPAPI` header and injects `unique_args.outbox_id` so SendGrid Event Webhooks can be correlated back to Epsicube outbox records.
+
+Configure the SendGrid Event Webhook to point to:
+
+```text
+/mailing-system/webhook/sendgrid
+```
+
+Recommended events:
+
+* `processed`
+* `delivered`
+* `deferred`
+* `bounce`
+* `dropped`
+* `open`
+* `click`
+* `spam_report`
+* `unsubscribe`
+* `group_unsubscribe`

@@ -1,0 +1,88 @@
+<div class="schema-reference">
+    <aside class="schema-reference__nav">
+        <div class="schema-reference__nav-inner">
+            <slot name="nav" />
+        </div>
+    </aside>
+
+    <div class="schema-reference__content">
+        <slot />
+    </div>
+</div>
+
+<style>
+    .schema-reference {
+        display: grid;
+        gap: 1.5rem;
+    }
+
+    .schema-reference__nav {
+        display: none;
+    }
+
+    .schema-reference__nav-inner {
+        position: sticky;
+        top: 6rem;
+        display: grid;
+        gap: 0.55rem;
+        padding: 1rem;
+        border: 1px solid var(--sl-color-gray-5);
+        border-radius: 1rem;
+        background: linear-gradient(
+            180deg,
+            color-mix(in srgb, var(--sl-color-bg) 95%, var(--sl-color-accent-high) 5%),
+            var(--sl-color-bg)
+        );
+    }
+
+    .schema-reference__content {
+        min-width: 0;
+    }
+
+    .schema-reference__content :global(#quick-finder) {
+        margin-bottom: 1.25rem;
+        scroll-margin-top: 6rem;
+    }
+
+    .schema-reference__content :global(.schema-reference__nav-title) {
+        margin: 0 0 0.2rem;
+        font-size: 0.8rem;
+        font-weight: 700;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+        color: var(--sl-color-gray-2);
+    }
+
+    .schema-reference__content :global(.schema-reference__nav-links) {
+        display: grid;
+        gap: 0.55rem;
+    }
+
+    .schema-reference__content :global(.schema-reference__nav-links a) {
+        text-decoration: none;
+        color: var(--sl-color-text);
+        font-size: 0.95rem;
+    }
+
+    .schema-reference__content :global(.schema-reference__nav-links a:hover) {
+        color: var(--sl-color-text-accent);
+    }
+
+    @media (min-width: 72rem) {
+        .schema-reference {
+            grid-template-columns: minmax(0, 1fr) 15rem;
+            align-items: start;
+        }
+
+        .schema-reference__content {
+            grid-column: 1;
+            grid-row: 1;
+        }
+
+        .schema-reference__nav {
+            display: block;
+            grid-column: 2;
+            grid-row: 1;
+        }
+    }
+</style>

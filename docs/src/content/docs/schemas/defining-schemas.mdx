@@ -1,153 +1,188 @@
 ---
 title: "Defining Schemas"
-description: "Learn how to define schema structures and property behaviors."
+description: "Learn how to create schemas, append properties, and model structured data correctly."
 sidebar:
     order: 2
 ---
 import { Aside } from '@astrojs/starlight/components';
 
-Schemas define the structure of your data through **properties**, which specify the type, default value, title, description, and constraints for each field.
+Schemas are defined with [`Epsicube\Schemas\Schema`](https://github.com/epsicube/framework/blob/main/packages/Schemas/Schema.php). A schema is a reusable object that describes a data structure and the properties it contains.
 
-## Key Concepts
+## Create a schema
 
-### Optional
-An optional property **may be omitted** from the input.
-If missing, it is treated as **undefined**, allowing the schema to:
-
-- Apply default values
-- Trigger fallback logic
-- Distinguish between a missing property and a property explicitly set to `null`
-
-Properties that are not optional **must** be present.
-
-### Nullable
-A nullable property **accepts `null`** as a valid value.
-This affects the **value**, not whether the property must be included.
-
-- Optional → controls presence
-- Nullable → controls allowed values
-
-These flags can be used together or separately.
-
-### Default
-Default values are only applied to **optional** properties.
-If an optional property is omitted, its default is automatically used.
-
-Defaults can be:
-
-- Static values
-- Closures (evaluated lazily)
-
-<Aside type="note" title="Summary">
-- Optional controls if the field can be omitted
-- Nullable controls whether the value can be `null`
-- Default provides a fallback when the field is missing
-- Description is purely informational and does not affect validation
-</Aside>
-
-## Creating a Schema
-
-Use `Schema::create()` to define a new schema:
+Use `Schema::create()` to instantiate a schema:
 
 ```php
 use Epsicube\Schemas\Schema;
 
 $schema = Schema::create(
-    identifier: 'UniqueIdentifier',
-    title: 'My Custom Schema',
-    description: 'Defines the structure of my data',
-    properties: [] // shortcut for ->append()
+    identifier: 'custom::external-api',
+    title: 'External API configuration',
+    description: 'Connection settings for the external API integration',
 );
-````
+```
 
-## Adding Properties
+The `identifier` is the stable internal name of the schema. In Epsicube modules, the schema identifier is often the module identifier itself.
 
-Append properties to a schema using `->append()`:
+## Append properties
+
+Properties are added with `->append([...])`:
 
 ```php
+use Epsicube\Schemas\Enums\StringFormat;
 use Epsicube\Schemas\Properties\BooleanProperty;
+use Epsicube\Schemas\Properties\IntegerProperty;
 use Epsicube\Schemas\Properties\StringProperty;
 
 $schema->append([
+    'endpoint' => StringProperty::make()
+        ->title('Endpoint')
+        ->format(StringFormat::URL)
+        ->default('https://api.example.test')
+        ->optional(),
+
+    'api_key' => StringProperty::make()
+        ->title('API key')
+        ->description('Secret key used to authenticate requests'),
+
+    'timeout' => IntegerProperty::make()
+        ->title('Timeout')
+        ->description('Timeout in seconds')
+        ->minimum(1)
+        ->default(10)
+        ->optional(),
+
     'enabled' => BooleanProperty::make()
-        ->title('Feature Enabled')
-        ->description('Whether this feature is active')
+        ->title('Enabled')
         ->default(true)
         ->optional(),
-
-    'brand-name' => StringProperty::make()
-        ->title('Brand Name')
-        ->description('The name of your brand or application')
-        ->default(fn () => config('app.name'))
-        ->optional(),
 ]);
 ```
 
-Each property defines:
-
-* **Data type** (e.g., string, boolean)
-* **Human-readable title**
-* **Optional description**
-* **Optional default values** (static or dynamic)
-
-## Built-in Property Types
-
-* `ArrayProperty` — arrays
-* `BooleanProperty` — true/false
-* `FloatProperty` — decimal numbers
-* `IntegerProperty` — whole numbers
-* `ObjectProperty` — nested objects
-* `StringProperty` — text
-
-### EnumProperty
-
-`EnumProperty` allows a property to **accept only specific values**, either **static** or **dynamic**.
-
-#### Static Enum
-
-```php
-use Epsicube\Schemas\Properties\EnumProperty;
-use Epsicube\Schemas\Types\EnumCase;
-
-$schema->append([
-    'status' => EnumProperty::make()
-        ->title('Status')
-        ->description('The current status of the item')
-        ->cases(
-            new EnumCase('draft', 'Draft'),
-            new EnumCase('published', 'Published'),
-            new EnumCase('archived', 'Archived')
-        )
-        ->default('draft')
-        ->optional(),
-]);
-```
-
-* Use `cases(...)` to define **fixed enum values**.
-* Each `EnumCase` has a **value** and an optional **label**.
-* Defaults can be any valid enum value.
-
-#### Dynamic Enum
-
-`EnumProperty` can also generate enum values **dynamically**, using a closure.
-The closure is evaluated **lazily** at runtime:
-
-```php
-$schema->append([
-    'status' => EnumProperty::make()
-        ->title('Status')
-        ->dynamic(fn () => array_map(
-            fn(StatusEnum $case) => new EnumCase($case->value, $case->name, ['description'=>$case->description()]),
-            StatusEnum::cases()
-        )),
-]);
-```
-
-* Use `dynamic(fn () => ...)` to create enum values from a **database, API, or other runtime source**.
-* The closure **must return an array of `EnumCase`**.
-
-<Aside title="Tip">
-`EnumProperty` is ideal for fields that should accept only a controlled set of values, whether predefined or dynamically generated.
-
-Use it for configuration options, or any data that has a fixed or runtime-determined set of valid choices.
+<Aside type="caution">
+`append()` rejects duplicate property names. It also rejects a property that defines a default value without being marked optional.
 </Aside>
+
+## Optional vs nullable
+
+These two flags solve different problems:
+
+- `optional()` controls whether the key may be omitted from the input.
+- `nullable()` controls whether the value may explicitly be `null`.
+
+Examples:
+
+- required and not nullable: the key must be present and must contain a non-null valid value
+- optional and not nullable: the key may be omitted, but if present it must not be `null`
+- required and nullable: the key must be present, and `null` is accepted
+- optional and nullable: the key may be omitted, and if present it may be `null`
+
+```php
+use Epsicube\Schemas\Properties\StringProperty;
+
+StringProperty::make()
+    ->title('Display name')
+    ->optional()
+    ->nullable();
+```
+
+## Defaults
+
+Defaults are applied through the property itself and are resolved lazily when needed.
+
+Static default:
+
+```php
+use Epsicube\Schemas\Properties\BooleanProperty;
+
+BooleanProperty::make()
+    ->default(true)
+    ->optional();
+```
+
+Dynamic default:
+
+```php
+use Epsicube\Schemas\Properties\StringProperty;
+
+StringProperty::make()
+    ->default(fn () => config('app.name'))
+    ->optional();
+```
+
+Defaults are used by:
+
+- `Schema::withDefaults($data)`
+- `Schema::validated($data)`
+- the options system when no persisted value exists
+- Filament exports, where supported
+- prompt exports when no current value is provided
+
+## Nested schemas with ObjectProperty and ArrayProperty
+
+Nested structures are modeled with `ObjectProperty` and `ArrayProperty`.
+
+```php
+use Epsicube\Schemas\Properties\ArrayProperty;
+use Epsicube\Schemas\Properties\BooleanProperty;
+use Epsicube\Schemas\Properties\ObjectProperty;
+use Epsicube\Schemas\Properties\StringProperty;
+
+$schema->append([
+    'credentials' => ObjectProperty::make()
+        ->title('Credentials')
+        ->properties([
+            'username' => StringProperty::make()->title('Username'),
+            'password' => StringProperty::make()->title('Password'),
+            'remember' => BooleanProperty::make()->optional()->default(false),
+        ])
+        ->additionalProperties(false),
+
+    'allowed_origins' => ArrayProperty::make()
+        ->title('Allowed origins')
+        ->items(
+            StringProperty::make()->title('Origin')
+        )
+        ->uniqueItems()
+        ->optional(),
+]);
+```
+
+## Example in a module
+
+This is the most common Epsicube pattern: declare module options with a schema inside `module(): Module`.
+
+```php
+use Epsicube\Schemas\Properties\StringProperty;
+use Epsicube\Schemas\Schema;
+use Epsicube\Support\Modules\Module;
+
+return Module::make('core::json-rpc-server', '1.0.0')
+    ->options(fn (Schema $schema) => $schema->append([
+        'endpoint' => StringProperty::make()
+            ->title('Endpoint')
+            ->description('Defines the URL path used to expose the JSON-RPC API.')
+            ->optional()
+            ->default('/rpc/v1/endpoint'),
+    ]));
+```
+
+This mirrors the pattern used by built-in modules such as the JSON-RPC server module and the default module stub.
+
+## Schema composition helpers
+
+The `Schema` object also exposes a few helpers that are useful for reuse:
+
+- `->property(string $name)` returns a single property or `null`
+- `->properties()` returns the full property map
+- `->only(string ...$properties)` returns a cloned schema limited to selected keys
+- `->except(string ...$properties)` returns a cloned schema without selected keys
+
+Example:
+
+```php
+$publicSchema = $schema->except('api_key');
+$singleFieldSchema = $schema->only('endpoint');
+```
+
+These helpers are especially useful for CLI flows and scoped validation.
