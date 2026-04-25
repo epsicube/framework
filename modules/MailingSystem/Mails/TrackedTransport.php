@@ -33,16 +33,13 @@ class TrackedTransport implements TransportInterface
         $envelope = $envelope !== null ? clone $envelope : Envelope::create($message);
         $email = MessageConverter::toEmail($message);
 
-        $campaignId = $email->getHeaders()->get('X-Epsicube-Campaign-ID')?->getBody();
-        $email->getHeaders()->remove('X-Epsicube-Campaign-ID');
-
         // Generate database outbox + messages entries
-        $outbox = DB::transaction(function () use ($email, $envelope) {
+        $outbox = DB::transaction(function () use ($email, $envelope, $message) {
             $outbox = OutboxModel::create([
-                'mailer_id' => $this->mailerModel->id,
-                //                'campaign_id' => $campaignId ? (int) $campaignId : null,
-                'subject' => $email->getSubject(),
-                'status'  => OutboxStatus::PENDING,
+                'mailer_id'   => $this->mailerModel->id,
+                'subject'     => $email->getSubject(),
+                'raw_message' => $message->toString(),
+                'status'      => OutboxStatus::PENDING,
             ]);
 
             $recipientData = collect($envelope->getRecipients())->map(fn (Address $recipient) => [

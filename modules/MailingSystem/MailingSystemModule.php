@@ -74,7 +74,7 @@ class MailingSystemModule extends ServiceProvider implements IsModule
     public function boot(): void
     {
         $this->loadRoutesFrom(__DIR__.'/routes/webhook.php');
-        $this->loadViewsFrom(__DIR__.'/resources/email-templates', 'epsicube-mail');
+        $this->loadViewsFrom(__DIR__.'/resources', 'epsicube-mail');
         $this->loadMigrationsFrom(__DIR__.'/database/migrations');
 
         Event::subscribe(MessageTrackingSubscriber::class);

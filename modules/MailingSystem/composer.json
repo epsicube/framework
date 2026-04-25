@@ -10,10 +10,12 @@
   ],
   "require": {
     "php": "^8.3",
+    "ext-mailparse": "*",
+    "epsicube/support": "*",
     "illuminate/support": "^12.8",
     "illuminate/contracts": "^12.8",
     "illuminate/mail": "^12.8",
-    "epsicube/support": "*",
+    "php-mime-mail-parser/php-mime-mail-parser": "^10.0",
     "spatie/mjml-php": "^1.2.5"
   },
   "suggest": {

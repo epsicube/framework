@@ -17,6 +17,7 @@ use Illuminate\Support\Carbon;
  * @property string|null $message_id
  * @property OutboxStatus $status
  * @property array|null $meta
+ * @property string|null $raw_message
  * @property Carbon $created_at
  * @property Carbon|null $updated_at
  *

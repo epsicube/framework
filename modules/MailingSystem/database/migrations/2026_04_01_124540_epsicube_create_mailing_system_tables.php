@@ -36,6 +36,7 @@ return new class extends Migration
 
             $table->enum('status', ['pending', 'sent', 'error'])->default('pending')->index();
             $table->jsonb('meta')->nullable();
+            $table->text('raw_message')->nullable();
 
             $table->timestampTz('created_at')->useCurrent()->index();
             $table->timestampTz('updated_at')->nullable()->useCurrentOnUpdate();

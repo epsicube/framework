@@ -8,8 +8,10 @@ use EpsicubeModules\MailingSystem\Enums\MessageEngagement;
 use EpsicubeModules\MailingSystem\Enums\MessageStatus;
 use EpsicubeModules\MailingSystem\Enums\MessageType;
 use EpsicubeModules\MailingSystem\Enums\OutboxStatus;
+use EpsicubeModules\MailingSystem\Models\Outbox;
 use Filament\Infolists\Components\RepeatableEntry;
 use Filament\Infolists\Components\TextEntry;
+use Filament\Infolists\Components\ViewEntry;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 
@@ -64,9 +66,9 @@ class OutboxInfolist
                         ->formatStateUsing(fn (MessageStatus $state) => $state->label())
                         ->tooltip(fn (MessageStatus $state) => $state->description())
                         ->color(fn (MessageStatus $state): string => match ($state) {
-                            MessageStatus::RECEIVED  => 'gray',
-                            MessageStatus::DEFERRED  => 'info',
-                            MessageStatus::DELIVERED => 'success',
+                            MessageStatus::RECEIVED                       => 'gray',
+                            MessageStatus::DEFERRED                       => 'info',
+                            MessageStatus::DELIVERED                      => 'success',
                             MessageStatus::DROPPED,MessageStatus::BOUNCED => 'danger',
                         }),
 
@@ -90,6 +92,13 @@ class OutboxInfolist
                         ->label(__('Clicked count'))
                         ->numeric(0),
                 ]),
+
+            ViewEntry::make('raw_message')
+                ->label('')
+                ->view('epsicube-mail::components.email-preview')
+                ->columnSpanFull()
+                ->visible(fn (Outbox $record) => ! empty($record->raw_message)),
+
         ]);
     }
 }
