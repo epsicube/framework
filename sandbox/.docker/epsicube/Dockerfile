@@ -21,12 +21,10 @@ RUN apt-get update && \
 
 
 # Add NodeSource repository and install Node.js
-ARG NODE_VERSION=22
+ARG NODE_VERSION=24
 RUN curl -fsSL https://deb.nodesource.com/setup_$NODE_VERSION.x | bash - \
     && apt-get install -y nodejs \
-    && npm install -g npm \
-    && npm install -g pnpm@latest-10 \
-    && npm install -g yarn \
+    && corepack enable \
     && npx playwright install-deps \
     && apt-get -y autoremove \
     && apt-get clean \
