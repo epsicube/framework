@@ -8,7 +8,6 @@
     "sail": false,
     "skills": [
         "laravel-best-practices",
-        "pest-testing",
-        "epsicube"
+        "pest-testing"
     ]
 }

@@ -50,18 +50,10 @@
         align-items: center;
     }
 
-    .epsicube-mail-preview .label, .epsicube-mail-preview .theme-switch {
-        flex: 0 0 140px;
+    .epsicube-mail-preview .device-tabs{
+        flex: 1;
+        justify-content: center;
     }
-
-    .epsicube-mail-preview .label {
-        justify-content: flex-start;
-    }
-
-    .epsicube-mail-preview .theme-switch {
-        justify-content: flex-end;
-    }
-
 
     .epsicube-mail-preview .theme-switch {
         display: flex;
