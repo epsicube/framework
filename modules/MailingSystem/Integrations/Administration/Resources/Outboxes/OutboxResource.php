@@ -6,6 +6,7 @@ namespace EpsicubeModules\MailingSystem\Integrations\Administration\Resources\Ou
 
 use BackedEnum;
 use EpsicubeModules\MailingSystem\Integrations\Administration\Enums\ApplicationGroup;
+use EpsicubeModules\MailingSystem\Integrations\Administration\Enums\Icons;
 use EpsicubeModules\MailingSystem\Integrations\Administration\Resources\Outboxes\Pages\ListOutboxes;
 use EpsicubeModules\MailingSystem\Integrations\Administration\Resources\Outboxes\Pages\ViewOutbox;
 use EpsicubeModules\MailingSystem\Integrations\Administration\Resources\Outboxes\Schemas\OutboxInfolist;
@@ -13,7 +14,6 @@ use EpsicubeModules\MailingSystem\Integrations\Administration\Resources\Outboxes
 use EpsicubeModules\MailingSystem\Models\Outbox;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
-use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
 use UnitEnum;
 
@@ -21,7 +21,7 @@ class OutboxResource extends Resource
 {
     protected static ?string $model = Outbox::class;
 
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedInboxStack;
+    protected static string|BackedEnum|null $navigationIcon = Icons::OUTBOX;
 
     protected static ?int $navigationSort = 1;
 

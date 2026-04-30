@@ -6,7 +6,11 @@ namespace EpsicubeModules\MailingSystem;
 
 use Carbon\Laravel\ServiceProvider;
 use Composer\InstalledVersions;
+use DirectoryTree\ImapEngine\Laravel\Facades\Imap;
+use DirectoryTree\ImapEngine\Laravel\ImapManager;
+use Epsicube\Foundation\Managers\EpsicubeManager;
 use Epsicube\Support\Contracts\IsModule;
+use Epsicube\Support\Facades\Epsicube;
 use Epsicube\Support\Modules\Identity;
 use Epsicube\Support\Modules\Module;
 use Epsicube\Support\Modules\Support;
@@ -16,6 +20,7 @@ use EpsicubeModules\MailingSystem\Facades\Drivers;
 use EpsicubeModules\MailingSystem\Facades\Templates;
 use EpsicubeModules\MailingSystem\Integrations\Administration\AdministrationIntegration;
 use EpsicubeModules\MailingSystem\Integrations\ExecutionPlatform\ExecutionPlatformIntegration;
+use EpsicubeModules\MailingSystem\Listeners\InboxSubscriber;
 use EpsicubeModules\MailingSystem\Listeners\MessageTrackingSubscriber;
 use EpsicubeModules\MailingSystem\Mails\Drivers\LaravelDriver;
 use EpsicubeModules\MailingSystem\Mails\Drivers\Mailjet\MailjetServiceProvider;
@@ -24,9 +29,11 @@ use EpsicubeModules\MailingSystem\Mails\Drivers\SendGridDriver;
 use EpsicubeModules\MailingSystem\Mails\Templates\Blank;
 use EpsicubeModules\MailingSystem\Mails\Templates\Html;
 use EpsicubeModules\MailingSystem\Mails\TrackedTransport;
+use EpsicubeModules\MailingSystem\Models\InboxAccount;
 use EpsicubeModules\MailingSystem\Models\Mailer as MailerModel;
 use EpsicubeModules\MailingSystem\Registries\DriversRegistry;
 use EpsicubeModules\MailingSystem\Registries\TemplatesRegistry;
+use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Mail\Mailer;
 use Illuminate\Support\Facades\Event;
 
@@ -69,6 +76,8 @@ class MailingSystemModule extends ServiceProvider implements IsModule
 
             return $registry;
         });
+
+        $this->configureImap();
     }
 
     public function boot(): void
@@ -92,6 +101,29 @@ class MailingSystemModule extends ServiceProvider implements IsModule
 
             return $this;
         });
+    }
 
+    protected function configureImap(): void
+    {
+        // Lazy load imap accounts
+        Imap::resolved(function (ImapManager $manager) {
+            InboxAccount::query()->each(function (InboxAccount $account) use ($manager) {
+                $manager->swap($account->name, $account->toMailbox());
+            });
+        });
+
+        // Lazy load work commands
+        Epsicube::resolved(function (EpsicubeManager $manager) {
+            InboxAccount::query()->eachById(function (InboxAccount $account) use ($manager) {
+                $manager->addWorkCommand(
+                    key: "mails:imap:{$account->getKey()}",
+                    command: "imap:watch {$account->name} --with=flags,headers,body"
+                );
+            });
+        });
+
+        Event::resolved(function (Dispatcher $dispatcher) {
+            $dispatcher->subscribe(InboxSubscriber::class);
+        });
     }
 }

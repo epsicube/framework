@@ -94,7 +94,7 @@ class OutboxInfolist
 
             ViewEntry::make('raw_message')
                 ->label('')
-                ->view('epsicube-mail::components.email-preview')
+                ->view('epsicube-mail::filament.partials.email-viewer')
                 ->columnSpanFull()
                 ->visible(fn (Outbox $record) => ! empty($record->raw_message)),
 

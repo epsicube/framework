@@ -6,6 +6,7 @@ namespace EpsicubeModules\MailingSystem\Integrations\Administration\Resources\Ma
 
 use BackedEnum;
 use EpsicubeModules\MailingSystem\Integrations\Administration\Enums\ApplicationGroup;
+use EpsicubeModules\MailingSystem\Integrations\Administration\Enums\Icons;
 use EpsicubeModules\MailingSystem\Integrations\Administration\Resources\Mailers\Pages\CreateMailer;
 use EpsicubeModules\MailingSystem\Integrations\Administration\Resources\Mailers\Pages\EditMailer;
 use EpsicubeModules\MailingSystem\Integrations\Administration\Resources\Mailers\Pages\ListMailers;
@@ -16,7 +17,6 @@ use EpsicubeModules\MailingSystem\Integrations\Administration\Resources\Mailers\
 use EpsicubeModules\MailingSystem\Models\Mailer;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
-use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
 use UnitEnum;
 
@@ -24,7 +24,7 @@ class MailerResource extends Resource
 {
     protected static ?string $model = Mailer::class;
 
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
+    protected static string|BackedEnum|null $navigationIcon = Icons::MAILER;
 
     protected static ?int $navigationSort = 100;
 
