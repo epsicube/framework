@@ -7,6 +7,7 @@ namespace EpsicubeModules\ExecutionPlatform\Activities\Execution;
 use EpsicubeModules\ExecutionPlatform\Contracts\Activity;
 use EpsicubeModules\ExecutionPlatform\Enum\ExecutionStatus;
 use EpsicubeModules\ExecutionPlatform\Models\Execution;
+use Illuminate\Support\Str;
 use RuntimeException;
 
 class MarkAsFailed implements Activity
@@ -23,7 +24,7 @@ class MarkAsFailed implements Activity
             ->update([
                 'status'       => ExecutionStatus::FAILED,
                 'completed_at' => now(),
-                'last_error'   => $error,
+                'last_error'   => Str::limit($error, 15000), // ensure fit in text
             ]);
 
         if (! $updated) {

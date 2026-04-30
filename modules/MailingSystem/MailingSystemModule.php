@@ -81,7 +81,14 @@ class MailingSystemModule extends ServiceProvider implements IsModule
 
         Mailer::macro('track', function (MailerModel $model, Driver $driver) {
             /** @var Mailer $this */
-            $this->setSymfonyTransport(new TrackedTransport($this->getSymfonyTransport(), $model, $driver));
+            $currentTransport = $this->getSymfonyTransport();
+
+            // Avoid recursive instantiation
+            if ($currentTransport instanceof TrackedTransport) {
+                return $this;
+            }
+
+            $this->setSymfonyTransport(new TrackedTransport($currentTransport, $model, $driver));
 
             return $this;
         });

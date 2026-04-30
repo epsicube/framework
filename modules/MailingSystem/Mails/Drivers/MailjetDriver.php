@@ -30,13 +30,6 @@ use Symfony\Component\Mime\Email;
 
 class MailjetDriver implements Driver, HasMailerAdministrationPanel, HasWebhooks
 {
-    public const array WEBHOOK_EVENTS = ['sent', 'open', 'click', 'bounce', 'blocked', 'spam', 'unsub'];
-
-    public static function configureDriverPanel(\Filament\Schemas\Schema $schema, array $configuration = []): \Filament\Schemas\Schema
-    {
-        return MailjetAdministrationPanel::configure($schema, $configuration);
-    }
-
     public function identifier(): string
     {
         return 'mailjet';
@@ -154,5 +147,10 @@ class MailjetDriver implements Driver, HasMailerAdministrationPanel, HasWebhooks
                 time: $time
             );
         }, $payloads));
+    }
+
+    public static function configureDriverPanel(\Filament\Schemas\Schema $schema, array $configuration = []): \Filament\Schemas\Schema
+    {
+        return MailjetAdministrationPanel::configure($schema, $configuration);
     }
 }

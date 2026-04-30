@@ -1,14 +1,20 @@
 @php
+    use PhpMimeMailParser\Attachment;
+    use PhpMimeMailParser\Parser;
+
     $rawMessage = $getRecord()->raw_message;
     $htmlContent = '';
+    $headers = [];
+    $attachments = [];
 
     if ($rawMessage) {
         try {
-            $parser = new \PhpMimeMailParser\Parser();
+            $parser = new Parser();
             $parser->setText($rawMessage);
 
-            $htmlContent = $parser->getMessageBody('html') ?: $parser->getMessageBody();
+            $htmlContent = $parser->getMessageBody('htmlEmbedded') ?: $parser->getMessageBody();
             $headers = $parser->getHeaders();
+            $attachments = $parser->getAttachments();
 
         } catch (\Exception $e) {
             $htmlContent = "<html><body>Error: " . e($e->getMessage()) . "</body></html>";
@@ -42,6 +48,12 @@
         background: transparent;
     }
 
+    .epsicube-mail-preview .email-wrapper-scroll {
+        overflow-x: auto;
+        overflow-y: hidden;
+        padding-bottom: 0.25rem;
+    }
+
     /* Custom Theme Toggle */
     .epsicube-mail-preview .heading-wrapper {
         display: flex;
@@ -50,7 +62,7 @@
         align-items: center;
     }
 
-    .epsicube-mail-preview .device-tabs{
+    .epsicube-mail-preview .device-tabs {
         flex: 1;
         justify-content: center;
     }
@@ -108,6 +120,72 @@
         border: none;
         padding: 0;
     }
+
+    .epsicube-mail-preview .meta-section {
+        margin-top: 1rem;
+        overflow-x: auto;
+    }
+
+    .epsicube-mail-preview .meta-block {
+        margin-top: 1rem;
+    }
+
+    .epsicube-mail-preview .meta-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    .epsicube-mail-preview .meta-table th,
+    .epsicube-mail-preview .meta-table td {
+        padding: 0.75rem 1rem;
+        text-align: left;
+        border-bottom: 1px solid var(--gray-200);
+        vertical-align: top;
+    }
+
+    .dark .epsicube-mail-preview .meta-table th,
+    .dark .epsicube-mail-preview .meta-table td {
+        border-bottom-color: rgba(255, 255, 255, 0.1);
+    }
+
+    .epsicube-mail-preview .meta-table th:last-child,
+    .epsicube-mail-preview .meta-table td:last-child {
+        text-align: right;
+        white-space: nowrap;
+    }
+
+    .epsicube-mail-preview .meta-table thead th {
+        font-size: 0.75rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.025em;
+        color: var(--gray-500);
+    }
+
+    .epsicube-mail-preview .meta-table tbody tr:last-child td {
+        border-bottom: none;
+    }
+
+    .epsicube-mail-preview .meta-table td:first-child {
+        font-weight: 500;
+        color: var(--gray-950);
+    }
+
+    .dark .epsicube-mail-preview .meta-table td:first-child {
+        color: rgba(255, 255, 255, 0.92);
+    }
+
+    .epsicube-mail-preview .meta-table td.meta-value {
+        text-align: left;
+        white-space: normal;
+        word-break: break-word;
+        color: var(--gray-600);
+    }
+
+    .dark .epsicube-mail-preview .meta-table td.meta-value {
+        color: rgba(255, 255, 255, 0.72);
+    }
+
 </style>
 
 <div x-data="{
@@ -121,7 +199,7 @@
     },
 
     initBlob() {
-        let rawHtml = `{!! addslashes($htmlContent) !!}`;
+        let rawHtml = `{!! htmlspecialchars($htmlContent,ENT_QUOTES) !!}`;
         const defaultStyle = `
             <style>
                 html, body {
@@ -180,30 +258,117 @@
                     </div>
                 </div>
             </div>
-
         </x-slot>
 
-        {{--        <x-slot name="afterHeader">--}}
-        {{--            <div class="theme-switch" @click="isDark = !isDark; $nextTick(() => updateIframeMode())">--}}
-        {{--                <span class="switch-label" x-text="isDark ? '🌙 Dark Mode' : '☀️ Light Mode'"></span>--}}
-        {{--                <div class="switch-track" :class="isDark ? 'active' : ''">--}}
-        {{--                    <div class="switch-dot"></div>--}}
-        {{--                </div>--}}
-        {{--            </div>--}}
-        {{--        </x-slot>--}}
-
-        <div class="email-wrapper"
-             :style="{
-                width: dimensions.w,
-                height: dimensions.h,
-                backgroundColor: isDark ? '#18181b' : '#ffffff'
-             }">
-            <iframe
-                    x-ref="mailIframe"
-                    :src="blobUrl"
-                    sandbox="allow-popups allow-popups-to-escape-sandbox allow-scripts allow-same-origin"
-                    @load="updateIframeMode()"
-            ></iframe>
+        <div class="email-wrapper-scroll">
+            <div class="email-wrapper"
+                 :style="{
+                    width: dimensions.w,
+                    height: dimensions.h,
+                    backgroundColor: isDark ? '#18181b' : '#ffffff'
+                 }">
+                <iframe
+                        x-ref="mailIframe"
+                        :src="blobUrl"
+                        sandbox="allow-popups allow-popups-to-escape-sandbox allow-scripts allow-same-origin"
+                        @load="updateIframeMode()"
+                ></iframe>
+            </div>
         </div>
+
+        @if(count($headers) > 0)
+            <x-filament::section
+                    class="meta-block"
+                    compact
+                    collapsible
+                    collapsed
+                    heading="{{ __('Headers') }}"
+            >
+                <div class="meta-section">
+                    <table class="meta-table headers-table">
+                        <thead>
+                        <tr>
+                            <th>{{ __('Name') }}</th>
+                            <th>{{ __('Value') }}</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        @foreach($headers as $header => $value)
+                            <tr>
+                                <td>{{ $header }}</td>
+                                <td class="meta-value">
+                                    @if(is_array($value))
+                                        {{ json_encode($value, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) }}
+                                    @else
+                                        {{ (string) $value }}
+                                    @endif
+                                </td>
+                            </tr>
+                        @endforeach
+                        </tbody>
+                    </table>
+                </div>
+            </x-filament::section>
+        @endif
+
+        @if(count($attachments) > 0)
+            <x-filament::section
+                    class="meta-block"
+                    compact
+                    collapsible
+                    collapsed
+                    heading="{{ __('Attachments') }}"
+            >
+                <div class="meta-section">
+                    <table class="meta-table attachments-table">
+                        <thead>
+                        <tr>
+                            <th>{{ __('Filename') }}</th>
+                            <th>{{ __('Size') }}</th>
+                            <th>{{ __('Download') }}</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        @foreach($attachments as $attachment)
+                            @php
+                                /** @var Attachment $attachment */
+                                $stream = $attachment->getStream();
+                                $size = null;
+
+                                if (is_resource($stream)) {
+                                    $stats = fstat($stream);
+                                    $size = $stats['size'] ?? null;
+                                }
+
+                                $filename = $attachment->getFilename() ?: __('Unnamed attachment');
+                                $contentType = $attachment->getContentType() ?: 'application/octet-stream';
+                                $content = $attachment->getContent();
+                                $contentBase64 = $content !== '' ? base64_encode($content) : null;
+                            @endphp
+                            <tr>
+                                <td>{{ $filename }}</td>
+                                <td>
+                                    {{ $size !== null ? \Illuminate\Support\Number::fileSize($size, 2) : __('Unknown') }}
+                                </td>
+                                <td>
+                                    @if($contentBase64)
+                                        <x-filament::link
+                                                icon="heroicon-m-arrow-down-tray"
+                                                download="{{ $filename }}"
+                                                href="data:{{ $contentType }};base64,{{ $contentBase64 }}"
+                                        >
+                                            {{ __('Download') }}
+                                        </x-filament::link>
+                                    @else
+                                        <span>{{ __('Unavailable') }}</span>
+                                    @endif
+                                </td>
+                            </tr>
+                        @endforeach
+                        </tbody>
+                    </table>
+                </div>
+            </x-filament::section>
+        @endif
     </x-filament::section>
 </div>

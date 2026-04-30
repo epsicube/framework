@@ -37,7 +37,6 @@ class OutboxInfolist
                     ->dateTime()->sinceTooltip(),
             ])->columns(2),
 
-            // TODO RELATION
             RepeatableEntry::make('messages')->label(__('Messages'))
                 ->columnSpanFull()
                 ->table([
