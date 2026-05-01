@@ -108,7 +108,7 @@ class MailingSystemModule extends ServiceProvider implements IsModule
         // Lazy load imap accounts
         Imap::resolved(function (ImapManager $manager) {
             InboxAccount::query()->each(function (InboxAccount $account) use ($manager) {
-                $manager->swap($account->name, $account->toMailbox());
+                $manager->swap("epsicube::imap:{$account->getKey()}", $account->toMailbox());
             });
         });
 
@@ -117,7 +117,7 @@ class MailingSystemModule extends ServiceProvider implements IsModule
             InboxAccount::query()->eachById(function (InboxAccount $account) use ($manager) {
                 $manager->addWorkCommand(
                     key: "mails:imap:{$account->getKey()}",
-                    command: "imap:watch {$account->name} --with=flags,headers,body"
+                    command: "imap:watch epsicube::imap:{$account->getKey()} --with=flags,headers,body"
                 );
             });
         });
