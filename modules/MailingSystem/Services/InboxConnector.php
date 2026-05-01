@@ -25,9 +25,4 @@ class InboxConnector
 
         return $mailbox->folders()->findOrFail($account->folder);
     }
-
-    protected function mailboxName(InboxAccount $account): string
-    {
-        return "mailing-system-inbox-{$account->id}";
-    }
 }
