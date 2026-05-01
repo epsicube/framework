@@ -36,6 +36,9 @@ class ActivityAction extends Action
     protected function setUp(): void
     {
         parent::setUp();
+
+        $this->activity(fn () => $this->getName()); // Defaulted to name
+
         $this->fillForm(fn (self $action) => $action->getActivityDefaults());
         $this->schema(function (self $action): array {
             $activitySchema = Activities::inputSchema($action->getActivityIdentifier());
