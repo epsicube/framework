@@ -8,10 +8,10 @@ use EpsicubeModules\MailingSystem\Enums\MessageEngagement;
 use EpsicubeModules\MailingSystem\Enums\MessageStatus;
 use EpsicubeModules\MailingSystem\Enums\MessageType;
 use EpsicubeModules\MailingSystem\Enums\OutboxStatus;
+use EpsicubeModules\MailingSystem\Integrations\Administration\Filament\Components\MailPreviewEntry;
 use EpsicubeModules\MailingSystem\Models\Outbox;
 use Filament\Infolists\Components\RepeatableEntry;
 use Filament\Infolists\Components\TextEntry;
-use Filament\Infolists\Components\ViewEntry;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 
@@ -92,9 +92,8 @@ class OutboxInfolist
                         ->numeric(0),
                 ]),
 
-            ViewEntry::make('raw_message')
-                ->label('')
-                ->view('epsicube-mail::filament.partials.email-viewer')
+            MailPreviewEntry::make('raw_message')
+                ->hiddenLabel()
                 ->columnSpanFull()
                 ->visible(fn (Outbox $record) => ! empty($record->raw_message)),
 

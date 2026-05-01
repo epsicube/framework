@@ -1,49 +1,22 @@
 @php
     use PhpMimeMailParser\Attachment;
-    use PhpMimeMailParser\Parser;
 
-    $eml ??= $rawMessage ?? (isset($getRecord) ? $getRecord()->raw_message : null);
-    $emlStream ??= null;
-    $contained ??= true;
-    $viewerKey = $previewKey ?? (is_string($eml) && $eml !== '' ? 'email-viewer-'.md5($eml) : null);
-    $htmlContent = '';
-    $headers = [];
-    $messageHeader = [];
-    $attachments = [];
-    $error = null;
+    $key = $getKey();
+    $parsedMessage = $getParsedMessage();
+    $htmlContent = $parsedMessage['htmlContent'];
+    $headers = $parsedMessage['headers'];
+    $messageHeader = $parsedMessage['messageHeader'];
+    $attachments = $parsedMessage['attachments'];
+    $error = $parsedMessage['error'];
+    $contained = $isContained();
+    $viewHeadersAction = $getAction('viewHeaders');
     $iframeCsp = "default-src 'none'; base-uri 'none'; connect-src 'none'; font-src data:; form-action 'none'; frame-src 'none'; img-src data: blob:; media-src data: blob:; object-src 'none'; script-src 'none'; style-src 'unsafe-inline'; style-src-elem 'unsafe-inline';";
     $remoteIframeCsp = "default-src 'none'; base-uri 'none'; connect-src 'none'; font-src data: https: http:; form-action 'none'; frame-src 'none'; img-src data: blob: https: http:; media-src data: blob: https: http:; object-src 'none'; script-src 'none'; style-src 'unsafe-inline' https: http:; style-src-elem 'unsafe-inline' https: http:;";
     $iframeCspMeta = '<meta http-equiv="Content-Security-Policy" content="'.e($iframeCsp).'">';
     $remoteIframeCspMeta = '<meta http-equiv="Content-Security-Policy" content="'.e($remoteIframeCsp).'">';
-
-    try {
-        $parser = new Parser();
-
-        if (is_resource($emlStream)) {
-            $parser->setStream($emlStream);
-        } elseif (filled($eml)) {
-            $parser->setText((string) $eml);
-        }
-
-        if (is_resource($emlStream) || filled($eml)) {
-            $htmlContent = $parser->getMessageBody('htmlEmbedded') ?: $parser->getMessageBody('html') ?: nl2br(e($parser->getMessageBody()));
-            $headers = $parser->getHeaders();
-            $messageHeader = [
-                'subject' => $parser->getHeader('subject') ?: __('No subject'),
-                'from' => $parser->getHeader('from'),
-                'to' => $parser->getHeader('to'),
-                'date' => $parser->getHeader('date'),
-            ];
-            $attachments = $parser->getAttachments();
-        }
-    } catch (Throwable $e) {
-        report($e);
-        $error = $e->getMessage();
-        $htmlContent = '<html><body>'.e($error).'</body></html>';
-    }
 @endphp
 
-@once
+@assets
     <style>
         .epsicube-mail-viewer {
             --emv-border: var(--gray-200);
@@ -361,64 +334,6 @@
             text-decoration: underline;
         }
 
-        .epsicube-mail-viewer__modal-backdrop {
-            align-items: center;
-            background: rgba(0, 0, 0, 0.42);
-            display: flex;
-            inset: 0;
-            justify-content: center;
-            padding: 24px;
-            position: fixed;
-            z-index: 50;
-        }
-
-        .epsicube-mail-viewer__modal {
-            background: var(--emv-panel);
-            border: 1px solid var(--emv-border);
-            border-radius: var(--radius-xl);
-            box-shadow: var(--shadow-xl);
-            max-height: min(760px, calc(100vh - 48px));
-            max-width: 920px;
-            overflow: hidden;
-            width: min(920px, 100%);
-        }
-
-        .epsicube-mail-viewer__modal-header {
-            align-items: center;
-            background: var(--emv-panel-soft);
-            border-bottom: 1px solid var(--emv-border);
-            display: flex;
-            gap: 12px;
-            justify-content: space-between;
-            padding: 14px 16px;
-        }
-
-        .epsicube-mail-viewer__modal-title {
-            color: var(--emv-text);
-            font-size: 15px;
-            font-weight: 800;
-            margin: 0;
-        }
-
-        .epsicube-mail-viewer__modal-close {
-            background: transparent;
-            border: 0;
-            color: var(--emv-muted-strong);
-            cursor: pointer;
-            font-size: 13px;
-            font-weight: 700;
-            padding: 4px 0;
-        }
-
-        .epsicube-mail-viewer__modal-close:hover {
-            color: var(--emv-primary);
-        }
-
-        .epsicube-mail-viewer__modal-body {
-            max-height: calc(min(760px, 100vh - 48px) - 54px);
-            overflow: auto;
-        }
-
         .epsicube-mail-viewer__error {
             background: var(--emv-danger-soft);
             border: 1px solid color-mix(in oklab, var(--emv-danger) 30%, transparent);
@@ -462,17 +377,14 @@
             }
         }
     </style>
-@endonce
+@endassets
 
 <div
-    @if ($viewerKey)
-        wire:key="{{ $viewerKey }}"
-    @endif
-    x-data="{
+        wire:key="{{ $key }}"
+        x-data="{
         activeTab: 'desktop',
         isDark: false,
         loadRemoteContent: false,
-        showHeaders: false,
         hasRemoteContent: false,
         blobUrl: null,
         htmlContent: @js($htmlContent),
@@ -631,7 +543,7 @@
             if (this.blobUrl) URL.revokeObjectURL(this.blobUrl);
         },
     }"
-    @class([
+        @class([
         'epsicube-mail-viewer',
         'epsicube-mail-viewer--flush' => ! $contained,
     ])
@@ -641,13 +553,16 @@
             <div class="epsicube-mail-viewer__title">{{ __('Email preview') }}</div>
 
             <div class="epsicube-mail-viewer__tabs" aria-label="{{ __('Preview size') }}">
-                <button type="button" class="epsicube-mail-viewer__tab" x-bind:class="{ 'is-active': activeTab === 'mobile' }" x-on:click="activeTab = 'mobile'">
+                <button type="button" class="epsicube-mail-viewer__tab"
+                        x-bind:class="{ 'is-active': activeTab === 'mobile' }" x-on:click="activeTab = 'mobile'">
                     {{ __('Mobile') }}
                 </button>
-                <button type="button" class="epsicube-mail-viewer__tab" x-bind:class="{ 'is-active': activeTab === 'tablet' }" x-on:click="activeTab = 'tablet'">
+                <button type="button" class="epsicube-mail-viewer__tab"
+                        x-bind:class="{ 'is-active': activeTab === 'tablet' }" x-on:click="activeTab = 'tablet'">
                     {{ __('Tablet') }}
                 </button>
-                <button type="button" class="epsicube-mail-viewer__tab" x-bind:class="{ 'is-active': activeTab === 'desktop' }" x-on:click="activeTab = 'desktop'">
+                <button type="button" class="epsicube-mail-viewer__tab"
+                        x-bind:class="{ 'is-active': activeTab === 'desktop' }" x-on:click="activeTab = 'desktop'">
                     {{ __('Desktop') }}
                 </button>
             </div>
@@ -671,9 +586,9 @@
                     <h2 class="epsicube-mail-viewer__subject">{{ $messageHeader['subject'] }}</h2>
 
                     @if (count($headers) > 0)
-                        <button type="button" class="epsicube-mail-viewer__headers-link" x-on:click="showHeaders = true">
-                            {{ __('View headers') }}
-                        </button>
+                        <div class="epsicube-mail-viewer__headers-link">
+                            {{ $viewHeadersAction }}
+                        </div>
                     @endif
                 </div>
                 <div class="epsicube-mail-viewer__summary">
@@ -691,9 +606,9 @@
         @endif
 
         <div
-            class="epsicube-mail-viewer__remote-banner"
-            x-show="hasRemoteContent && ! loadRemoteContent"
-            style="display: none;"
+                class="epsicube-mail-viewer__remote-banner"
+                x-show="hasRemoteContent && ! loadRemoteContent"
+                style="display: none;"
         >
             <div class="epsicube-mail-viewer__remote-copy">
                 {{ __('Remote images and styles are blocked for your protection.') }}
@@ -705,8 +620,8 @@
 
         <div class="epsicube-mail-viewer__frame-scroll">
             <div
-                class="epsicube-mail-viewer__frame"
-                x-bind:style="{
+                    class="epsicube-mail-viewer__frame"
+                    x-bind:style="{
                     width: dimensions().width,
                     maxWidth: dimensions().maxWidth || null,
                     height: dimensions().height,
@@ -714,63 +629,17 @@
                 }"
             >
                 <iframe
-                    x-ref="mailIframe"
-                    x-bind:src="blobUrl"
-                    allow=""
-                    x-bind:csp="loadRemoteContent ? @js($remoteIframeCsp) : @js($iframeCsp)"
-                    credentialless
-                    loading="lazy"
-                    referrerpolicy="no-referrer"
-                    sandbox
+                        x-ref="mailIframe"
+                        x-bind:src="blobUrl"
+                        allow=""
+                        x-bind:csp="loadRemoteContent ? @js($remoteIframeCsp) : @js($iframeCsp)"
+                        credentialless
+                        loading="lazy"
+                        referrerpolicy="no-referrer"
+                        sandbox
                 ></iframe>
             </div>
         </div>
-
-        @if (count($headers) > 0)
-            <div
-                class="epsicube-mail-viewer__modal-backdrop"
-                x-show="showHeaders"
-                x-transition.opacity
-                x-on:click.self="showHeaders = false"
-                x-on:keydown.escape.window="showHeaders = false"
-                style="display: none;"
-            >
-                <div class="epsicube-mail-viewer__modal" role="dialog" aria-modal="true" aria-label="{{ __('Headers') }}">
-                    <div class="epsicube-mail-viewer__modal-header">
-                        <h3 class="epsicube-mail-viewer__modal-title">{{ __('Headers') }}</h3>
-                        <button type="button" class="epsicube-mail-viewer__modal-close" x-on:click="showHeaders = false">
-                            {{ __('Close') }}
-                        </button>
-                    </div>
-                    <div class="epsicube-mail-viewer__modal-body">
-                        <div class="epsicube-mail-viewer__table-wrap">
-                            <table class="epsicube-mail-viewer__table">
-                                <thead>
-                                <tr>
-                                    <th>{{ __('Name') }}</th>
-                                    <th>{{ __('Value') }}</th>
-                                </tr>
-                                </thead>
-                                <tbody>
-                                @foreach ($headers as $header => $value)
-                                    <tr>
-                                        <td>{{ $header }}</td>
-                                        <td>
-                                            @if (is_array($value))
-                                                {{ json_encode($value, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) }}
-                                            @else
-                                                {{ (string) $value }}
-                                            @endif
-                                        </td>
-                                    </tr>
-                                @endforeach
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        @endif
 
         @if (count($attachments) > 0)
             <div class="epsicube-mail-viewer__meta">
@@ -808,9 +677,9 @@
                                     <td>
                                         @if ($contentBase64)
                                             <a
-                                                class="epsicube-mail-viewer__download"
-                                                download="{{ $filename }}"
-                                                href="data:{{ $contentType }};base64,{{ $contentBase64 }}"
+                                                    class="epsicube-mail-viewer__download"
+                                                    download="{{ $filename }}"
+                                                    href="data:{{ $contentType }};base64,{{ $contentBase64 }}"
                                             >
                                                 {{ __('Download') }}
                                             </a>
