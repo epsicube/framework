@@ -24,6 +24,7 @@ class MailerStatsOverview extends StatsOverviewWidget
         $messageStats = Message::query()
             ->whereRelation('outbox', 'mailer_id', $this->mailer->id)
             ->select('status', DB::raw('count(*) as total'))
+            ->whereNotNull('status')->where('status', '!=', '')
             ->groupBy('status')
             ->get()
             ->pluck('total', fn (Message $message) => $message->status->value);
