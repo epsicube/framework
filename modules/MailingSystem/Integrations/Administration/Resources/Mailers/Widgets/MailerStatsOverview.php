@@ -26,7 +26,7 @@ class MailerStatsOverview extends StatsOverviewWidget
             ->select('status', DB::raw('count(*) as total'))
             ->groupBy('status')
             ->get()
-            ->pluck('total', 'status');
+            ->pluck('total', fn (Message $message) => $message->status->value);
 
         $totalRecipients = $messageStats->sum();
         $delivered = $messageStats->get(MessageStatus::DELIVERED->value, 0);
