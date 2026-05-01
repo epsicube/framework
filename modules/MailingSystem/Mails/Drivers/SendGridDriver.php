@@ -16,7 +16,7 @@ use EpsicubeModules\MailingSystem\Enums\MessageStatus;
 use EpsicubeModules\MailingSystem\Events\MessageDeliveryEvent;
 use EpsicubeModules\MailingSystem\Events\MessageEngagementEvent;
 use EpsicubeModules\MailingSystem\Integrations\Administration\Contracts\HasMailerAdministrationPanel;
-use EpsicubeModules\MailingSystem\Integrations\Administration\Resources\Mailers\Schemas\DriverAdministration\SendGridAdministrationPanel;
+use EpsicubeModules\MailingSystem\Integrations\Administration\Resources\Outboxes\Schemas\Mailers\DriverAdministration\SendGridAdministrationPanel;
 use EpsicubeModules\MailingSystem\Models\Outbox;
 use Illuminate\Http\Request;
 use Illuminate\Mail\Mailer;

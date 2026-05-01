@@ -19,26 +19,26 @@ class OutboxInfolist
 {
     public static function configure(Schema $schema): Schema
     {
-        return $schema->schema([
-            Section::make(__('General Information'))->schema([
-                TextEntry::make('subject')->label(__('Subject')),
-                TextEntry::make('message_id')->label(__('Message ID')),
-                TextEntry::make('status')->label(__('Status'))
-                    ->inlineLabel()->badge()
-                    ->formatStateUsing(fn (OutboxStatus $state) => $state->label())
-                    ->tooltip(fn (OutboxStatus $state) => $state->description())
-                    ->color(fn (OutboxStatus $state): string => match ($state) {
-                        OutboxStatus::PENDING => 'info',
-                        OutboxStatus::SENT    => 'success',
-                        OutboxStatus::ERROR   => 'danger',
-                    }),
-                TextEntry::make('created_at')
-                    ->label(__('Date'))->inlineLabel()
-                    ->dateTime()->sinceTooltip(),
-            ])->columns(2),
+        return $schema->columns(1)->schema([
+            Section::make(fn (Outbox $record) => $record->subject)
+                ->description(fn (Outbox $record) => $record->message_id)
+                ->afterHeader([
+                    TextEntry::make('status')->hiddenLabel()
+                        ->badge()
+                        ->formatStateUsing(fn (OutboxStatus $state) => $state->label())
+                        ->tooltip(fn (OutboxStatus $state) => $state->description())
+                        ->color(fn (OutboxStatus $state): string => match ($state) {
+                            OutboxStatus::PENDING => 'info',
+                            OutboxStatus::SENT    => 'success',
+                            OutboxStatus::ERROR   => 'danger',
+                        }),
+                ])->schema([
+                    TextEntry::make('created_at')
+                        ->label(__('Date'))->inlineLabel()
+                        ->dateTime()->sinceTooltip(),
+                ]),
 
             RepeatableEntry::make('messages')->label(__('Messages'))
-                ->columnSpanFull()
                 ->table([
                     RepeatableEntry\TableColumn::make(__('Type')),
                     RepeatableEntry\TableColumn::make(__('Recipient')),
@@ -65,10 +65,10 @@ class OutboxInfolist
                         ->formatStateUsing(fn (MessageStatus $state) => $state->label())
                         ->tooltip(fn (MessageStatus $state) => $state->description())
                         ->color(fn (MessageStatus $state): string => match ($state) {
-                            MessageStatus::RECEIVED                       => 'gray',
-                            MessageStatus::DEFERRED                       => 'info',
-                            MessageStatus::DELIVERED                      => 'success',
-                            MessageStatus::DROPPED,MessageStatus::BOUNCED => 'danger',
+                            MessageStatus::RECEIVED                        => 'gray',
+                            MessageStatus::DEFERRED                        => 'info',
+                            MessageStatus::DELIVERED                       => 'success',
+                            MessageStatus::DROPPED, MessageStatus::BOUNCED => 'danger',
                         }),
 
                     TextEntry::make('engagement')

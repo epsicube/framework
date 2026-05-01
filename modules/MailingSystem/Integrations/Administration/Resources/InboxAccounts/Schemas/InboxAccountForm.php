@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 namespace EpsicubeModules\MailingSystem\Integrations\Administration\Resources\InboxAccounts\Schemas;
 
-use EpsicubeModules\MailingSystem\Models\InboxAccount;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
+use Filament\Support\Enums\Operation;
 
 class InboxAccountForm
 {
@@ -30,9 +30,8 @@ class InboxAccountForm
                 ])->default('ssl')->nullable(),
                 TextInput::make('username')->label(__('Username'))->required()->maxLength(255),
                 TextInput::make('password')->label(__('Password'))
-                    ->password()
-                    ->revealable()
-                    ->required(fn (?InboxAccount $record): bool => ! $record?->exists)
+                    ->password()->revealable()
+                    ->required(fn (string $operation): bool => $operation === Operation::Create->value)
                     ->dehydrated(fn (?string $state): bool => filled($state))
                     ->afterStateHydrated(function (TextInput $component): void {
                         $component->state(null);

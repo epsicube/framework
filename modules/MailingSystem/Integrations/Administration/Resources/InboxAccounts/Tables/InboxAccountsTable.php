@@ -4,9 +4,6 @@ declare(strict_types=1);
 
 namespace EpsicubeModules\MailingSystem\Integrations\Administration\Resources\InboxAccounts\Tables;
 
-use EpsicubeModules\MailingSystem\Integrations\Administration\Pages\Inbox;
-use EpsicubeModules\MailingSystem\Models\InboxAccount;
-use Filament\Actions\Action;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
@@ -34,10 +31,6 @@ class InboxAccountsTable
         ])->filters([
             //
         ])->recordActions([
-            Action::make('inbox')
-                ->label(__('Inbox'))
-                ->icon('heroicon-o-inbox')
-                ->url(fn (InboxAccount $record): string => Inbox::getUrl(['account' => $record->id])),
             ViewAction::make(),
             EditAction::make(),
             DeleteAction::make(),

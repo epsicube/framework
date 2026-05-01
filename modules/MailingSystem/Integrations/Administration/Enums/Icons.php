@@ -8,11 +8,13 @@ use Filament\Support\Icons\Heroicon;
 
 class Icons
 {
-    public const Heroicon INBOX = Heroicon::OutlinedInbox;
+    public const Heroicon INBOX = Heroicon::OutlinedInboxArrowDown;
 
-    public const Heroicon INBOX_ACCOUNT = Heroicon::OutlinedInboxStack;
+    public const Heroicon INBOX_ACCOUNT = Heroicon::OutlinedAtSymbol;
 
-    public const Heroicon MAILER = Heroicon::OutlinedPaperAirplane;
+    public const Heroicon MAILER = Heroicon::OutlinedEnvelope;
 
-    public const Heroicon OUTBOX = Heroicon::OutlinedInboxStack;
+    public const Heroicon SETTINGS = Heroicon::OutlinedCog6Tooth;
+
+    public const Heroicon OUTBOX = Heroicon::OutlinedPaperAirplane;
 }

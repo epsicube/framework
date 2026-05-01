@@ -49,19 +49,4 @@ class Outbox extends Model
     {
         return $this->hasMany(Message::class);
     }
-
-    public function toMessages(): HasMany
-    {
-        return $this->messages()->where('type', 'to');
-    }
-
-    public function ccMessages(): HasMany
-    {
-        return $this->messages()->where('type', 'cc');
-    }
-
-    public function bccMessages(): HasMany
-    {
-        return $this->messages()->where('type', 'bcc');
-    }
 }

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace EpsicubeModules\MailingSystem\Integrations\Administration\Resources\Mailers\Schemas\DriverAdministration;
+namespace EpsicubeModules\MailingSystem\Integrations\Administration\Resources\Outboxes\Schemas\Mailers\DriverAdministration;
 
 use EpsicubeModules\MailingSystem\Facades\Drivers;
 use Filament\Actions\Action;
@@ -136,7 +136,7 @@ class SendGridAdministrationPanel
                 ->outlined()
                 ->action(function (): void {
                     Notification::make()
-                        ->title(__('Provider state refreshed'))
+                        ->title(__('Webhooks refreshed'))
                         ->success()
                         ->send();
                 }),

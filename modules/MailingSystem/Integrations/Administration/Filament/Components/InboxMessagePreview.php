@@ -12,7 +12,6 @@ use EpsicubeModules\MailingSystem\Models\InboxAccount;
 use EpsicubeModules\MailingSystem\Services\InboxConnector;
 use Filament\Infolists\Components\Entry;
 use Filament\Support\Components\Attributes\ExposedLivewireMethod;
-use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cache;
 use Throwable;
 
@@ -28,6 +27,14 @@ class InboxMessagePreview extends Entry
 
     protected string $view = 'epsicube-mail::filament.components.inbox-message-preview';
 
+    protected int $mailPage = 1;
+
+    protected ?int $messageUid = null;
+
+    protected ?string $rawMessage = null;
+
+    protected ?string $messageError = null;
+
     protected function setUp(): void
     {
         parent::setUp();
@@ -37,35 +44,17 @@ class InboxMessagePreview extends Entry
             ->columnSpanFull()
             ->childComponents(fn (): array => [
                 MailPreviewEntry::make('raw_message')
-                    ->state(fn (): ?string => $this->getStoredRawMessage())
-                    ->key('inbox-email-preview-'.$this->getStoredMessageUid())
+                    ->state(fn (): ?string => $this->rawMessage)
+                    ->key(fn (): string => 'inbox-email-preview-'.($this->messageUid ?? 'none'))
                     ->hiddenLabel()
                     ->contained(false)
                     ->columnSpanFull()
-                    ->visible(fn (): bool => filled($this->getStoredRawMessage())),
+                    ->visible(fn (): bool => filled($this->rawMessage)),
             ], self::PREVIEW_SCHEMA_KEY);
     }
 
     public function getMailboxState(): array
     {
-        $this->resetStoredStateWhenAccountChanges();
-
-        $state = $this->storedState();
-
-        if (! ($state['is_loaded'] ?? false)) {
-            return [
-                'messages'      => collect(),
-                'pagination'    => $this->emptyPagination(),
-                'error'         => null,
-                'has_account'   => true,
-                'is_loaded'     => false,
-                'search'        => $state['search'] ?? null,
-                'message_uid'   => $state['message_uid'] ?? null,
-                'raw_message'   => $state['raw_message'] ?? null,
-                'message_error' => $state['message_error'] ?? null,
-            ];
-        }
-
         $account = $this->selectedAccount();
 
         if (! $account) {
@@ -73,30 +62,32 @@ class InboxMessagePreview extends Entry
                 'messages'      => collect(),
                 'pagination'    => $this->emptyPagination(),
                 'error'         => null,
-                'has_account'   => InboxAccount::query()->where('is_active', true)->exists(),
-                'is_loaded'     => true,
-                'search'        => $state['search'] ?? null,
-                'message_uid'   => $state['message_uid'] ?? null,
-                'raw_message'   => $state['raw_message'] ?? null,
-                'message_error' => $state['message_error'] ?? null,
+                'has_account'   => false,
+                'message_uid'   => null,
+                'raw_message'   => null,
+                'message_error' => null,
             ];
         }
 
         try {
             $mailbox = $this->fetchMessages($account);
+            $previousMessageUid = $this->messageUid;
 
-            $this->selectFirstMessageWhenNeeded($mailbox['messages']);
-            $this->loadSelectedMessageWhenNeeded();
+            $this->messageUid ??= $mailbox['messages']->first()['uid'] ?? null;
+
+            if ($this->messageUid !== $previousMessageUid) {
+                $this->clearCachedDefaultChildSchemas();
+            }
+
+            $this->loadSelectedMessage($account);
 
             return [
                 ...$mailbox,
                 'error'         => null,
                 'has_account'   => true,
-                'is_loaded'     => true,
-                'search'        => $this->storedValue('search'),
-                'message_uid'   => $this->getStoredMessageUid(),
-                'raw_message'   => $this->getStoredRawMessage(),
-                'message_error' => $this->storedValue('message_error'),
+                'message_uid'   => $this->messageUid,
+                'raw_message'   => $this->rawMessage,
+                'message_error' => $this->messageError,
             ];
         } catch (Throwable $e) {
             report($e);
@@ -106,81 +97,41 @@ class InboxMessagePreview extends Entry
                 'pagination'    => $this->emptyPagination(),
                 'error'         => $e->getMessage(),
                 'has_account'   => true,
-                'is_loaded'     => true,
-                'search'        => $state['search'] ?? null,
-                'message_uid'   => $state['message_uid'] ?? null,
-                'raw_message'   => $state['raw_message'] ?? null,
-                'message_error' => $state['message_error'] ?? null,
+                'message_uid'   => null,
+                'raw_message'   => null,
+                'message_error' => null,
             ];
         }
     }
 
     #[ExposedLivewireMethod]
-    public function loadMailbox(): void
+    public function nextPage(int $page): void
     {
-        $this->mergeStoredState(['is_loaded' => true]);
+        $this->mailPage = max(1, $page + 1);
+        $this->clearSelectedMessage();
+        $this->clearCachedDefaultChildSchemas();
     }
 
     #[ExposedLivewireMethod]
-    public function applySearch(?string $search = null): void
+    public function previousPage(int $page): void
     {
-        $this->mergeStoredState([
-            'is_loaded'     => true,
-            'search'        => filled($search) ? mb_trim($search) : null,
-            'message_uid'   => null,
-            'raw_message'   => null,
-            'message_error' => null,
-            'mail_page'     => 1,
-        ]);
+        $this->mailPage = max(1, $page - 1);
+        $this->clearSelectedMessage();
+        $this->clearCachedDefaultChildSchemas();
     }
 
     #[ExposedLivewireMethod]
-    public function resetSearch(): void
+    public function selectMessage(int $uid, int $page = 1): void
     {
-        $this->applySearch();
-    }
-
-    #[ExposedLivewireMethod]
-    public function nextPage(): void
-    {
-        $this->mergeStoredState([
-            'message_uid'   => null,
-            'raw_message'   => null,
-            'message_error' => null,
-            'mail_page'     => $this->mailPage() + 1,
-        ]);
-    }
-
-    #[ExposedLivewireMethod]
-    public function previousPage(): void
-    {
-        $this->mergeStoredState([
-            'message_uid'   => null,
-            'raw_message'   => null,
-            'message_error' => null,
-            'mail_page'     => max(1, $this->mailPage() - 1),
-        ]);
-    }
-
-    #[ExposedLivewireMethod]
-    public function selectMessage(int $uid): void
-    {
-        if ($this->getStoredMessageUid() === $uid && filled($this->getStoredRawMessage())) {
-            return;
-        }
-
-        $this->mergeStoredState([
-            'message_uid'   => $uid,
-            'raw_message'   => null,
-            'message_error' => null,
-        ]);
-
-        $this->loadSelectedMessageWhenNeeded();
+        $this->mailPage = max(1, $page);
+        $this->clearSelectedMessage();
+        $this->messageUid = $uid;
+        $this->clearCachedDefaultChildSchemas();
     }
 
     protected function selectedAccount(): ?InboxAccount
     {
-        $accountId = $this->getState();
+        $accountId = $this->accountId();
 
         if (blank($accountId)) {
             return null;
@@ -188,27 +139,14 @@ class InboxMessagePreview extends Entry
 
         return InboxAccount::query()
             ->where('is_active', true)
-            ->find((int) $accountId);
+            ->find($accountId);
     }
 
-    protected function resetStoredStateWhenAccountChanges(): void
+    protected function accountId(): ?int
     {
-        $accountId = $this->getState();
-        $storedAccountId = $this->storedValue('account_id');
+        $state = $this->getState();
 
-        if ((string) $storedAccountId === (string) $accountId) {
-            return;
-        }
-
-        $this->mergeStoredState([
-            'account_id'    => $accountId,
-            'is_loaded'     => false,
-            'search'        => null,
-            'message_uid'   => null,
-            'raw_message'   => null,
-            'message_error' => null,
-            'mail_page'     => 1,
-        ]);
+        return filled($state) && is_scalar($state) ? (int) $state : null;
     }
 
     protected function fetchMessages(InboxAccount $account): array
@@ -225,26 +163,13 @@ class InboxMessagePreview extends Entry
             $query->newest();
         }
 
-        $paginator = $query->paginate(self::MESSAGE_WINDOW, $this->mailPage());
+        $paginator = $query->paginate(self::MESSAGE_WINDOW, $this->mailPage);
 
         $messages = $paginator
             ->items()
             ->map(fn (mixed $message): array => $this->messageSummary($message))
             ->filter(fn (array $summary): bool => filled($summary['uid']))
             ->values();
-
-        if (filled($this->storedValue('search'))) {
-            $needle = mb_strtolower((string) $this->storedValue('search'));
-
-            $messages = $messages
-                ->filter(function (array $message) use ($needle): bool {
-                    $subject = mb_strtolower((string) ($message['subject'] ?? ''));
-                    $from = mb_strtolower((string) ($message['from'] ?? ''));
-
-                    return str_contains($subject, $needle) || str_contains($from, $needle);
-                })
-                ->values();
-        }
 
         return [
             'messages'   => $messages,
@@ -297,43 +222,28 @@ class InboxMessagePreview extends Entry
         ];
     }
 
-    protected function selectFirstMessageWhenNeeded(Collection $messages): void
+    protected function loadSelectedMessage(InboxAccount $account): void
     {
-        if (filled($this->getStoredMessageUid())) {
-            return;
-        }
-
-        $firstUid = $messages->first()['uid'] ?? null;
-
-        if (filled($firstUid)) {
-            $this->mergeStoredState(['message_uid' => (int) $firstUid]);
-        }
-    }
-
-    protected function loadSelectedMessageWhenNeeded(): void
-    {
-        $account = $this->selectedAccount();
-        $messageUid = $this->getStoredMessageUid();
-
-        if (! $account || $messageUid === null || filled($this->getStoredRawMessage()) || filled($this->storedValue('message_error'))) {
+        if ($this->messageUid === null || filled($this->rawMessage) || filled($this->messageError)) {
             return;
         }
 
         try {
-            $rawMessage = $this->fetchMessageEml($account, $messageUid);
-
-            $this->mergeStoredState([
-                'raw_message'   => $rawMessage,
-                'message_error' => blank($rawMessage) ? __('Message not found.') : null,
-            ]);
+            $this->rawMessage = $this->fetchMessageEml($account, $this->messageUid);
+            $this->messageError = blank($this->rawMessage) ? __('Message not found.') : null;
         } catch (Throwable $e) {
             report($e);
 
-            $this->mergeStoredState([
-                'raw_message'   => null,
-                'message_error' => $e->getMessage(),
-            ]);
+            $this->rawMessage = null;
+            $this->messageError = $e->getMessage();
         }
+    }
+
+    protected function clearSelectedMessage(): void
+    {
+        $this->messageUid = null;
+        $this->rawMessage = null;
+        $this->messageError = null;
     }
 
     protected function fetchMessageEml(InboxAccount $account, int $uid): ?string
@@ -390,47 +300,8 @@ class InboxMessagePreview extends Entry
         return filled($name) ? "{$name} <{$email}>" : $email;
     }
 
-    protected function getStoredMessageUid(): ?int
-    {
-        $messageUid = $this->storedValue('message_uid');
-
-        return filled($messageUid) ? (int) $messageUid : null;
-    }
-
-    protected function getStoredRawMessage(): ?string
-    {
-        $rawMessage = $this->storedValue('raw_message');
-
-        return is_string($rawMessage) && $rawMessage !== '' ? $rawMessage : null;
-    }
-
     protected function mailPage(): int
     {
-        return max(1, (int) ($this->storedValue('mail_page') ?? 1));
-    }
-
-    protected function storedState(): array
-    {
-        return data_get($this->getLivewire(), $this->storePath(), []);
-    }
-
-    protected function storedValue(string $key): mixed
-    {
-        return data_get($this->getLivewire(), $this->storePath().'.'.$key);
-    }
-
-    protected function mergeStoredState(array $state): void
-    {
-        $livewire = $this->getLivewire();
-
-        data_set($livewire, $this->storePath(), [
-            ...$this->storedState(),
-            ...$state,
-        ]);
-    }
-
-    protected function storePath(): string
-    {
-        return 'inboxMessagePreviewState.'.$this->getKey();
+        return max(1, $this->mailPage);
     }
 }

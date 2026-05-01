@@ -7,6 +7,7 @@ namespace EpsicubeModules\MailingSystem\Integrations\Administration\Resources\Ou
 use BackedEnum;
 use EpsicubeModules\MailingSystem\Integrations\Administration\Enums\ApplicationGroup;
 use EpsicubeModules\MailingSystem\Integrations\Administration\Enums\Icons;
+use EpsicubeModules\MailingSystem\Integrations\Administration\Resources\Mailers\MailerResource;
 use EpsicubeModules\MailingSystem\Integrations\Administration\Resources\Outboxes\Pages\ListOutboxes;
 use EpsicubeModules\MailingSystem\Integrations\Administration\Resources\Outboxes\Pages\ViewOutbox;
 use EpsicubeModules\MailingSystem\Integrations\Administration\Resources\Outboxes\Schemas\OutboxInfolist;
@@ -19,15 +20,15 @@ use UnitEnum;
 
 class OutboxResource extends Resource
 {
+    protected static ?string $parentResource = MailerResource::class;
+
     protected static ?string $model = Outbox::class;
 
     protected static string|BackedEnum|null $navigationIcon = Icons::OUTBOX;
 
-    protected static ?int $navigationSort = 1;
+    protected static ?int $navigationSort = 105;
 
     protected static string|null|UnitEnum $navigationGroup = ApplicationGroup::MAILS;
-
-    protected static ?string $slug = '/mails/outbox';
 
     public static function table(Table $table): Table
     {
@@ -37,13 +38,6 @@ class OutboxResource extends Resource
     public static function infolist(Schema $schema): Schema
     {
         return OutboxInfolist::configure($schema);
-    }
-
-    public static function getRelations(): array
-    {
-        return [
-            //
-        ];
     }
 
     public static function getPages(): array

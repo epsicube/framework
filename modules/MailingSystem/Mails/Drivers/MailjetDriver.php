@@ -16,7 +16,7 @@ use EpsicubeModules\MailingSystem\Enums\MessageType;
 use EpsicubeModules\MailingSystem\Events\MessageDeliveryEvent;
 use EpsicubeModules\MailingSystem\Events\MessageEngagementEvent;
 use EpsicubeModules\MailingSystem\Integrations\Administration\Contracts\HasMailerAdministrationPanel;
-use EpsicubeModules\MailingSystem\Integrations\Administration\Resources\Mailers\Schemas\DriverAdministration\MailjetAdministrationPanel;
+use EpsicubeModules\MailingSystem\Integrations\Administration\Resources\Outboxes\Schemas\Mailers\DriverAdministration\MailjetAdministrationPanel;
 use EpsicubeModules\MailingSystem\Mails\Drivers\Mailjet\MailjetSentMessage;
 use EpsicubeModules\MailingSystem\Models\Outbox;
 use Illuminate\Http\Request;

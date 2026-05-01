@@ -1,13 +1,14 @@
 @php
     $key = $getKey();
+    $accountId = $getState();
+    $accountId = is_scalar($accountId) ? $accountId : null;
     $state = $getMailboxState();
 @endphp
 
 <div
     class="mailing-inbox"
-    wire:key="mailing-inbox-{{ $key }}-{{ $getState() ?? 'none' }}"
-    x-data="{ isLoaded: @js($state['is_loaded']) }"
-    x-init="if (! isLoaded) { isLoaded = true; $wire.callSchemaComponentMethod(@js($key), 'loadMailbox') }"
+    wire:key="mailing-inbox-{{ $key }}-{{ $accountId ?? 'none' }}"
+    x-data
 >
     <style>
         .mailing-inbox {
@@ -56,44 +57,6 @@
             display: flex;
             flex-direction: column;
             min-height: 0;
-        }
-
-        .mailing-inbox__search {
-            border-bottom: 1px solid var(--mail-border);
-            display: grid;
-            gap: 8px;
-            padding: 12px;
-        }
-
-        .mailing-inbox__label {
-            color: var(--mail-muted);
-            display: block;
-            font-size: 12px;
-            font-weight: 600;
-        }
-
-        .mailing-inbox__search-row {
-            display: grid;
-            gap: 8px;
-            grid-template-columns: minmax(0, 1fr) auto auto;
-        }
-
-        .mailing-inbox__control {
-            background: var(--mail-panel-soft);
-            border: 1px solid var(--mail-border);
-            border-radius: var(--radius-lg);
-            color: var(--mail-text);
-            display: block;
-            font-size: 14px;
-            min-height: 38px;
-            outline: none;
-            padding: 7px 10px;
-            width: 100%;
-        }
-
-        .mailing-inbox__control:focus {
-            border-color: var(--mail-primary);
-            box-shadow: 0 0 0 3px color-mix(in oklab, var(--mail-primary) 20%, transparent);
         }
 
         .mailing-inbox__button {
@@ -290,10 +253,6 @@
                 max-height: 440px;
             }
 
-            .mailing-inbox__search-row {
-                grid-template-columns: 1fr;
-            }
-
             .mailing-inbox__select-placeholder,
             .mailing-inbox__preview-loading {
                 min-height: 280px;
@@ -301,48 +260,7 @@
         }
     </style>
 
-    @if (! $state['is_loaded'])
-        <div class="mailing-inbox__sidebar">
-            <form class="mailing-inbox__search">
-                <label class="mailing-inbox__label" for="inbox-preview-search-loading">{{ __('Search subject or sender') }}</label>
-
-                <div class="mailing-inbox__search-row">
-                    <input
-                        id="inbox-preview-search-loading"
-                        type="search"
-                        class="mailing-inbox__control"
-                        disabled
-                    />
-
-                    <button type="button" class="mailing-inbox__button" disabled>
-                        {{ __('Search') }}
-                    </button>
-
-                    <button type="button" class="mailing-inbox__button" disabled>
-                        {{ __('Reset') }}
-                    </button>
-                </div>
-            </form>
-
-            <div class="mailing-inbox__messages">
-                <div class="mailing-inbox__loading">
-                    <div class="mailing-inbox__loader"></div>
-                    <span>{{ __('Loading messages...') }}</span>
-                </div>
-            </div>
-
-            <div class="mailing-inbox__pagination">
-                <div class="mailing-inbox__pagination-meta">{{ __('Loading...') }}</div>
-            </div>
-        </div>
-
-        <div class="mailing-inbox__preview">
-            <div class="mailing-inbox__preview-loading">
-                <div class="mailing-inbox__loader"></div>
-                <span>{{ __('Loading message preview...') }}</span>
-            </div>
-        </div>
-    @elseif (! $state['has_account'])
+    @if (! $state['has_account'])
         <div class="mailing-inbox__callout">
             <div class="mailing-inbox__callout-title">{{ __('No active inbox account configured') }}</div>
             {{ __('Create or activate an IMAP account before opening the inbox.') }}
@@ -354,41 +272,12 @@
         </div>
     @else
         <div class="mailing-inbox__sidebar">
-            <form
-                class="mailing-inbox__search"
-                x-data="{ search: @js($state['search']) }"
-                x-on:submit.prevent="$wire.callSchemaComponentMethod(@js($key), 'applySearch', { search })"
-            >
-                <label class="mailing-inbox__label" for="inbox-preview-search">{{ __('Search subject or sender') }}</label>
-
-                <div class="mailing-inbox__search-row">
-                    <input
-                        id="inbox-preview-search"
-                        type="search"
-                        class="mailing-inbox__control"
-                        x-model="search"
-                    />
-
-                    <button type="submit" class="mailing-inbox__button">
-                        {{ __('Search') }}
-                    </button>
-
-                    <button
-                        type="button"
-                        class="mailing-inbox__button"
-                        x-on:click="search = ''; $wire.callSchemaComponentMethod(@js($key), 'resetSearch')"
-                    >
-                        {{ __('Reset') }}
-                    </button>
-                </div>
-            </form>
-
             <div class="mailing-inbox__messages">
                 @forelse ($state['messages'] as $message)
                     <button
                         type="button"
                         wire:key="inbox-message-{{ $state['pagination']['current_page'] }}-{{ $message['uid'] }}"
-                        x-on:click="$wire.callSchemaComponentMethod(@js($key), 'selectMessage', { uid: {{ $message['uid'] }} })"
+                        x-on:click="$wire.callSchemaComponentMethod(@js($key), 'selectMessage', { uid: {{ $message['uid'] }}, page: {{ $state['pagination']['current_page'] }} })"
                         @class([
                             'mailing-inbox__message-button',
                             'mailing-inbox__message-button--selected' => $state['message_uid'] === $message['uid'],
@@ -421,7 +310,7 @@
                 <div class="mailing-inbox__pagination-actions">
                     <button
                         type="button"
-                        x-on:click="$wire.callSchemaComponentMethod(@js($key), 'previousPage')"
+                        x-on:click="$wire.callSchemaComponentMethod(@js($key), 'previousPage', { page: {{ $state['pagination']['current_page'] }} })"
                         class="mailing-inbox__button"
                         @disabled(! $state['pagination']['has_previous'])
                     >
@@ -430,7 +319,7 @@
 
                     <button
                         type="button"
-                        x-on:click="$wire.callSchemaComponentMethod(@js($key), 'nextPage')"
+                        x-on:click="$wire.callSchemaComponentMethod(@js($key), 'nextPage', { page: {{ $state['pagination']['current_page'] }} })"
                         class="mailing-inbox__button"
                         @disabled(! $state['pagination']['has_more'])
                     >

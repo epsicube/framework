@@ -8,7 +8,6 @@ use BackedEnum;
 use EpsicubeModules\MailingSystem\Integrations\Administration\Enums\ApplicationGroup;
 use EpsicubeModules\MailingSystem\Integrations\Administration\Enums\Icons;
 use EpsicubeModules\MailingSystem\Integrations\Administration\Resources\InboxAccounts\Pages\CreateInboxAccount;
-use EpsicubeModules\MailingSystem\Integrations\Administration\Resources\InboxAccounts\Pages\EditInboxAccount;
 use EpsicubeModules\MailingSystem\Integrations\Administration\Resources\InboxAccounts\Pages\ListInboxAccounts;
 use EpsicubeModules\MailingSystem\Integrations\Administration\Resources\InboxAccounts\Pages\ViewInboxAccount;
 use EpsicubeModules\MailingSystem\Integrations\Administration\Resources\InboxAccounts\Schemas\InboxAccountForm;
@@ -26,11 +25,11 @@ class InboxAccountResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Icons::INBOX_ACCOUNT;
 
-    protected static ?int $navigationSort = 110;
-
     protected static string|null|UnitEnum $navigationGroup = ApplicationGroup::MAILS;
 
-    protected static ?string $slug = '/mails/inbox-accounts';
+    protected static ?int $navigationSort = 110;
+
+    protected static ?string $slug = '/mails/inbox/accounts';
 
     public static function form(Schema $schema): Schema
     {
@@ -60,7 +59,6 @@ class InboxAccountResource extends Resource
             'index'  => ListInboxAccounts::route('/'),
             'create' => CreateInboxAccount::route('/create'),
             'view'   => ViewInboxAccount::route('/{record}'),
-            'edit'   => EditInboxAccount::route('/{record}/edit'),
         ];
     }
 }
