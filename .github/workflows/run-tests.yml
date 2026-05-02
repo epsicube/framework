@@ -48,12 +48,24 @@ jobs:
           php-version: ${{ matrix.php }}
           extensions: bcmath, curl, intl, mailparse, mbstring, opcache, pcntl, pdo_sqlite, pdo_pgsql, pgsql, readline, sockets, xml, zip
           coverage: none
-          tools: composer:v2
 
       - name: Setup problem matchers
         run: |
           echo "::add-matcher::${{ runner.tool_cache }}/php.json"
           echo "::add-matcher::${{ runner.tool_cache }}/phpunit.json"
+
+      - name: Get Composer Cache Directory
+        id: composer-cache
+        run: |
+          echo "dir=$(composer config cache-files-dir)" >> $GITHUB_OUTPUT
+
+      - name: Cache dependencies
+        uses: actions/cache@v5
+        with:
+          path: ${{ steps.composer-cache.outputs.dir }}
+          key: ${{ runner.os }}-php-${{ matrix.php }}-laravel-${{ matrix.laravel_label }}-${{ matrix.stability }}-${{ hashFiles('composer.json', 'composer.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-php-${{ matrix.php }}-laravel-${{ matrix.laravel_label }}-${{ matrix.stability }}-
 
       - name: Install dependencies
         # --ignore-platform-reqs only because pcntl and fileinfo are not available on Windows
