@@ -75,8 +75,15 @@ jobs:
           composer update --${{ matrix.stability }} --prefer-dist --no-interaction --no-progress --no-scripts --optimize-autoloader --ignore-platform-reqs
       - name: Execute tests
         id: tests
+        shell: bash
         continue-on-error: true
-        run: php vendor/bin/pest --ci
+        run: |
+          set +e
+          php vendor/bin/pest --ci --log-junit build/report.junit.xml
+          status=$?
+          echo "exit_code=$status" >> "$GITHUB_OUTPUT"
+          set -e
+          exit "$status"
 
       - name: Publish Test Report
         if: success() || failure()
@@ -87,9 +94,6 @@ jobs:
           detailed_summary: true
           update_check: ${{ github.event_name == 'pull_request' }}
           require_tests: true
-          fail_on_failure: true
-          token: ${{ secrets.GITHUB_TOKEN }}
-
 
       - name: Fail job on test failure
         if: steps.tests.outputs.exit_code != '0'
