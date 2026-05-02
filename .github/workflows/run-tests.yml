@@ -56,10 +56,10 @@ jobs:
           echo "::add-matcher::${{ runner.tool_cache }}/phpunit.json"
 
       - name: Install dependencies
+        # --ignore-platform-reqs only because pcntl and fileinfo are not available on Windows
         run: |
           composer require "laravel/framework:${{ matrix.laravel }}" --no-update --no-interaction --optimize-autoloader
-          composer update --${{ matrix.stability }} --prefer-dist --no-interaction --no-progress --no-scripts --optimize-autoloader
-
+          composer update --${{ matrix.stability }} --prefer-dist --no-interaction --no-progress --no-scripts --optimize-autoloader --ignore-platform-reqs
       - name: Execute tests
         id: tests
         continue-on-error: true
