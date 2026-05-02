@@ -93,7 +93,7 @@ jobs:
 
       - name: Publish test results
         if: always()
-        uses: EnricoMi/publish-unit-test-result-action@v2
+        uses: EnricoMi/publish-unit-test-result-action/composite@v2
         with:
           files: build/report.junit.xml
           check_name: Test Results (PHP ${{ matrix.php }} / Laravel ${{ matrix.laravel_label }} / ${{ matrix.stability }} / ${{ matrix.os }})
