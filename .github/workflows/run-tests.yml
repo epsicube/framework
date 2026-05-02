@@ -75,6 +75,8 @@ jobs:
           include_passed: true
           update_check: true
           require_tests: true
+          fail_on_failure: true
+
 
       - name: Fail job on test failure
         if: steps.tests.outputs.exit_code != '0'
