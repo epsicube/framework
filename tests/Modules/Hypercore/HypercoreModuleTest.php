@@ -27,6 +27,9 @@ test('hypercore module declares expected metadata, bootstrapper and administrati
         ->and($supportCheck['results'][0]['status'])->toBe('INVALID');
 });
 
+test('hypercore support registers hypercore resources', function () {
+    expect(true)->toBeFalse();
+});
 test('hypercore support registers tenant administration resources when administration is active', function () {
     $this->configureModules([
         AdministrationModule::class,
