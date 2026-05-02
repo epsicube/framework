@@ -11,8 +11,8 @@ class NullableBooleanStateCast implements StateCast
     public function get(mixed $state): mixed
     {
         return match ($state) {
-            0, '0' => false,
-            1, '1' => true,
+            0, '0'  => false,
+            1, '1'  => true,
             default => null,
         };
     }

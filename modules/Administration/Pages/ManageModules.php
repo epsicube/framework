@@ -134,10 +134,10 @@ class ManageModules extends Page implements HasActions, HasSchemas
                     ->modalIconColor(fn () => $module->status !== ModuleStatus::DISABLED ? Color::Red : Color::Green)
                     ->modalSubmitAction(fn (Action $action) => $action->label(match ($module->status) {
                         ModuleStatus::ENABLED, ModuleStatus::ERROR => __('Disable'),
-                        ModuleStatus::DISABLED => __('Enable'),
+                        ModuleStatus::DISABLED                     => __('Enable'),
                     })->color(match ($module->status) {
                         ModuleStatus::ENABLED, ModuleStatus::ERROR => Color::Red,
-                        ModuleStatus::DISABLED => Color::Green,
+                        ModuleStatus::DISABLED                     => Color::Green,
                     }))
                     ->modalCancelAction(fn (Action $action) => $action->hidden())
                     ->disabled(! Modules::canBeDisabled($module->identifier) && ! Modules::canBeEnabled($module->identifier))

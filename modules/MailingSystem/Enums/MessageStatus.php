@@ -39,9 +39,9 @@ enum MessageStatus: string
     {
         return match ($this) {
             self::BOUNCED, self::DROPPED => 40,
-            self::DELIVERED => 30,
-            self::DEFERRED  => 20,
-            self::RECEIVED  => 10,
+            self::DELIVERED              => 30,
+            self::DEFERRED               => 20,
+            self::RECEIVED               => 10,
         };
     }
 }

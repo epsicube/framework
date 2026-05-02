@@ -27,7 +27,7 @@ enum StringFormat: string
     {
         return match ($this) {
             self::MARKDOWN, self::HTML => null,
-            default => $this->value
+            default                    => $this->value
         };
     }
 }

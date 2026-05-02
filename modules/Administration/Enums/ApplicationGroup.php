@@ -46,7 +46,7 @@ enum ApplicationGroup implements ApplicationGroupContract, HasColor
     public function getColor(): string|array|null
     {
         return match ($this) {
-            self::DASHBOARDS => Color::Emerald,
+            self::DASHBOARDS           => Color::Emerald,
             self::EXTRAS, self::SYSTEM => Color::Neutral,
         };
     }
