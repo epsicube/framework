@@ -2,10 +2,13 @@ name: run-tests
 
 on:
   push:
+    paths:
+      - '**.php'
+      - '.github/workflows/run-tests.yml'
+      - 'phpunit.xml.dist'
+      - 'composer.json'
+      - 'composer.lock'
   workflow_dispatch:
-
-env:
-  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -17,14 +20,17 @@ permissions:
 
 jobs:
   test:
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os }}
     timeout-minutes: 15
     strategy:
       fail-fast: true
       matrix:
+        os: [ubuntu-latest, windows-latest]
         php: ['8.4', '8.5']
+        laravel: ['13.*', '12.*']
+        stability: [prefer-lowest, prefer-stable]
 
-    name: PHP ${{ matrix.php }}
+    name: PHP ${{ matrix.php }} - Laravel ${{ matrix.laravel }} - ${{ matrix.stability }} - ${{ matrix.os }}
 
     steps:
       - name: Checkout code
@@ -50,12 +56,14 @@ jobs:
         uses: actions/cache@v5
         with:
           path: ${{ steps.composer-cache.outputs.dir }}
-          key: composer-${{ runner.os }}-php${{ matrix.php }}-${{ hashFiles('composer.lock') }}
+          key: composer-${{ runner.os }}-php${{ matrix.php }}-laravel${{ matrix.laravel }}-${{ hashFiles('composer.lock') }}
           restore-keys: |
-            composer-${{ runner.os }}-php${{ matrix.php }}-
+            composer-${{ runner.os }}-php${{ matrix.php }}-laravel${{ matrix.laravel }}-
 
       - name: Install dependencies
-        run: composer install --prefer-dist --no-interaction --no-progress --no-scripts
+        run: |
+          composer require "laravel/framework:${{ matrix.laravel }}" --no-update --no-interaction
+          composer update --prefer-dist --no-interaction --no-progress --no-scripts
 
       - name: Prepare report directory
         run: mkdir -p build
@@ -73,7 +81,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v7
         with:
-          name: test-results-php${{ matrix.php }}
+          name: test-results-php${{ matrix.php }}-laravel${{ matrix.laravel }}
           path: build/report.junit.xml
           if-no-files-found: ignore
           retention-days: 7
@@ -83,7 +91,7 @@ jobs:
         uses: EnricoMi/publish-unit-test-result-action@v2
         with:
           files: build/report.junit.xml
-          check_name: Test Results (PHP ${{ matrix.php }})
+          check_name: Test Results (PHP ${{ matrix.php }} / Laravel ${{ matrix.laravel }})
 
       - name: Fail job on test failure
         if: steps.tests.outputs.exit_code != '0'
