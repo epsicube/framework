@@ -72,6 +72,9 @@ jobs:
           report_paths: 'build/report.junit.xml'
           check_name: Test Results (PHP ${{ matrix.php }} / Laravel ${{ matrix.laravel_label }} / ${{ matrix.stability }} / ${{ matrix.os }})
           detailed_summary: true
+          include_passed: true
+          update_check: true
+          require_tests: true
 
       - name: Fail job on test failure
         if: steps.tests.outputs.exit_code != '0'
