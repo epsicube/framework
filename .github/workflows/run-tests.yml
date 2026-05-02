@@ -25,10 +25,10 @@ jobs:
     strategy:
       fail-fast: true
       matrix:
-        os: [ubuntu-latest, windows-latest]
-        php: ['8.4', '8.5']
-        laravel: ['13.*', '12.*']
-        stability: [prefer-lowest, prefer-stable]
+        os: [ ubuntu-latest, windows-latest ]
+        php: [ '8.4', '8.5' ]
+        laravel: [ '13.*', '12.*' ]
+        stability: [ prefer-lowest, prefer-stable ]
         include:
           - laravel: '13.*'
             laravel_label: '13'
@@ -55,6 +55,7 @@ jobs:
 
       - name: Get Composer cache directory
         id: composer-cache
+        shell: bash # Force bash to ensure windows compatibility
         run: echo "dir=$(composer config cache-files-dir)" >> "$GITHUB_OUTPUT"
 
       - name: Cache Composer downloads
@@ -91,9 +92,16 @@ jobs:
           if-no-files-found: ignore
           retention-days: 7
 
-      - name: Publish test results
-        if: always()
-        uses: EnricoMi/publish-unit-test-result-action/composite@v2
+      - name: Publish test results (Linux)
+        if: always() && matrix.os == 'ubuntu-latest'
+        uses: EnricoMi/publish-unit-test-result-action/linux@v2
+        with:
+          files: build/report.junit.xml
+          check_name: Test Results (PHP ${{ matrix.php }} / Laravel ${{ matrix.laravel_label }} / ${{ matrix.stability }} / ${{ matrix.os }})
+
+      - name: Publish test results (Windows)
+        if: always() && matrix.os == 'windows-latest'
+        uses: EnricoMi/publish-unit-test-result-action/windows@v2
         with:
           files: build/report.junit.xml
           check_name: Test Results (PHP ${{ matrix.php }} / Laravel ${{ matrix.laravel_label }} / ${{ matrix.stability }} / ${{ matrix.os }})
