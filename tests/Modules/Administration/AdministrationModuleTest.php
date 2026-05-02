@@ -10,6 +10,11 @@ use EpsicubeModules\Administration\AdministrationOptions;
 use EpsicubeModules\Administration\Pages\ManageModules;
 use Filament\Panel;
 
+function administrationNormalizePath(string $path): string
+{
+    return str_replace('\\', '/', $path);
+}
+
 function administrationProbeResourcesPath(): string
 {
     return __DIR__.'/Fixtures/AdministrationProbe/Resources';
@@ -61,7 +66,9 @@ test('external modules can inject administration panel configuration through sup
 
     $panel = Administration::configure(Panel::make());
 
-    expect($panel->getResourceDirectories())->toContain(administrationProbeResourcesPath())
+    expect(array_map(administrationNormalizePath(...), $panel->getResourceDirectories()))->toContain(
+        administrationNormalizePath(administrationProbeResourcesPath())
+    )
         ->and($panel->getResourceNamespaces())->toContain(
             'Epsicube\\Tests\\Modules\\Administration\\Fixtures\\AdministrationProbe\\Resources'
         );

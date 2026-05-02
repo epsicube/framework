@@ -38,10 +38,15 @@ test('hypercore support registers tenant administration resources when administr
 
     $panel = Panel::make()->id(Administration::$identifier);
 
+    $expectedPath = realpath(__DIR__.'/../../../modules/Hypercore/Integrations/Administration/Resources');
+
+    $resourceDirectories = array_map(
+        fn (string $path) => realpath($path),
+        $panel->getResourceDirectories()
+    );
+
     expect($panel->getResources())->toContain(TenantResource::class)
-        ->and($panel->getResourceDirectories())->toContain(
-            dirname(__DIR__, 3).'/modules/Hypercore/Integrations/Administration/Resources'
-        )
+        ->and($resourceDirectories)->toContain($expectedPath)
         ->and($panel->getResourceNamespaces())->toContain(
             'EpsicubeModules\\Hypercore\\Integrations\\Administration\\Resources'
         );
