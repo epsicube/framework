@@ -84,7 +84,7 @@ jobs:
           report_paths: 'build/report.junit.xml'
           check_name: Test Results (PHP ${{ matrix.php }} / Laravel ${{ matrix.laravel_label }} / ${{ matrix.stability }} / ${{ matrix.os }})
           detailed_summary: true
-          update_check: true
+          update_check: ${{ github.event_name == 'pull_request' }}
           require_tests: true
           fail_on_failure: true
           token: ${{ secrets.GITHUB_TOKEN }}
