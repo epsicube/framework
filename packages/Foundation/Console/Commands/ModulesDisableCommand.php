@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Epsicube\Foundation\Console\Commands;
 
-use Epsicube\Foundation\Events\PreparingModuleDeactivationPlan;
 use Epsicube\Support\Facades\Modules;
 use Epsicube\Support\Modules\Module;
 use Illuminate\Console\Command;
@@ -53,19 +52,14 @@ class ModulesDisableCommand extends Command implements PromptsForMissingInput
             return self::FAILURE;
         }
 
-        /** @var PreparingModuleDeactivationPlan[] $plans */
-        $plans = [];
-        foreach ($identifiers as $identifier) {
-            $module = Modules::get($identifier);
-            $plans[$identifier] = Modules::deactivationPlan($module);
-        }
+        $plan = Modules::deactivationPlan();
 
         // Show plans
         $this->line('');
         $this->line('<fg=yellow;options=bold>Plan:</>');
 
-        foreach ($plans as $id => $plan) {
-            $tasks = $plan->getTasks();
+        $tasks = $plan->getTasks();
+        foreach ($identifiers as $id) {
             $this->line(" <fg=cyan;options=bold>[{$id}]</>");
 
             if (empty($tasks)) {
@@ -88,9 +82,9 @@ class ModulesDisableCommand extends Command implements PromptsForMissingInput
         }
 
         // Execute
-        foreach ($plans as $id => $plan) {
+        foreach ($identifiers as $id) {
             try {
-                $plan->execute();
+                $plan(Modules::get($id));
                 info("Module [{$id}] disabled.");
             } catch (Throwable $e) {
                 error("Failed to disable [{$id}]: {$e->getMessage()}");

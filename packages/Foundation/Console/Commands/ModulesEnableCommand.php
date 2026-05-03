@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Epsicube\Foundation\Console\Commands;
 
-use Epsicube\Foundation\Events\PreparingModuleActivationPlan;
 use Epsicube\Support\Facades\Modules;
 use Epsicube\Support\Modules\Module;
 use Illuminate\Console\Command;
@@ -52,19 +51,14 @@ class ModulesEnableCommand extends Command implements PromptsForMissingInput
             return self::FAILURE;
         }
 
-        /** @var PreparingModuleActivationPlan[] $plans */
-        $plans = [];
-        foreach ($identifiers as $identifier) {
-            $module = Modules::get($identifier);
-            $plans[$identifier] = Modules::activationPlan($module);
-        }
+        $plan = Modules::activationPlan();
 
         // Show plans
         $this->line('');
         $this->line('<fg=yellow;options=bold>Plan:</>');
 
-        foreach ($plans as $id => $plan) {
-            $tasks = $plan->getTasks();
+        $tasks = $plan->getTasks();
+        foreach ($identifiers as $id) {
             $this->line(" <fg=cyan;options=bold>[{$id}]</>");
 
             if (empty($tasks)) {
@@ -87,9 +81,9 @@ class ModulesEnableCommand extends Command implements PromptsForMissingInput
         }
 
         // Execute
-        foreach ($plans as $id => $plan) {
+        foreach ($identifiers as $id) {
             try {
-                $plan->execute();
+                $plan(Modules::get($id));
                 info("Module [{$id}] enabled.");
             } catch (Throwable $e) {
                 error("Failed to enable [{$id}]: {$e->getMessage()}");

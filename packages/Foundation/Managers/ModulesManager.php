@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Epsicube\Foundation\Managers;
 
-use Epsicube\Foundation\Events\PreparingModuleActivationPlan;
-use Epsicube\Foundation\Events\PreparingModuleDeactivationPlan;
+use Epsicube\Foundation\Plans\ModuleActivationPlan;
+use Epsicube\Foundation\Plans\ModuleDeactivationPlan;
 use Epsicube\Support\Contracts\ActivationDriver;
 use Epsicube\Support\Contracts\IsModule;
 use Epsicube\Support\Enums\ConditionState;
@@ -14,8 +14,8 @@ use Epsicube\Support\Exceptions\DuplicateItemException;
 use Epsicube\Support\Exceptions\UnresolvableItemException;
 use Epsicube\Support\Facades\Options;
 use Epsicube\Support\Modules\Module;
+use Epsicube\Support\Plan;
 use Illuminate\Contracts\Foundation\Application;
-use RuntimeException;
 use Throwable;
 
 class ModulesManager
@@ -88,9 +88,62 @@ class ModulesManager
         return array_filter($this->all(), fn (Module $module) => $module->status === ModuleStatus::DISABLED);
     }
 
-    public function getResolver(): KahnResolver
+    // ACTIVATION MANAGEMENT
+    public function canBeEnabled(string|Module $module): bool
     {
-        return $this->resolver ??= new KahnResolver(...array_values($this->modules));
+        $module = is_string($module) ? $this->get($module) : $module;
+
+        if ($module->status !== ModuleStatus::DISABLED || $this->driver->isMustUse($module)) {
+            return false;
+        }
+
+        if (! $module->requirements->passes()) {
+            return false;
+        }
+
+        try {
+            $chain = $this->getResolver()->resolveEnableChain($module->identifier, fn () => null);
+
+            return in_array($module, $chain, true);
+        } catch (Throwable) {
+            return false;
+        }
+    }
+
+    public function canBeDisabled(string|Module $module): bool
+    {
+        $module = is_string($module) ? $this->get($module) : $module;
+
+        if ($module->status === ModuleStatus::ERROR && ! $this->driver->isMustUse($module)) {
+            return true;
+        }
+
+        if ($module->status === ModuleStatus::DISABLED || $this->driver->isMustUse($module)) {
+            return false;
+        }
+
+        $chain = $this->getResolver()->resolveDisableChain($module->identifier);
+        foreach ($chain as $dependent) {
+            if ($dependent->identifier === $module->identifier) {
+                continue;
+            }
+
+            if ($dependent->status === ModuleStatus::ENABLED) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    public function activationPlan(): Plan
+    {
+        return new ModuleActivationPlan($this->driver);
+    }
+
+    public function deactivationPlan(): Plan
+    {
+        return new ModuleDeactivationPlan($this->driver);
     }
 
     public function bootstrap(Application $app): void
@@ -147,92 +200,6 @@ class ModulesManager
         $this->booted = true;
     }
 
-    // ACTIVATION MANAGEMENT
-    public function canBeEnabled(string|Module $module): bool
-    {
-        $module = is_string($module) ? $this->get($module) : $module;
-
-        if ($module->status !== ModuleStatus::DISABLED || $this->driver->isMustUse($module)) {
-            return false;
-        }
-
-        if (! $module->requirements->passes()) {
-            return false;
-        }
-
-        try {
-            $chain = $this->getResolver()->resolveEnableChain($module->identifier, fn () => null);
-
-            return in_array($module, $chain, true);
-        } catch (Throwable) {
-            return false;
-        }
-    }
-
-    public function canBeDisabled(string|Module $module): bool
-    {
-        $module = is_string($module) ? $this->get($module) : $module;
-
-        if ($module->status === ModuleStatus::ERROR && ! $this->driver->isMustUse($module)) {
-            return true;
-        }
-
-        if ($module->status === ModuleStatus::DISABLED || $this->driver->isMustUse($module)) {
-            return false;
-        }
-
-        $chain = $this->getResolver()->resolveDisableChain($module->identifier);
-        foreach ($chain as $dependent) {
-            if ($dependent->identifier === $module->identifier) {
-                continue;
-            }
-
-            if ($dependent->status === ModuleStatus::ENABLED) {
-                return false;
-            }
-        }
-
-        return true;
-    }
-
-    public function activationPlan(string|Module $module): PreparingModuleActivationPlan
-    {
-        $module = is_string($module) ? $this->get($module) : $module;
-        if (! $this->canBeEnabled($module)) {
-            throw new RuntimeException(__('This module cannot be enabled.'));
-        }
-
-        $plan = new PreparingModuleActivationPlan($module);
-        event($plan);
-
-        $plan->addTask('Mark module as enabled', function () use (&$module) {
-            $this->driver->enable($module);
-            $module->status = ModuleStatus::ENABLED;
-        }, -1);
-
-        // TODO class Plan/Task and use array return $tasks = event()
-        return $plan;
-    }
-
-    public function deactivationPlan(string|Module $module): PreparingModuleDeactivationPlan
-    {
-        $module = is_string($module) ? $this->get($module) : $module;
-        if (! $this->canBeDisabled($module)) {
-            throw new RuntimeException(__('This module cannot be disabled.'));
-        }
-
-        $plan = new PreparingModuleDeactivationPlan($module);
-        event($plan);
-
-        $plan->addTask('Mark module as disabled', function () use (&$module) {
-            $this->driver->disable($module);
-            $module->status = ModuleStatus::DISABLED;
-        }, -1);
-
-        // TODO class Plan/Task and use array return $tasks = event()
-        return $plan;
-    }
-
     public function getBootstrapLogs(?string $identifier = null): array
     {
         if ($identifier) {
@@ -245,5 +212,10 @@ class ModulesManager
     protected function log(Module $module, string $string): void
     {
         $this->logs[$module->identifier][] = $string;
+    }
+
+    protected function getResolver(): KahnResolver
+    {
+        return $this->resolver ??= new KahnResolver(...array_values($this->modules));
     }
 }

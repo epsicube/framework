@@ -20,7 +20,6 @@ use Epsicube\Foundation\Console\Commands\OptionsUnsetCommand;
 use Epsicube\Foundation\Console\Commands\ReloadCommand;
 use Epsicube\Foundation\Console\Commands\TerminateCommand;
 use Epsicube\Foundation\Console\Commands\WorkCommand;
-use Epsicube\Foundation\Listeners\FoundationSubscriber;
 use Epsicube\Foundation\Managers\EpsicubeManager;
 use Epsicube\Foundation\Managers\ModulesManager;
 use Epsicube\Foundation\Managers\OptionsManager;
@@ -35,7 +34,6 @@ use Illuminate\Contracts\Translation\Translator;
 use Illuminate\Filesystem\Filesystem;
 use Illuminate\Foundation\Console\AboutCommand;
 use Illuminate\Support\Env;
-use Illuminate\Support\Facades\Event;
 use RuntimeException;
 use Throwable;
 
@@ -133,8 +131,6 @@ class EpsicubeServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
-        Event::subscribe(FoundationSubscriber::class);
-
         $this->commands([
             CacheCommand::class,
             ClearCommand::class,

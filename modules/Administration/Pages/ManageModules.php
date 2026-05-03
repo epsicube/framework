@@ -13,6 +13,7 @@ use Epsicube\Support\Facades\Modules;
 use Epsicube\Support\Modules\Conditions\Callback;
 use Epsicube\Support\Modules\Module;
 use Epsicube\Support\Modules\Support;
+use Epsicube\Support\Plan;
 use EpsicubeModules\Administration\AdministrationOptions;
 use EpsicubeModules\Administration\Enums\ApplicationGroup;
 use EpsicubeModules\Administration\Enums\Icons;
@@ -30,6 +31,7 @@ use Filament\Support\Colors\Color;
 use Filament\Support\Enums\IconPosition;
 use Filament\Support\Enums\Width;
 use Filament\Support\Icons\Heroicon;
+use RuntimeException;
 use Throwable;
 use UnitEnum;
 
@@ -102,11 +104,8 @@ class ManageModules extends Page implements HasActions, HasSchemas
 
                     // Display plan
                     ->schema(function () use ($module): array {
-                        if (Modules::canBeDisabled($module->identifier)) {
-                            $plan = Modules::deactivationPlan($module);
-                        } elseif (Modules::canBeEnabled($module->identifier)) {
-                            $plan = Modules::activationPlan($module);
-                        } else {
+                        $plan = $this->getTogglePlan($module);
+                        if (! $plan) {
                             return [];
                         }
 
@@ -142,18 +141,16 @@ class ManageModules extends Page implements HasActions, HasSchemas
                     ->modalCancelAction(fn (Action $action) => $action->hidden())
                     ->disabled(! Modules::canBeDisabled($module->identifier) && ! Modules::canBeEnabled($module->identifier))
                     ->action(function (Action $action) use ($module) {
-
                         if (Modules::canBeDisabled($module->identifier)) {
-                            $plan = Modules::deactivationPlan($module);
                             $action->successNotificationTitle(__('Module disabled'));
                         } elseif (Modules::canBeEnabled($module->identifier)) {
-                            $plan = Modules::activationPlan($module);
                             $action->successNotificationTitle(__('Module enabled'));
                         } else {
                             $action->halt();
                         }
+
                         try {
-                            $plan->execute();
+                            $this->toggleModule($module);
                         } catch (Throwable $e) {
                             $action->failure();
 
@@ -250,5 +247,29 @@ class ManageModules extends Page implements HasActions, HasSchemas
                         ConditionState::SKIPPED => Heroicon::Minus,
                     })->iconPosition(IconPosition::Before);
             }, $conditions));
+    }
+
+    protected function getTogglePlan(Module $module): ?Plan
+    {
+        if (Modules::canBeDisabled($module->identifier)) {
+            return Modules::deactivationPlan();
+        }
+
+        if (Modules::canBeEnabled($module->identifier)) {
+            return Modules::activationPlan();
+        }
+
+        return null;
+    }
+
+    public function toggleModule(Module $module): void
+    {
+        $plan = $this->getTogglePlan($module);
+
+        if (! $plan) {
+            throw new RuntimeException('The module cannot be toggled.');
+        }
+
+        $plan($module);
     }
 }

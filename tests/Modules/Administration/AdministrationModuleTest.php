@@ -2,7 +2,9 @@
 
 declare(strict_types=1);
 
+use Epsicube\Support\Enums\ModuleStatus;
 use Epsicube\Support\Facades\Options;
+use Epsicube\Tests\Fixtures\Modules\BlogModule;
 use Epsicube\Tests\Modules\Administration\Fixtures\AdministrationProbeModule;
 use EpsicubeModules\Administration\Administration;
 use EpsicubeModules\Administration\AdministrationModule;
@@ -72,4 +74,19 @@ test('external modules can inject administration panel configuration through sup
         ->and($panel->getResourceNamespaces())->toContain(
             'Epsicube\\Tests\\Modules\\Administration\\Fixtures\\AdministrationProbe\\Resources'
         );
+});
+
+test('manage modules toggles a module through the shared plan invocation', function () {
+    $this->configureModules([
+        AdministrationModule::class,
+        BlogModule::class,
+    ], [
+        'core::administration' => true,
+        'tests::blog'          => true,
+    ]);
+
+    $page = $this->app->make(ManageModules::class);
+    $page->toggleModule($this->module('tests::blog'));
+
+    expect($this->moduleStatus('tests::blog'))->toBe(ModuleStatus::DISABLED);
 });
