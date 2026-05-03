@@ -1,6 +1,12 @@
 services:
   dev:
-    image: php:8.5-cli-alpine
+    image: epsicube-framework-test
+    build:
+      context: .
     volumes:
       - './:/app'
     working_dir: /app
+    environment:
+      HOME: /tmp
+      XDG_CACHE_HOME: /tmp/.cache
+

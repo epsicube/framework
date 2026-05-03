@@ -4,14 +4,14 @@ set -eu
 
 SCRIPT_DIR=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
 REPO_ROOT=$(CDPATH= cd -- "${SCRIPT_DIR}/.." && pwd)
-IMAGE_NAME="${IMAGE_NAME:-epsicube-framework-test}"
 FORCE_BUILD="${FORCE_BUILD:-0}"
 
-if [ "${FORCE_BUILD}" = "1" ] || ! docker image inspect "${IMAGE_NAME}" >/dev/null 2>&1; then
-  docker build -t "${IMAGE_NAME}" -f "${REPO_ROOT}/Dockerfile" "${REPO_ROOT}"
-fi
-
 cd "${REPO_ROOT}"
+
+BUILD_OPTS=""
+if [ "${FORCE_BUILD}" = "1" ]; then
+    BUILD_OPTS="--build"
+fi
 
 COMMAND='
 set -eu
@@ -32,7 +32,4 @@ fi
 php vendor/bin/pest "$@"
 '
 
-exec docker run --rm \
-  --user "$(id -u):$(id -g)" -e HOME=/tmp -e XDG_CACHE_HOME=/tmp/.cache \
-  -v "${REPO_ROOT}:/app" -w /app "${IMAGE_NAME}" \
-  sh -c "${COMMAND}" -- "$@"
+exec docker compose run --rm $BUILD_OPTS --user "$(id -u):$(id -g)" dev sh -c "${COMMAND}" -- "$@"

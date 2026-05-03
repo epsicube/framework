@@ -8,6 +8,8 @@ use Illuminate\Testing\ParallelRunner;
 
 uses(TestCase::class)->in('Unit', 'Modules');
 
-ParallelRunner::resolveApplicationUsing(
-    static fn () => TestApplicationFactory::bootForParallelProcess(),
-);
+if (class_exists(ParallelRunner::class)) {
+    ParallelRunner::resolveApplicationUsing(
+        static fn () => TestApplicationFactory::bootForParallelProcess(),
+    );
+}

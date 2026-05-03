@@ -15,7 +15,7 @@ RUN apt-get update && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
-ARG PHP_EXTENSIONS="bcmath curl intl mailparse mbstring opcache pcntl pdo_sqlite pdo_pgsql pgsql readline sockets xml zip"
+ARG PHP_EXTENSIONS="bcmath curl intl mailparse mbstring opcache pcntl pcov pdo_sqlite pdo_pgsql pgsql readline sockets xml zip"
 RUN install-php-extensions ${PHP_EXTENSIONS} @composer
 
 RUN cp $PHP_INI_DIR/php.ini-development $PHP_INI_DIR/php.ini

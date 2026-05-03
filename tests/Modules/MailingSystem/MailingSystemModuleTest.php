@@ -46,14 +46,8 @@ test('mailing system registers its built-in drivers when enabled', function () {
 });
 
 test('webhook endpoint returns no content for unknown drivers', function () {
-    $this->configureModules([
-        MailingSystemModule::class,
-    ], [
-        'core::mailing-system' => true,
-    ]);
-
-    $this->postJson('/mailing-system/_webhook/unknown-driver')
-        ->assertNoContent();
+    $this->configureModules([MailingSystemModule::class], ['core::mailing-system' => true]);
+    $this->postJson('/mailing-system/_webhook/unknown-driver')->assertNoContent();
 });
 
 test('webhook endpoint dispatches parsed events for webhook drivers', function () {
