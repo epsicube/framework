@@ -6,7 +6,7 @@ return [
     'core::administration'     => true,
     'core::execution-platform' => true,
     'core::mcp-server'         => false,
-    'core::json-rpc-server'    => false,
+    'core::json-rpc-server'    => true,
     'inventory-manager'        => false,
     'core::mailing-system'     => true,
 ];

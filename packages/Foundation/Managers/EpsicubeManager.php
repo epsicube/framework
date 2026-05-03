@@ -5,7 +5,12 @@ declare(strict_types=1);
 namespace Epsicube\Foundation\Managers;
 
 use Illuminate\Console\Command;
+use Illuminate\Contracts\Process\ProcessResult;
+use Illuminate\Support\Facades\Process;
 use InvalidArgumentException;
+
+use function Illuminate\Support\artisan_binary;
+use function Illuminate\Support\php_binary;
 
 class EpsicubeManager
 {
@@ -102,5 +107,27 @@ class EpsicubeManager
     public function clearCommands(): array
     {
         return $this->clearCommands;
+    }
+
+    public function callArtisanCommand(string $command): ProcessResult
+    {
+        return Process::command([php_binary(), artisan_binary(), ...explode(' ', $command)])
+            ->path(base_path())
+            ->run();
+    }
+
+    public function clearCache(): ProcessResult
+    {
+        return $this->callArtisanCommand('optimize:clear');
+    }
+
+    public function generateCache(): ProcessResult
+    {
+        return $this->callArtisanCommand('optimize');
+    }
+
+    public function terminateWorker(): ProcessResult
+    {
+        return $this->callArtisanCommand('epsicube:terminate');
     }
 }

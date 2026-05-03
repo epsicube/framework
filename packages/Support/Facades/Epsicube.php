@@ -7,6 +7,7 @@ namespace Epsicube\Support\Facades;
 use Composer\InstalledVersions;
 use Epsicube\Foundation\Managers\EpsicubeManager;
 use Illuminate\Console\Command;
+use Illuminate\Contracts\Process\ProcessResult;
 use Illuminate\Support\Facades\Facade;
 
 class Epsicube extends Facade
@@ -23,6 +24,38 @@ class Epsicube extends Facade
         return InstalledVersions::getPrettyVersion('epsicube/foundation')
             ?? InstalledVersions::getPrettyVersion('epsicube/framework')
             ?? '---';
+    }
+
+    public static function callArtisanCommand(string $command): ProcessResult
+    {
+        /** @var EpsicubeManager $manager */
+        $manager = static::getFacadeRoot();
+
+        return $manager->callArtisanCommand($command);
+    }
+
+    public static function clearCache(): ProcessResult
+    {
+        /** @var EpsicubeManager $manager */
+        $manager = static::getFacadeRoot();
+
+        return $manager->clearCache();
+    }
+
+    public static function generateCache(): ProcessResult
+    {
+        /** @var EpsicubeManager $manager */
+        $manager = static::getFacadeRoot();
+
+        return $manager->generateCache();
+    }
+
+    public static function terminateWorker(): ProcessResult
+    {
+        /** @var EpsicubeManager $manager */
+        $manager = static::getFacadeRoot();
+
+        return $manager->terminateWorker();
     }
 
     /**

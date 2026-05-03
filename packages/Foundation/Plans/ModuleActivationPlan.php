@@ -6,6 +6,7 @@ namespace Epsicube\Foundation\Plans;
 
 use Epsicube\Support\Contracts\ActivationDriver;
 use Epsicube\Support\Enums\ModuleStatus;
+use Epsicube\Support\Facades\Epsicube;
 use Epsicube\Support\Facades\Modules;
 use Epsicube\Support\Modules\Module;
 use Epsicube\Support\Plan;
@@ -36,14 +37,14 @@ class ModuleActivationPlan extends Plan
         }, -1);
 
         $this->addTask(__('Clear cache'), function () {
-            $process = $this->callArtisanCommand('optimize:clear');
+            $process = Epsicube::clearCache();
             if (! $process->successful()) {
                 Log::error('Failed to clear cache', ['output' => $process->errorOutput()]);
             }
         });
 
         $this->addTask(__('Run migrations'), function () {
-            $process = $this->callArtisanCommand('migrate --force');
+            $process = Epsicube::callArtisanCommand('migrate --force');
             if (! $process->successful()) {
                 Log::error('Failed to run migrations', ['output' => $process->errorOutput()]);
             }
@@ -51,7 +52,7 @@ class ModuleActivationPlan extends Plan
 
         if (app()->routesAreCached()) {
             $this->addTask(__('Generate cache'), function () {
-                $process = $this->callArtisanCommand('optimize');
+                $process = Epsicube::generateCache();
                 if (! $process->successful()) {
                     Log::error('Failed to generate cache', ['output' => $process->errorOutput()]);
                 }
@@ -59,7 +60,7 @@ class ModuleActivationPlan extends Plan
         }
 
         $this->addTask(__('Terminate worker'), function () {
-            $process = $this->callArtisanCommand('epsicube:terminate');
+            $process = Epsicube::terminateWorker();
             if (! $process->successful()) {
                 Log::error('Failed to send terminate signal', ['output' => $process->errorOutput()]);
             }

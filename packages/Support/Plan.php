@@ -4,13 +4,8 @@ declare(strict_types=1);
 
 namespace Epsicube\Support;
 
-use Illuminate\Contracts\Process\ProcessResult;
 use Illuminate\Support\Facades\Event;
-use Illuminate\Support\Facades\Process;
 use RuntimeException;
-
-use function Illuminate\Support\artisan_binary;
-use function Illuminate\Support\php_binary;
 
 /**
  * @template T
@@ -131,13 +126,6 @@ abstract class Plan
         }
 
         Event::listen(static::class, $callback);
-    }
-
-    public function callArtisanCommand(string $command): ProcessResult
-    {
-        return Process::command([php_binary(), artisan_binary(), ...explode(' ', $command)])
-            ->path(base_path())
-            ->run();
     }
 
     /**
