@@ -50,6 +50,7 @@ class ModuleDeactivationPlan extends Plan
                 }
             });
         }
+
         $this->addTask(__('Terminate worker'), function () {
             $process = $this->callArtisanCommand('epsicube:terminate');
             if (! $process->successful()) {
