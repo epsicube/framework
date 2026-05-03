@@ -6,6 +6,7 @@ namespace EpsicubeModules\MailingSystem\Models;
 
 use DirectoryTree\ImapEngine\Laravel\Facades\Imap;
 use DirectoryTree\ImapEngine\MailboxInterface;
+use Epsicube\Support\Facades\Epsicube;
 use Illuminate\Database\Eloquent\Model;
 
 /**
@@ -26,6 +27,15 @@ class InboxAccount extends Model
     protected static $unguarded = true;
 
     protected $hidden = ['password'];
+
+    protected static function boot()
+    {
+        static::created(function () {
+            if (class_exists(Epsicube::class)) {
+                Epsicube::terminateWorker();
+            }
+        });
+    }
 
     protected function casts(): array
     {
