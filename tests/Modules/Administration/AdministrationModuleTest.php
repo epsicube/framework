@@ -10,7 +10,10 @@ use EpsicubeModules\Administration\Administration;
 use EpsicubeModules\Administration\AdministrationModule;
 use EpsicubeModules\Administration\AdministrationOptions;
 use EpsicubeModules\Administration\Pages\ManageModules;
+use Filament\Actions\Testing\TestAction;
 use Filament\Panel;
+
+use function Pest\Livewire\livewire;
 
 function administrationNormalizePath(string $path): string
 {
@@ -76,17 +79,30 @@ test('external modules can inject administration panel configuration through sup
         );
 });
 
-test('manage modules toggles a module through the shared plan invocation', function () {
-    $this->configureModules([
-        AdministrationModule::class,
-        BlogModule::class,
-    ], [
+test('modules can be deactivated', function () {
+    $this->configureModules([AdministrationModule::class, BlogModule::class], [
         'core::administration' => true,
         'tests::blog'          => true,
     ]);
 
-    $page = $this->app->make(ManageModules::class);
-    $page->toggleModule($this->module('tests::blog'));
+    $page = livewire(ManageModules::class);
+    $page->callAction(
+        TestAction::make('toggle-tests::blog')->schemaComponent(schema: 'content'),
+    );
 
     expect($this->moduleStatus('tests::blog'))->toBe(ModuleStatus::DISABLED);
+});
+
+test('modules can be activated', function () {
+    $this->configureModules([AdministrationModule::class, BlogModule::class], [
+        'core::administration' => true,
+        'tests::blog'          => false,
+    ]);
+
+    $page = livewire(ManageModules::class);
+    $page->callAction(
+        TestAction::make('toggle-tests::blog')->schemaComponent(schema: 'content'),
+    );
+
+    expect($this->moduleStatus('tests::blog'))->toBe(ModuleStatus::ENABLED);
 });

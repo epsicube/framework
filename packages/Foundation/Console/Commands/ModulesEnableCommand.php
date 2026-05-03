@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Epsicube\Foundation\Console\Commands;
 
+use Epsicube\Support\Console\PlanConsoleHelper;
 use Epsicube\Support\Facades\Modules;
 use Epsicube\Support\Modules\Module;
 use Illuminate\Console\Command;
@@ -53,23 +54,12 @@ class ModulesEnableCommand extends Command implements PromptsForMissingInput
 
         $plan = Modules::activationPlan();
 
-        // Show plans
         $this->line('');
-        $this->line('<fg=yellow;options=bold>Plan:</>');
-
-        $tasks = $plan->getTasks();
-        foreach ($identifiers as $id) {
-            $this->line(" <fg=cyan;options=bold>[{$id}]</>");
-
-            if (empty($tasks)) {
-                $this->line('   <fg=gray>• No visible tasks</>');
-            } else {
-                foreach ($tasks as $task) {
-                    $this->line("   <fg=gray>•</> {$task['label']}");
-                }
-            }
+        $this->line('<fg=yellow;options=bold>Selected modules:</>');
+        foreach ($identifiers as $identifier) {
+            $this->line(" <fg=cyan;options=bold>[{$identifier}]</>");
         }
-        $this->line('');
+        PlanConsoleHelper::render($this->output, $plan, 'Activation plan applied to all selected modules');
 
         // Ask for confirmation
         if (! $this->option('force')) {

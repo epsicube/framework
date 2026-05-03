@@ -44,6 +44,7 @@ class Administration
 
         return $panel
             ->id(static::$identifier)
+            ->default()
             ->discoverPages(in: __DIR__.'/Pages', for: __NAMESPACE__.'\\Pages')
             ->discoverWidgets(in: __DIR__.'/Widgets', for: __NAMESPACE__.'\\Widgets')
             ->domain(AdministrationOptions::domain())

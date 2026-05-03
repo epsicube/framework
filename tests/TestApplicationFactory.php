@@ -16,6 +16,7 @@ final class TestApplicationFactory
 
         $files->deleteDirectory($workspace);
         $files->copyDirectory(__DIR__.'/Fixtures/Application', $workspace);
+
         $files->replace(
             $workspace.'/artisan',
             str_replace(
@@ -31,6 +32,8 @@ final class TestApplicationFactory
         $files->ensureDirectoryExists($workspace.'/storage/framework/sessions');
         $files->ensureDirectoryExists($workspace.'/storage/framework/views');
         $files->ensureDirectoryExists($workspace.'/storage/logs');
+        $files->ensureDirectoryExists($workspace.'/vendor/composer');
+        $files->copy(dirname(__DIR__).'/vendor/composer/installed.json', $workspace.'/vendor/composer/installed.json');
 
         return $workspace;
     }

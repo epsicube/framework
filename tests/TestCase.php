@@ -8,6 +8,7 @@ use Epsicube\Support\Enums\ModuleStatus;
 use Epsicube\Support\Facades\Modules;
 use Epsicube\Support\Modules\Module;
 use Illuminate\Filesystem\Filesystem;
+use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Testing\TestCase as BaseTestCase;
 
 abstract class TestCase extends BaseTestCase
@@ -72,7 +73,7 @@ abstract class TestCase extends BaseTestCase
         return Modules::getBootstrapLogs($identifier);
     }
 
-    public function createApplication()
+    public function createApplication(): Application
     {
         $this->traitsUsedByTest = array_flip(class_uses_recursive(static::class));
 

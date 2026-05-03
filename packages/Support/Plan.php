@@ -81,6 +81,19 @@ abstract class Plan
     }
 
     /**
+     * Get the compiled list of visible tasks.
+     *
+     * @return list<array{label: string, callback: callable(T):void, hidden: bool}>
+     */
+    public function getVisibleTasks(): array
+    {
+        return array_values(array_filter(
+            $this->getTasks(),
+            static fn (array $task): bool => $task['hidden'] === false,
+        ));
+    }
+
+    /**
      * Execute the plan.
      *
      * @param  T  ...$args
