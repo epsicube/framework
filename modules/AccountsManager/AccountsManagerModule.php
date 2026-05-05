@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace EpsicubeModules\AccountsManager;
 
-use Composer\InstalledVersions;
 use Epsicube\Support\Contracts\IsModule;
+use Epsicube\Support\Facades\Epsicube;
 use Epsicube\Support\Modules\Condition;
 use Epsicube\Support\Modules\Identity;
 use Epsicube\Support\Modules\Module;
@@ -35,8 +35,7 @@ class AccountsManagerModule extends ServiceProvider implements IsModule
     {
         return Module::make(
             identifier: 'core::accounts-manager',
-            version: InstalledVersions::getVersion('epsicube/framework')
-            ?? InstalledVersions::getVersion('epsicube/module-accounts-manager')
+            version: Epsicube::resolveComposerVersion('epsicube/framework', 'epsicube/module-accounts-manager')
         )->providers(static::class)
             ->identity(fn (Identity $identity) => $identity
                 ->name(__('Accounts Manager'))

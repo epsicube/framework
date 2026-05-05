@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace EpsicubeModules\Administration\Widgets;
 
-use Composer\InstalledVersions;
+use Epsicube\Support\Facades\Epsicube;
 use Epsicube\Support\Facades\Modules;
 use EpsicubeModules\Administration\Enums\Icons;
 use Filament\Widgets\StatsOverviewWidget as BaseWidget;
@@ -30,9 +30,7 @@ class EpsicubeInformationsWidget extends BaseWidget
 
     protected function getStats(): array
     {
-        $version = InstalledVersions::getPrettyVersion('epsicube/foundation')
-            ?? InstalledVersions::getPrettyVersion('epsicube/framework')
-            ?? '---';
+        $version = Epsicube::version();
 
         $isStable = ! Str::contains(mb_strtolower($version), ['dev', 'alpha', 'beta', 'rc', 'patch']);
 

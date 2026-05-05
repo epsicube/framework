@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace EpsicubeModules\Administration;
 
 use Carbon\Laravel\ServiceProvider;
-use Composer\InstalledVersions;
 use Epsicube\Support\Contracts\IsModule;
 use Epsicube\Support\Facades\Epsicube;
 use Epsicube\Support\Modules\Identity;
@@ -20,8 +19,7 @@ class AdministrationModule extends ServiceProvider implements IsModule
     {
         return Module::make(
             identifier: 'core::administration',
-            version: InstalledVersions::getVersion('epsicube/framework')
-            ?? InstalledVersions::getVersion('epsicube/module-administration')
+            version: Epsicube::resolveComposerVersion('epsicube/framework', 'epsicube/module-administration')
         )
             ->providers(static::class)
 

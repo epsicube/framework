@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Epsicube\Foundation\Providers;
 
 use Carbon\Laravel\ServiceProvider;
-use Composer\InstalledVersions;
 use Epsicube\Foundation\Console\Commands\CacheCommand;
 use Epsicube\Foundation\Console\Commands\ClearCommand;
 use Epsicube\Foundation\Console\Commands\InstallCommand;
@@ -150,10 +149,7 @@ class EpsicubeServiceProvider extends ServiceProvider
         $this->loadMigrationsFrom(__DIR__.'/../database/migrations');
         $this->reloads('epsicube:reload', 'epsicube');
         $this->optimizes('epsicube:cache', 'epsicube:clear', 'epsicube');
-        AboutCommand::add('Epsicube', [
-            'Version' => InstalledVersions::getPrettyVersion('epsicube/framework')
-                ?? InstalledVersions::getPrettyVersion('epsicube/foundation'),
-        ]);
+        AboutCommand::add('Epsicube', ['Version' => Epsicube::version()]);
 
         $this->loadRoutesFrom(__DIR__.'/../routes.php');
     }

@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace EpsicubeModules\Hypercore;
 
 use Carbon\Laravel\ServiceProvider;
-use Composer\InstalledVersions;
 use Epsicube\Support\Contracts\HasIntegrations;
 use Epsicube\Support\Contracts\IsModule;
+use Epsicube\Support\Facades\Epsicube;
 use Epsicube\Support\Integrations;
 use Epsicube\Support\ModuleIdentity;
 use EpsicubeModules\Administration\Administration;
@@ -26,8 +26,7 @@ class HypercoreIsModuleActivator extends ServiceProvider implements HasIntegrati
     {
         return ModuleIdentity::make(
             name: __('Hyper-Core Activator ⚡'),
-            version: InstalledVersions::getPrettyVersion('epsicube/framework')
-              ?? InstalledVersions::getPrettyVersion('epsicube/module-hypercore'),
+            version: Epsicube::resolveComposerVersion('epsicube/framework', 'epsicube/module-hypercore'),
             author: 'Core Team',
             description: __('Injected module from Hyper-Core to enable support for modules.')
         );

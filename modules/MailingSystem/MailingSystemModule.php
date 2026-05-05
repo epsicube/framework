@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace EpsicubeModules\MailingSystem;
 
 use Carbon\Laravel\ServiceProvider;
-use Composer\InstalledVersions;
 use Epsicube\Foundation\Managers\EpsicubeManager;
 use Epsicube\Support\Contracts\IsModule;
 use Epsicube\Support\Facades\Epsicube;
@@ -40,8 +39,7 @@ class MailingSystemModule extends ServiceProvider implements IsModule
     {
         return Module::make(
             identifier: 'core::mailing-system',
-            version: InstalledVersions::getVersion('epsicube/framework')
-            ?? InstalledVersions::getVersion('epsicube/module-mailing-system')
+            version: Epsicube::resolveComposerVersion('epsicube/framework', 'epsicube/module-mailing-system')
         )
             ->providers(
                 static::class,

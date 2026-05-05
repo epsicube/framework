@@ -5,10 +5,10 @@ declare(strict_types=1);
 namespace EpsicubeModules\JsonRpcServer;
 
 use Carbon\Laravel\ServiceProvider;
-use Composer\InstalledVersions;
 use Epsicube\Schemas\Properties\StringProperty;
 use Epsicube\Schemas\Schema;
 use Epsicube\Support\Contracts\IsModule;
+use Epsicube\Support\Facades\Epsicube;
 use Epsicube\Support\Facades\Options;
 use Epsicube\Support\Modules\Identity;
 use Epsicube\Support\Modules\Module;
@@ -23,8 +23,7 @@ class JsonRpcServerModule extends ServiceProvider implements IsModule
     {
         return Module::make(
             identifier: 'core::json-rpc-server',
-            version: InstalledVersions::getVersion('epsicube/framework')
-            ?? InstalledVersions::getVersion('epsicube/module-json-rpc-server')
+            version: Epsicube::resolveComposerVersion('epsicube/framework', 'epsicube/module-json-rpc-server')
         )
             ->providers(static::class)
             ->identity(fn (Identity $identity) => $identity
