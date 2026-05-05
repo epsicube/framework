@@ -28,8 +28,9 @@ class InboxAccount extends Model
 
     protected $hidden = ['password'];
 
-    protected static function boot()
+    protected static function boot(): void
     {
+        parent::boot();
         static::created(function () {
             if (class_exists(Epsicube::class)) {
                 Epsicube::terminateWorker();
