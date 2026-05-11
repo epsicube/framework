@@ -45,6 +45,6 @@ class MakeActivityCommand extends GeneratorCommand
     {
         $name = Str::replaceFirst($this->rootNamespace(), '', $name);
 
-        return __DIR__.'/../../'.str_replace('\\', '/', $name).'.php';
+        return base_path('modules/ExecutionPlatform/'.str_replace('\\', '/', $name).'.php');
     }
 }

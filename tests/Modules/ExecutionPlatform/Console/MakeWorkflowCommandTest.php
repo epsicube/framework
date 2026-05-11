@@ -1,10 +1,19 @@
 <?php
 
+use EpsicubeModules\ExecutionPlatform\ExecutionPlatformModule;
 use Illuminate\Support\Facades\File;
 
 it('can generate a workflow', function () {
+    $this->configureModules([
+        ExecutionPlatformModule::class,
+    ], [
+        'core::execution-platform' => true,
+    ]);
+
     $workflowName = 'TestWorkflow';
     $filePath = base_path('modules/ExecutionPlatform/Workflows/' . $workflowName . '.php');
+
+    File::ensureDirectoryExists(dirname($filePath));
 
     if (File::exists($filePath)) {
         File::delete($filePath);
