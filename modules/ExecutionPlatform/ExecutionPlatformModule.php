@@ -13,6 +13,8 @@ use Epsicube\Support\Modules\Support;
 use Epsicube\Support\Modules\Supports;
 use EpsicubeModules\ExecutionPlatform\Console\Commands\ActivitiesListCommand;
 use EpsicubeModules\ExecutionPlatform\Console\Commands\ActivitiesRunCommand;
+use EpsicubeModules\ExecutionPlatform\Console\Commands\MakeActivityCommand;
+use EpsicubeModules\ExecutionPlatform\Console\Commands\MakeWorkflowCommand;
 use EpsicubeModules\ExecutionPlatform\Console\Commands\WorkflowsListCommand;
 use EpsicubeModules\ExecutionPlatform\Facades\Activities;
 use EpsicubeModules\ExecutionPlatform\Facades\Workflows;
@@ -60,6 +62,8 @@ class ExecutionPlatformModule extends ServiceProvider implements IsModule
             WorkflowsListCommand::class,
             ActivitiesRunCommand::class,
             ActivitiesListCommand::class,
+            MakeActivityCommand::class,
+            MakeWorkflowCommand::class,
         ]);
     }
 }

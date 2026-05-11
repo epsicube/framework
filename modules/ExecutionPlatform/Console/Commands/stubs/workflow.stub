@@ -1,0 +1,27 @@
+<?php
+
+declare(strict_types=1);
+
+namespace {{ namespace }};
+
+use EpsicubeModules\ExecutionPlatform\Contracts\Workflow;
+
+class {{ class }} implements Workflow
+{
+    public function identifier(): string
+    {
+        return '{{ identifier }}';
+    }
+
+    public function label(): string
+    {
+        return __('{{ class }}');
+    }
+
+    public function run(int $execution_id, array $input = []): mixed
+    {
+        //
+
+        return null;
+    }
+}
