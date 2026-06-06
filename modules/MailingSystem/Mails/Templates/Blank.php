@@ -24,8 +24,8 @@ class Blank implements HasInputSchema, MailTemplate
     public function content(array $with = []): Content
     {
         return new Content(
-            html: 'epsicube-mail::blank',
-            text: 'epsicube-mail::blank_plain',
+            html: 'epsicube-mail::templates.blank',
+            text: 'epsicube-mail::templates.blank_plain',
             with: $with,
         );
     }

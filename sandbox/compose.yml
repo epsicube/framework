@@ -50,7 +50,7 @@ services:
       POSTGRES_USER: '${DB_USERNAME:-postgres}'
       POSTGRES_PASSWORD: '${DB_PASSWORD:-secret}'
     volumes:
-      - 'pgsql:/var/lib/postgresql/data'
+      - 'pgsql:/var/lib/postgresql'
     networks:
       - epsicube
     healthcheck:

@@ -16,7 +16,7 @@ use EpsicubeModules\MailingSystem\Enums\MessageStatus;
 use EpsicubeModules\MailingSystem\Events\MessageDeliveryEvent;
 use EpsicubeModules\MailingSystem\Events\MessageEngagementEvent;
 use EpsicubeModules\MailingSystem\Integrations\Administration\Contracts\HasMailerAdministrationPanel;
-use EpsicubeModules\MailingSystem\Integrations\Administration\Resources\Mailers\Schemas\DriverAdministration\SendGridAdministrationPanel;
+use EpsicubeModules\MailingSystem\Integrations\Administration\Resources\Outboxes\Schemas\Mailers\DriverAdministration\SendGridAdministrationPanel;
 use EpsicubeModules\MailingSystem\Models\Outbox;
 use Illuminate\Http\Request;
 use Illuminate\Mail\Mailer;
@@ -50,22 +50,6 @@ class SendGridDriver implements Driver, HasMailerAdministrationPanel, HasWebhook
             'api_key' => StringProperty::make()
                 ->title(__('API key'))
                 ->minLength(20),
-            'host' => StringProperty::make()
-                ->title(__('SMTP host'))
-                ->optional()
-                ->default('smtp.sendgrid.net'),
-            'port' => IntegerProperty::make()
-                ->title(__('SMTP port'))
-                ->minimum(1)
-                ->maximum(65535)
-                ->optional()
-                ->default(587),
-            'scheme' => StringProperty::make()
-                ->title(__('Encryption'))
-                ->optional()
-                ->nullable()
-                ->default('tls')
-                ->description(__('Use `tls`, `smtps`, or leave empty if your relay requires no encryption.')),
             'click_tracking' => BooleanProperty::make()
                 ->title(__('Enable click tracking'))
                 ->optional()
@@ -101,9 +85,8 @@ class SendGridDriver implements Driver, HasMailerAdministrationPanel, HasWebhook
     {
         return Mail::build([
             'transport' => 'smtp',
-            'host'      => $configuration['host'] ?? 'smtp.sendgrid.net',
-            'port'      => $configuration['port'] ?? 587,
-            'scheme'    => blank($configuration['scheme'] ?? 'tls') ? null : $configuration['scheme'],
+            'host'      => 'smtp.sendgrid.net',
+            'port'      => 587,
             'username'  => 'apikey',
             'password'  => $configuration['api_key'],
         ]);
@@ -115,7 +98,7 @@ class SendGridDriver implements Driver, HasMailerAdministrationPanel, HasWebhook
 
         $payload = $this->parseSmtpApiHeader($email);
         $payload['unique_args'] = array_merge($payload['unique_args'] ?? [], [
-            'outbox_id' => (string) $model->id,
+            'X-Epsicube-Outbox-ID' => (string) $model->id,
         ]);
 
         if (! empty($configuration['category'])) {
@@ -161,7 +144,7 @@ class SendGridDriver implements Driver, HasMailerAdministrationPanel, HasWebhook
         }
 
         return array_values(array_filter(array_map(function (array $payload) {
-            $outboxId = data_get($payload, 'unique_args.outbox_id');
+            $outboxId = data_get($payload, 'X-Epsicube-Outbox-ID', '');
             if (blank($outboxId)) {
                 return null;
             }

@@ -16,7 +16,7 @@ use EpsicubeModules\MailingSystem\Enums\MessageType;
 use EpsicubeModules\MailingSystem\Events\MessageDeliveryEvent;
 use EpsicubeModules\MailingSystem\Events\MessageEngagementEvent;
 use EpsicubeModules\MailingSystem\Integrations\Administration\Contracts\HasMailerAdministrationPanel;
-use EpsicubeModules\MailingSystem\Integrations\Administration\Resources\Mailers\Schemas\DriverAdministration\MailjetAdministrationPanel;
+use EpsicubeModules\MailingSystem\Integrations\Administration\Resources\Outboxes\Schemas\Mailers\DriverAdministration\MailjetAdministrationPanel;
 use EpsicubeModules\MailingSystem\Mails\Drivers\Mailjet\MailjetSentMessage;
 use EpsicubeModules\MailingSystem\Models\Outbox;
 use Illuminate\Http\Request;
@@ -30,13 +30,6 @@ use Symfony\Component\Mime\Email;
 
 class MailjetDriver implements Driver, HasMailerAdministrationPanel, HasWebhooks
 {
-    public const array WEBHOOK_EVENTS = ['sent', 'open', 'click', 'bounce', 'blocked', 'spam', 'unsub'];
-
-    public static function configureDriverPanel(\Filament\Schemas\Schema $schema, array $configuration = []): \Filament\Schemas\Schema
-    {
-        return MailjetAdministrationPanel::configure($schema, $configuration);
-    }
-
     public function identifier(): string
     {
         return 'mailjet';
@@ -154,5 +147,10 @@ class MailjetDriver implements Driver, HasMailerAdministrationPanel, HasWebhooks
                 time: $time
             );
         }, $payloads));
+    }
+
+    public static function configureDriverPanel(\Filament\Schemas\Schema $schema, array $configuration = []): \Filament\Schemas\Schema
+    {
+        return MailjetAdministrationPanel::configure($schema, $configuration);
     }
 }

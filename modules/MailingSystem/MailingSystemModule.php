@@ -5,12 +5,14 @@ declare(strict_types=1);
 namespace EpsicubeModules\MailingSystem;
 
 use Carbon\Laravel\ServiceProvider;
-use Composer\InstalledVersions;
+use Epsicube\Foundation\Managers\EpsicubeManager;
 use Epsicube\Support\Contracts\IsModule;
+use Epsicube\Support\Facades\Epsicube;
 use Epsicube\Support\Modules\Identity;
 use Epsicube\Support\Modules\Module;
 use Epsicube\Support\Modules\Support;
 use Epsicube\Support\Modules\Supports;
+use EpsicubeModules\MailingSystem\Console\Commands\InboxWatchCommand;
 use EpsicubeModules\MailingSystem\Contracts\Driver;
 use EpsicubeModules\MailingSystem\Facades\Drivers;
 use EpsicubeModules\MailingSystem\Facades\Templates;
@@ -24,6 +26,7 @@ use EpsicubeModules\MailingSystem\Mails\Drivers\SendGridDriver;
 use EpsicubeModules\MailingSystem\Mails\Templates\Blank;
 use EpsicubeModules\MailingSystem\Mails\Templates\Html;
 use EpsicubeModules\MailingSystem\Mails\TrackedTransport;
+use EpsicubeModules\MailingSystem\Models\InboxAccount;
 use EpsicubeModules\MailingSystem\Models\Mailer as MailerModel;
 use EpsicubeModules\MailingSystem\Registries\DriversRegistry;
 use EpsicubeModules\MailingSystem\Registries\TemplatesRegistry;
@@ -36,8 +39,7 @@ class MailingSystemModule extends ServiceProvider implements IsModule
     {
         return Module::make(
             identifier: 'core::mailing-system',
-            version: InstalledVersions::getVersion('epsicube/framework')
-            ?? InstalledVersions::getVersion('epsicube/module-mailing-system')
+            version: Epsicube::resolveComposerVersion('epsicube/framework', 'epsicube/module-mailing-system')
         )
             ->providers(
                 static::class,
@@ -69,22 +71,45 @@ class MailingSystemModule extends ServiceProvider implements IsModule
 
             return $registry;
         });
+
+        $this->configureImap();
     }
 
     public function boot(): void
     {
         $this->loadRoutesFrom(__DIR__.'/routes/webhook.php');
-        $this->loadViewsFrom(__DIR__.'/resources/email-templates', 'epsicube-mail');
+        $this->loadViewsFrom(__DIR__.'/resources', 'epsicube-mail');
         $this->loadMigrationsFrom(__DIR__.'/database/migrations');
 
         Event::subscribe(MessageTrackingSubscriber::class);
 
         Mailer::macro('track', function (MailerModel $model, Driver $driver) {
             /** @var Mailer $this */
-            $this->setSymfonyTransport(new TrackedTransport($this->getSymfonyTransport(), $model, $driver));
+            $currentTransport = $this->getSymfonyTransport();
+
+            // Avoid recursive instantiation
+            if ($currentTransport instanceof TrackedTransport) {
+                return $this;
+            }
+
+            $this->setSymfonyTransport(new TrackedTransport($currentTransport, $model, $driver));
 
             return $this;
         });
+    }
 
+    protected function configureImap(): void
+    {
+        // Lazy load work commands
+        Epsicube::resolved(function (EpsicubeManager $manager) {
+            InboxAccount::query()->eachById(function (InboxAccount $account) use ($manager) {
+                $manager->addWorkCommand(
+                    key: "inbox:watch:{$account->getKey()}",
+                    command: "inbox:watch {$account->getKey()}"
+                );
+            });
+        });
+
+        $this->commands(InboxWatchCommand::class);
     }
 }

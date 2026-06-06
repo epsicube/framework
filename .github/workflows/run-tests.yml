@@ -1,0 +1,100 @@
+name: run-tests
+
+on:
+  push:
+    paths:
+      - '**.php'
+      - '.github/workflows/run-tests.yml'
+      - 'phpunit.xml.dist'
+      - 'composer.json'
+      - 'composer.lock'
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  checks: write
+  pull-requests: write
+
+jobs:
+  test:
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ ubuntu-latest, windows-latest ]
+        php: [ '8.4', '8.5' ]
+        laravel: [ '13.*', '12.*' ]
+        stability: [ prefer-lowest, prefer-stable ]
+        include:
+          - laravel: '13.*'
+            laravel_label: '13'
+          - laravel: '12.*'
+            laravel_label: '12'
+
+    name: PHP ${{ matrix.php }} - Laravel ${{ matrix.laravel }} - ${{ matrix.stability }} - ${{ matrix.os }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php }}
+          extensions: bcmath, curl, intl, mailparse, mbstring, opcache, pcntl, pdo_sqlite, pdo_pgsql, pgsql, readline, sockets, xml, zip
+          coverage: none
+
+      - name: Setup problem matchers
+        run: |
+          echo "::add-matcher::${{ runner.tool_cache }}/php.json"
+          echo "::add-matcher::${{ runner.tool_cache }}/phpunit.json"
+
+      - name: Get Composer Cache Directory
+        id: composer-cache
+        shell: bash # Force bash to ensure Windows compatibility
+        run: |
+          echo "dir=$(composer config cache-files-dir)" >> $GITHUB_OUTPUT
+
+      - name: Cache dependencies
+        uses: actions/cache@v5
+        with:
+          path: ${{ steps.composer-cache.outputs.dir }}
+          key: ${{ runner.os }}-php-${{ matrix.php }}-laravel-${{ matrix.laravel_label }}-${{ matrix.stability }}-${{ hashFiles('composer.json', 'composer.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-php-${{ matrix.php }}-laravel-${{ matrix.laravel_label }}-${{ matrix.stability }}-
+
+      - name: Install dependencies
+        # --ignore-platform-reqs only because pcntl and fileinfo are not available on Windows
+        run: |
+          composer require "laravel/framework:${{ matrix.laravel }}" --no-update --no-interaction --optimize-autoloader
+          composer update --${{ matrix.stability }} --prefer-dist --no-interaction --no-progress --no-scripts --optimize-autoloader --ignore-platform-reqs
+      - name: Execute tests
+        id: tests
+        shell: bash
+        continue-on-error: true
+        run: |
+          set +e
+          php vendor/bin/pest --ci --log-junit build/report.junit.xml
+          status=$?
+          echo "exit_code=$status" >> "$GITHUB_OUTPUT"
+          set -e
+          exit "$status"
+
+      - name: Publish Test Report
+        if: success() || failure()
+        uses: mikepenz/action-junit-report@v6
+        with:
+          report_paths: 'build/report.junit.xml'
+          check_name: Test Results (PHP ${{ matrix.php }} / Laravel ${{ matrix.laravel_label }} / ${{ matrix.stability }} / ${{ matrix.os }})
+          detailed_summary: true
+          update_check: ${{ github.event_name == 'pull_request' }}
+          require_tests: true
+
+      - name: Fail job on test failure
+        if: steps.tests.outputs.exit_code != '0'
+        run: exit "${{ steps.tests.outputs.exit_code }}"

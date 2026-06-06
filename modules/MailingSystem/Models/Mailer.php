@@ -7,7 +7,9 @@ namespace EpsicubeModules\MailingSystem\Models;
 use Epsicube\Schemas\Schema;
 use EpsicubeModules\MailingSystem\Facades\Drivers;
 use Illuminate\Contracts\Mail\Mailer as MailerContract;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 /**
  * @property-read int $id
@@ -20,6 +22,9 @@ use Illuminate\Database\Eloquent\Model;
  * SENDER
  * @property string $from_email
  * @property string|null $from_name
+ *
+ * RELATIONS
+ * @property-read Collection<Outbox> $outboxes
  */
 class Mailer extends Model
 {
@@ -34,6 +39,11 @@ class Mailer extends Model
         return [
             'configuration' => 'json',
         ];
+    }
+
+    public function outboxes(): HasMany
+    {
+        return $this->hasMany(Outbox::class);
     }
 
     public function toMailer(): MailerContract

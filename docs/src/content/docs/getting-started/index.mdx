@@ -70,14 +70,18 @@ Choose the method that best fits your project needs:
         composer require epsicube/framework
         ```
 
-    2. ### Replace Application Class
-        Epsicube uses its own container, `EpsicubeApplication`.
+    2. ### Register the Epsicube service provider
+        Epsicube integrates into the native Laravel application builder through `withProviders()`.
         Update your `bootstrap/app.php` file:
 
         ```php
-        use Epsicube\Foundation\EpsicubeApplication;
+        use Epsicube\Foundation\Providers\EpsicubeServiceProvider;
+        use Illuminate\Foundation\Application;
 
-        return EpsicubeApplication::configure(basePath: dirname(__DIR__))
+        return Application::configure(basePath: dirname(__DIR__))
+            ->withProviders([
+                EpsicubeServiceProvider::class,
+            ])
             ->withRouting()
             ->withMiddleware()
             ->withExceptions()

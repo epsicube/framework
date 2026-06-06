@@ -7,7 +7,10 @@ namespace Epsicube\Support\Facades;
 use Composer\InstalledVersions;
 use Epsicube\Foundation\Managers\EpsicubeManager;
 use Illuminate\Console\Command;
+use Illuminate\Contracts\Process\ProcessResult;
 use Illuminate\Support\Facades\Facade;
+use OutOfBoundsException;
+use RuntimeException;
 
 class Epsicube extends Facade
 {
@@ -18,11 +21,56 @@ class Epsicube extends Facade
         return static::$accessor;
     }
 
+    public static function resolveComposerVersion(string ...$packages): string
+    {
+        foreach ($packages as $package) {
+            try {
+                $version = InstalledVersions::getPrettyVersion($package);
+                if (! empty($version)) {
+                    return $version;
+                }
+            } catch (OutOfBoundsException $e) {
+                continue;
+            }
+        }
+        throw new RuntimeException(sprintf('Could not resolve composer version for packages: %s.', implode(', ', $packages)));
+    }
+
     public static function version(): string
     {
-        return InstalledVersions::getPrettyVersion('epsicube/foundation')
-            ?? InstalledVersions::getPrettyVersion('epsicube/framework')
-            ?? '---';
+        return static::resolveComposerVersion('epsicube/foundation', 'epsicube/framework');
+    }
+
+    public static function callArtisanCommand(string $command): ProcessResult
+    {
+        /** @var EpsicubeManager $manager */
+        $manager = static::getFacadeRoot();
+
+        return $manager->callArtisanCommand($command);
+    }
+
+    public static function clearCache(): ProcessResult
+    {
+        /** @var EpsicubeManager $manager */
+        $manager = static::getFacadeRoot();
+
+        return $manager->clearCache();
+    }
+
+    public static function generateCache(): ProcessResult
+    {
+        /** @var EpsicubeManager $manager */
+        $manager = static::getFacadeRoot();
+
+        return $manager->generateCache();
+    }
+
+    public static function terminateWorker(): ProcessResult
+    {
+        /** @var EpsicubeManager $manager */
+        $manager = static::getFacadeRoot();
+
+        return $manager->terminateWorker();
     }
 
     /**

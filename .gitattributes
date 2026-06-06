@@ -25,3 +25,21 @@ phpstan.src.neon.dist export-ignore
 phpstan.types.neon.dist export-ignore
 phpunit.xml.dist export-ignore
 RELEASE.md export-ignore
+
+# Custom
+/sandbox export-ignore
+/scripts export-ignore
+/docs export-ignore
+/.lefthook export-ignore
+/.agents export-ignore
+/.ai export-ignore
+
+.aiignore export-ignore
+.codex export-ignore
+compose.yml export-ignore
+TODO.md export-ignore
+SKILL.md export-ignore
+AGENTS.md export-ignore
+lefthook.yml export-ignore
+Dockerfile export-ignore
+pint.json export-ignore

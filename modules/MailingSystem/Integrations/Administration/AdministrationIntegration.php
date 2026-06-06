@@ -13,6 +13,7 @@ class AdministrationIntegration
     {
         Administration::configureUsing(function (Panel $admin): void {
             $admin->discoverResources(in: __DIR__.'/Resources', for: __NAMESPACE__.'\\Resources');
+            $admin->discoverPages(in: __DIR__.'/Pages', for: __NAMESPACE__.'\\Pages');
         });
     }
 }

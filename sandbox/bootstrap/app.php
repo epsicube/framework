@@ -2,11 +2,13 @@
 
 declare(strict_types=1);
 
-use Epsicube\Foundation\EpsicubeApplication;
+use Epsicube\Foundation\Providers\EpsicubeServiceProvider;
+use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
 
-return EpsicubeApplication::configure(basePath: dirname(__DIR__))
+return Application::configure(basePath: dirname(__DIR__))
+    ->withProviders([EpsicubeServiceProvider::class])
     ->withRouting(
         web: __DIR__.'/../routes/web.php',
         commands: __DIR__.'/../routes/console.php',

@@ -9,10 +9,6 @@ RUN echo "Acquire::http::Pipeline-Depth 0;" > /etc/apt/apt.conf.d/99custom && \
     echo "Acquire::http::No-Cache true;" >> /etc/apt/apt.conf.d/99custom && \
     echo "Acquire::BrokenProxy    true;" >> /etc/apt/apt.conf.d/99custom
 
-# add additional extensions here:
-ARG PHP_EXTENSIONS="bcmath curl intl mbstring opcache pcntl pdo_sqlite pdo_pgsql pgsql readline sockets xml zip"
-RUN install-php-extensions ${PHP_EXTENSIONS} @composer
-
 # Install dependencies
 RUN apt-get update && \
     apt-get install -y curl git mc htop sqlite3 postgresql-client && \
@@ -21,12 +17,10 @@ RUN apt-get update && \
 
 
 # Add NodeSource repository and install Node.js
-ARG NODE_VERSION=22
+ARG NODE_VERSION=24
 RUN curl -fsSL https://deb.nodesource.com/setup_$NODE_VERSION.x | bash - \
     && apt-get install -y nodejs \
-    && npm install -g npm \
-    && npm install -g pnpm@latest-10 \
-    && npm install -g yarn \
+    && corepack enable \
     && npx playwright install-deps \
     && apt-get -y autoremove \
     && apt-get clean \
@@ -39,6 +33,11 @@ RUN curl -1sLf 'https://dl.cloudsmith.io/public/evilmartians/lefthook/setup.deb.
     && apt-get autoremove -y \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+
+
+# add additional extensions here:
+ARG PHP_EXTENSIONS="bcmath curl intl mbstring opcache pcntl pdo_sqlite pdo_pgsql pgsql readline sockets xml zip"
+RUN install-php-extensions ${PHP_EXTENSIONS} @composer
 
 COPY php.ini $PHP_INI_DIR/conf.d/99-custom.ini
 RUN cp $PHP_INI_DIR/php.ini-development $PHP_INI_DIR/php.ini

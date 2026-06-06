@@ -17,6 +17,7 @@ use Illuminate\Support\Carbon;
  * @property string|null $message_id
  * @property OutboxStatus $status
  * @property array|null $meta
+ * @property string|null $raw_message
  * @property Carbon $created_at
  * @property Carbon|null $updated_at
  *
@@ -47,20 +48,5 @@ class Outbox extends Model
     public function messages(): HasMany
     {
         return $this->hasMany(Message::class);
-    }
-
-    public function toMessages(): HasMany
-    {
-        return $this->messages()->where('type', 'to');
-    }
-
-    public function ccMessages(): HasMany
-    {
-        return $this->messages()->where('type', 'cc');
-    }
-
-    public function bccMessages(): HasMany
-    {
-        return $this->messages()->where('type', 'bcc');
     }
 }

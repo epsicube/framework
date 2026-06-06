@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace EpsicubeModules\Hypercore;
 
 use Carbon\Laravel\ServiceProvider;
-use Composer\InstalledVersions;
 use Epsicube\Support\Contracts\InjectBootstrappers;
 use Epsicube\Support\Contracts\IsModule;
+use Epsicube\Support\Facades\Epsicube;
 use Epsicube\Support\Modules\Identity;
 use Epsicube\Support\Modules\Module;
 use Epsicube\Support\Modules\Support;
@@ -23,8 +23,7 @@ class HypercoreModule extends ServiceProvider implements InjectBootstrappers, Is
     {
         return Module::make(
             identifier: 'core::hypercore',
-            version: InstalledVersions::getVersion('epsicube/framework')
-            ?? InstalledVersions::getVersion('epsicube/module-hypercore')
+            version: Epsicube::resolveComposerVersion('epsicube/framework', 'epsicube/module-hypercore'),
         )
             ->providers(static::class)
             ->identity(fn (Identity $identity) => $identity

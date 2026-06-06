@@ -5,9 +5,10 @@ declare(strict_types=1);
 namespace EpsicubeModules\MailingSystem\Integrations\Administration\Resources\Mailers\Schemas;
 
 use EpsicubeModules\MailingSystem\Facades\Drivers;
-use EpsicubeModules\MailingSystem\Integrations\Administration\Contracts\HasMailerAdministrationPanel;
+use EpsicubeModules\MailingSystem\Integrations\Administration\Resources\Mailers\Widgets\MailerStatsOverview;
 use EpsicubeModules\MailingSystem\Models\Mailer;
 use Filament\Infolists\Components\TextEntry;
+use Filament\Schemas\Components\Livewire;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 use Filament\Support\Enums\Operation;
@@ -16,21 +17,27 @@ class MailerInfolist
 {
     public static function configure(Schema $schema): Schema
     {
-        return $schema->components([
-            Section::make(__('General'))->schema([
-                TextEntry::make('name')->label(__('Name')),
-                TextEntry::make('driver')
-                    ->label(__('Driver'))
-                    ->badge()
-                    ->formatStateUsing(fn (string $state) => Drivers::safeGet($state)?->label() ?? $state),
-            ])->columns(2),
+        return $schema->columns(1)->components([
+            Section::make()
+                ->heading(fn (Mailer $record) => $record->name)
+                ->description(fn (Mailer $record) => __('From: :name <:email>', ['name' => $record->from_name, 'email' => $record->from_email]))
+                ->afterHeader([
+                    TextEntry::make('driver')->hiddenLabel()
+                        ->formatStateUsing(fn (string $state) => Drivers::safeGet($state)?->label() ?? $state)
+                        ->badge(),
+                ]),
 
-            Section::make(__('Sender'))->schema([
-                TextEntry::make('from_email')->label(__('Email')),
-                TextEntry::make('from_name')->label(__('Name'))->placeholder('—'),
-            ])->columns(2),
+            Livewire::make(MailerStatsOverview::class, fn (Mailer $record) => [
+                'mailer' => $record,
+            ]),
+        ]);
+    }
 
-            Section::make(__('Configuration'))->columnSpanFull()
+    public static function providerInfolist(): array
+    {
+        return [
+            Section::make(__('Driver Parameters'))
+                ->columnSpanFull()
                 ->statePath('configuration')
                 ->schema(function (Mailer $record) {
                     $driverInstance = Drivers::safeGet($record->driver);
@@ -44,19 +51,6 @@ class MailerInfolist
                     return $schema->toFilamentComponents(Operation::View);
                 })
                 ->hiddenWhenAllChildComponentsHidden(),
-
-            Section::make(__('Provider integration'))
-                ->description(__('Inspect and manage provider-side resources linked to this mailer.'))
-                ->columnSpanFull()
-                ->schema(function (Schema $schema, Mailer $record) {
-                    $driverInstance = Drivers::safeGet($record->driver);
-                    if (! ($driverInstance instanceof HasMailerAdministrationPanel)) {
-                        return [];
-                    }
-
-                    return $driverInstance::configureDriverPanel($schema, $record->configuration ?? []);
-                })
-                ->hiddenWhenAllChildComponentsHidden(),
-        ]);
+        ];
     }
 }

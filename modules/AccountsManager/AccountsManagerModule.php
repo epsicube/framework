@@ -4,16 +4,16 @@ declare(strict_types=1);
 
 namespace EpsicubeModules\AccountsManager;
 
-use Composer\InstalledVersions;
 use Epsicube\Support\Contracts\IsModule;
+use Epsicube\Support\Facades\Epsicube;
 use Epsicube\Support\Modules\Condition;
 use Epsicube\Support\Modules\Identity;
 use Epsicube\Support\Modules\Module;
 use Epsicube\Support\Modules\Support;
 use Epsicube\Support\Modules\Supports;
-use EpsicubeModules\AccountsManager\Http\Middleware\SetupPostgresContext;
 use EpsicubeModules\AccountsManager\Integrations\Administration\AdministrationIntegration;
 use EpsicubeModules\AccountsManager\Models\Account;
+use Exception;
 use Illuminate\Auth\Events\Authenticated;
 use Illuminate\Foundation\Http\Events\RequestHandled;
 use Illuminate\Support\Facades\Context;
@@ -35,14 +35,13 @@ class AccountsManagerModule extends ServiceProvider implements IsModule
     {
         return Module::make(
             identifier: 'core::accounts-manager',
-            version: InstalledVersions::getVersion('epsicube/framework')
-            ?? InstalledVersions::getVersion('epsicube/module-accounts-manager')
+            version: Epsicube::resolveComposerVersion('epsicube/framework', 'epsicube/module-accounts-manager')
         )->providers(static::class)
-            ->identity(fn(Identity $identity) => $identity
+            ->identity(fn (Identity $identity) => $identity
                 ->name(__('Accounts Manager'))
                 ->author('Core Team')
             )
-            ->supports(fn(Supports $supports) => $supports->add(
+            ->supports(fn (Supports $supports) => $supports->add(
                 Support::forModule('core::administration', AdministrationIntegration::handle(...)),
                 Support::for(Condition::databaseDrivers('pgsql'), function () {
 
@@ -56,8 +55,8 @@ class AccountsManagerModule extends ServiceProvider implements IsModule
                     $cleanup = function () {
                         if (DB::connection()->getPdo() && Context::pullHidden('db_auth_active')) {
                             try {
-                                DB::unprepared("RESET epsicube.auth_id; RESET epsicube.auth_email;");
-                            } catch (\Exception $e) {
+                                DB::unprepared('RESET epsicube.auth_id; RESET epsicube.auth_email;');
+                            } catch (Exception $e) {
                                 report($e);
                             }
                         }
@@ -103,10 +102,10 @@ class AccountsManagerModule extends ServiceProvider implements IsModule
     public function boot(): void
     {
         if ($this->hypercoreContext === null || $this->hypercoreContext === 'central') {
-            $this->loadMigrationsFrom(__DIR__ . '/database/migrations');
+            $this->loadMigrationsFrom(__DIR__.'/database/migrations');
         }
         if ($this->hypercoreContext === 'central') {
-            $this->loadMigrationsFrom(__DIR__ . '/database/migrations/hypercore');
+            $this->loadMigrationsFrom(__DIR__.'/database/migrations/hypercore');
         }
     }
 }

@@ -7,6 +7,7 @@ namespace EpsicubeModules\ExecutionPlatform\Activities\Execution;
 use EpsicubeModules\ExecutionPlatform\Contracts\Activity;
 use EpsicubeModules\ExecutionPlatform\Enum\ExecutionStatus;
 use EpsicubeModules\ExecutionPlatform\Models\Execution;
+use Illuminate\Support\Str;
 use RuntimeException;
 
 class MarkAsCanceled implements Activity
@@ -23,7 +24,7 @@ class MarkAsCanceled implements Activity
             ->update([
                 'status'       => ExecutionStatus::CANCELED,
                 'completed_at' => now(),
-                'last_error'   => $reason,
+                'last_error'   => Str::limit($reason, 15000), // ensure fit in text
             ]);
 
         if (! $updated) {

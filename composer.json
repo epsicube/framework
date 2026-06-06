@@ -12,20 +12,23 @@
   "minimum-stability": "dev",
   "prefer-stable": true,
   "require": {
-    "ext-intl": "*",
-    "ext-pcntl": "*",
     "php": "^8.4",
-    "composer/semver": "^3.4",
-    "laravel/framework": "^12.41",
-    "nunomaduro/termwind": "^2.0",
-    "laravel/mcp": "^0.5",
-    "spatie/mjml-php": "^1.2.5",
-    "phiki/phiki": "^2.0.4",
+    "ext-intl": "*",
+    "ext-mailparse": "*",
+    "ext-pcntl": "*",
     "codeat3/blade-phosphor-icons": "^2.0",
-    "filament/filament": "^5.1.3",
-    "sajya/server": "^7.0.0",
+    "composer/semver": "^3.4",
+    "directorytree/imapengine-laravel": "^1.0",
     "filafly/filament-phosphor-icons": "^2.0",
+    "filament/filament": "^5.1.3",
+    "laravel/framework": "^12.41",
+    "laravel/mcp": "^0.5",
     "laravel/serializable-closure": "^2.0.8",
+    "nunomaduro/termwind": "^2.0",
+    "phiki/phiki": "^2.0.4",
+    "php-mime-mail-parser/php-mime-mail-parser": "^10.0",
+    "sajya/server": "^7.0.0",
+    "spatie/mjml-php": "^1.2.5",
     "laravel-workflow/laravel-workflow": "^1.0.72",
     "symfony/var-exporter": "^8.0"
   },
@@ -40,13 +43,14 @@
     "epsicube/module-mailing-system": "self.version"
   },
   "require-dev": {
-    "barryvdh/laravel-debugbar": "*",
     "laravel/pint": "^1.25",
-    "nunomaduro/collision": "^8.8",
+    "nunomaduro/collision": "^8.6",
     "pestphp/pest": "^4.1",
     "pestphp/pest-plugin-arch": "^4.1",
     "pestphp/pest-plugin-browser": "^4.1",
-    "pestphp/pest-plugin-laravel": "^4.1"
+    "pestphp/pest-plugin-laravel": "^4.1",
+    "pestphp/pest-plugin-livewire": "^4.1",
+    "pestphp/pest-plugin-type-coverage": "*"
   },
   "config": {
     "sort-packages": true,
@@ -86,9 +90,10 @@
         "EpsicubeModules\\Administration\\AdministrationModule",
         "EpsicubeModules\\ExecutionPlatform\\ExecutionPlatformModule",
         "EpsicubeModules\\Hypercore\\HypercoreModule",
+        "EpsicubeModules\\JsonRpcServer\\JsonRpcServerModule",
         "EpsicubeModules\\MailingSystem\\MailingSystemModule",
         "EpsicubeModules\\McpServer\\McpServerModule",
-        "EpsicubeModules\\JsonRpcServer\\JsonRpcServerModule"
+        "EpsicubeModules\\Multicore\\MulticoreModule"
       ],
       "hypercore": {
         "adapters": [

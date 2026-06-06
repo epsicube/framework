@@ -5,11 +5,11 @@ declare(strict_types=1);
 namespace EpsicubeModules\McpServer;
 
 use Carbon\Laravel\ServiceProvider;
-use Composer\InstalledVersions;
 use Epsicube\Schemas\Enums\StringFormat;
 use Epsicube\Schemas\Properties\StringProperty;
 use Epsicube\Schemas\Schema;
 use Epsicube\Support\Contracts\IsModule;
+use Epsicube\Support\Facades\Epsicube;
 use Epsicube\Support\Modules\Identity;
 use Epsicube\Support\Modules\Module;
 use EpsicubeModules\McpServer\Facades\Resources;
@@ -25,8 +25,7 @@ class McpServerModule extends ServiceProvider implements IsModule
     {
         return Module::make(
             identifier: 'core::mcp-server',
-            version: InstalledVersions::getVersion('epsicube/framework')
-                ?? InstalledVersions::getVersion('epsicube/module-mcp-server')
+            version: Epsicube::resolveComposerVersion('epsicube/framework', 'epsicube/module-mcp-server')
         )
             ->providers(static::class)
             ->identity(fn (Identity $identity) => $identity

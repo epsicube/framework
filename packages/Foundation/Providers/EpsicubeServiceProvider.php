@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Epsicube\Foundation\Providers;
 
 use Carbon\Laravel\ServiceProvider;
-use Composer\InstalledVersions;
 use Epsicube\Foundation\Console\Commands\CacheCommand;
 use Epsicube\Foundation\Console\Commands\ClearCommand;
 use Epsicube\Foundation\Console\Commands\InstallCommand;
@@ -20,7 +19,6 @@ use Epsicube\Foundation\Console\Commands\OptionsUnsetCommand;
 use Epsicube\Foundation\Console\Commands\ReloadCommand;
 use Epsicube\Foundation\Console\Commands\TerminateCommand;
 use Epsicube\Foundation\Console\Commands\WorkCommand;
-use Epsicube\Foundation\Listeners\FoundationSubscriber;
 use Epsicube\Foundation\Managers\EpsicubeManager;
 use Epsicube\Foundation\Managers\ModulesManager;
 use Epsicube\Foundation\Managers\OptionsManager;
@@ -31,11 +29,11 @@ use Epsicube\Foundation\Utilities\Manifest;
 use Epsicube\Support\Facades\Epsicube;
 use Epsicube\Support\Facades\Modules;
 use Epsicube\Support\Facades\Options;
+use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Contracts\Translation\Translator;
 use Illuminate\Filesystem\Filesystem;
 use Illuminate\Foundation\Console\AboutCommand;
 use Illuminate\Support\Env;
-use Illuminate\Support\Facades\Event;
 use RuntimeException;
 use Throwable;
 
@@ -129,12 +127,16 @@ class EpsicubeServiceProvider extends ServiceProvider
         $this->app->extend('translator', function (Translator $translator) {
             return new NumberTranslator($translator);
         });
+
+        // Bootstrap module after all providers registered
+        $this->app->booting(function (Application $app): void {
+            $modulesManager = $app->make(Modules::$accessor);
+            $modulesManager->bootstrap($app);
+        });
     }
 
     public function boot(): void
     {
-        Event::subscribe(FoundationSubscriber::class);
-
         $this->commands([
             CacheCommand::class,
             ClearCommand::class,
@@ -154,10 +156,7 @@ class EpsicubeServiceProvider extends ServiceProvider
         $this->loadMigrationsFrom(__DIR__.'/../database/migrations');
         $this->reloads('epsicube:reload', 'epsicube');
         $this->optimizes('epsicube:cache', 'epsicube:clear', 'epsicube');
-        AboutCommand::add('Epsicube', [
-            'Version' => InstalledVersions::getPrettyVersion('epsicube/framework')
-                ?? InstalledVersions::getPrettyVersion('epsicube/foundation'),
-        ]);
+        AboutCommand::add('Epsicube', ['Version' => Epsicube::version()]);
 
         $this->loadRoutesFrom(__DIR__.'/../routes.php');
     }

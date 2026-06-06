@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Epsicube\Foundation\Console\Commands;
 
-use Epsicube\Foundation\Events\PreparingModuleDeactivationPlan;
+use Epsicube\Support\Console\PlanConsoleHelper;
 use Epsicube\Support\Facades\Modules;
 use Epsicube\Support\Modules\Module;
 use Illuminate\Console\Command;
@@ -53,30 +53,14 @@ class ModulesDisableCommand extends Command implements PromptsForMissingInput
             return self::FAILURE;
         }
 
-        /** @var PreparingModuleDeactivationPlan[] $plans */
-        $plans = [];
+        $plan = Modules::deactivationPlan();
+
+        $this->line('');
+        $this->line('<fg=yellow;options=bold>Selected modules:</>');
         foreach ($identifiers as $identifier) {
-            $module = Modules::get($identifier);
-            $plans[$identifier] = Modules::deactivationPlan($module);
+            $this->line(" <fg=cyan;options=bold>[{$identifier}]</>");
         }
-
-        // Show plans
-        $this->line('');
-        $this->line('<fg=yellow;options=bold>Plan:</>');
-
-        foreach ($plans as $id => $plan) {
-            $tasks = $plan->getTasks();
-            $this->line(" <fg=cyan;options=bold>[{$id}]</>");
-
-            if (empty($tasks)) {
-                $this->line('   <fg=gray>• No visible tasks</>');
-            } else {
-                foreach ($tasks as $task) {
-                    $this->line("   <fg=gray>•</> {$task['label']}");
-                }
-            }
-        }
-        $this->line('');
+        PlanConsoleHelper::render($this->output, $plan, 'Deactivation plan applied to all selected modules');
 
         // Ask for confirmation
         if (! $this->option('force')) {
@@ -88,9 +72,9 @@ class ModulesDisableCommand extends Command implements PromptsForMissingInput
         }
 
         // Execute
-        foreach ($plans as $id => $plan) {
+        foreach ($identifiers as $id) {
             try {
-                $plan->execute();
+                $plan(Modules::get($id));
                 info("Module [{$id}] disabled.");
             } catch (Throwable $e) {
                 error("Failed to disable [{$id}]: {$e->getMessage()}");

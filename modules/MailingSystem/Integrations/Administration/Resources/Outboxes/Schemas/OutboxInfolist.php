@@ -8,6 +8,8 @@ use EpsicubeModules\MailingSystem\Enums\MessageEngagement;
 use EpsicubeModules\MailingSystem\Enums\MessageStatus;
 use EpsicubeModules\MailingSystem\Enums\MessageType;
 use EpsicubeModules\MailingSystem\Enums\OutboxStatus;
+use EpsicubeModules\MailingSystem\Integrations\Administration\Filament\Components\MailPreviewEntry;
+use EpsicubeModules\MailingSystem\Models\Outbox;
 use Filament\Infolists\Components\RepeatableEntry;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Schemas\Components\Section;
@@ -17,27 +19,26 @@ class OutboxInfolist
 {
     public static function configure(Schema $schema): Schema
     {
-        return $schema->schema([
-            Section::make(__('General Information'))->schema([
-                TextEntry::make('subject')->label(__('Subject')),
-                TextEntry::make('message_id')->label(__('Message ID')),
-                TextEntry::make('status')->label(__('Status'))
-                    ->inlineLabel()->badge()
-                    ->formatStateUsing(fn (OutboxStatus $state) => $state->label())
-                    ->tooltip(fn (OutboxStatus $state) => $state->description())
-                    ->color(fn (OutboxStatus $state): string => match ($state) {
-                        OutboxStatus::PENDING => 'info',
-                        OutboxStatus::SENT    => 'success',
-                        OutboxStatus::ERROR   => 'danger',
-                    }),
-                TextEntry::make('created_at')
-                    ->label(__('Date'))->inlineLabel()
-                    ->dateTime()->sinceTooltip(),
-            ])->columns(2),
+        return $schema->columns(1)->schema([
+            Section::make(fn (Outbox $record) => $record->subject)
+                ->description(fn (Outbox $record) => $record->message_id)
+                ->afterHeader([
+                    TextEntry::make('status')->hiddenLabel()
+                        ->badge()
+                        ->formatStateUsing(fn (OutboxStatus $state) => $state->label())
+                        ->tooltip(fn (OutboxStatus $state) => $state->description())
+                        ->color(fn (OutboxStatus $state): string => match ($state) {
+                            OutboxStatus::PENDING => 'info',
+                            OutboxStatus::SENT    => 'success',
+                            OutboxStatus::ERROR   => 'danger',
+                        }),
+                ])->schema([
+                    TextEntry::make('created_at')
+                        ->label(__('Date'))->inlineLabel()
+                        ->dateTime()->sinceTooltip(),
+                ]),
 
-            // TODO RELATION
             RepeatableEntry::make('messages')->label(__('Messages'))
-                ->columnSpanFull()
                 ->table([
                     RepeatableEntry\TableColumn::make(__('Type')),
                     RepeatableEntry\TableColumn::make(__('Recipient')),
@@ -67,7 +68,7 @@ class OutboxInfolist
                             MessageStatus::RECEIVED  => 'gray',
                             MessageStatus::DEFERRED  => 'info',
                             MessageStatus::DELIVERED => 'success',
-                            MessageStatus::DROPPED,MessageStatus::BOUNCED => 'danger',
+                            MessageStatus::DROPPED, MessageStatus::BOUNCED => 'danger',
                         }),
 
                     TextEntry::make('engagement')
@@ -90,6 +91,12 @@ class OutboxInfolist
                         ->label(__('Clicked count'))
                         ->numeric(0),
                 ]),
+
+            MailPreviewEntry::make('raw_message')
+                ->hiddenLabel()
+                ->columnSpanFull()
+                ->visible(fn (Outbox $record) => ! empty($record->raw_message)),
+
         ]);
     }
 }
