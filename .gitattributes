@@ -25,3 +25,10 @@ phpstan.src.neon.dist export-ignore
 phpstan.types.neon.dist export-ignore
 phpunit.xml.dist export-ignore
 RELEASE.md export-ignore
+
+# Custom
+/sandbox export-ignore
+/scripts export-ignore
+/docs export-ignore
+/.lefthook export-ignore
+/.agents export-ignore
