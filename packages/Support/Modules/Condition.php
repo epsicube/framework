@@ -4,10 +4,12 @@ declare(strict_types=1);
 
 namespace Epsicube\Support\Modules;
 
+use Closure;
 use Epsicube\Support\Concerns\Condition as ConditionConcern;
 use Epsicube\Support\Enums\ConditionState;
 use Epsicube\Support\Modules\Conditions\AllCondition;
 use Epsicube\Support\Modules\Conditions\AnyCondition;
+use Epsicube\Support\Modules\Conditions\ClosureCondition;
 use Epsicube\Support\Modules\Conditions\DatabaseDrivers;
 use Epsicube\Support\Modules\Conditions\EpsicubeVersion;
 use Epsicube\Support\Modules\Conditions\PhpExtensions;
@@ -40,6 +42,16 @@ readonly class Condition
     public static function postgresqlExtensions(string|array $extensions, ?string $connection = null): PostgresqlExtensions
     {
         return new PostgresqlExtensions($extensions, $connection);
+    }
+
+    /**
+     * @param  Closure():bool  $closure  The callback for validation.
+     * @param  string|null  $successMessage  The success message (optional).
+     * @param  string|null  $failMessage  The failure message (optional).
+     */
+    public static function closure(string $name, Closure $closure, ?string $successMessage = null, ?string $failMessage = null): ClosureCondition
+    {
+        return new ClosureCondition($name, $closure, $successMessage, $failMessage);
     }
 
     public static function any(ConditionConcern ...$conditions): AnyCondition

@@ -25,7 +25,6 @@ Route::get('/', function () {
         //        $module->supports,
         //        $module->options,
         $module->requirements->check(),
-        $module->dependencies->check($versions),
         $module->supports->check(),
 
         //        $module->supports->resolve(),

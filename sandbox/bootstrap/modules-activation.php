@@ -9,4 +9,5 @@ return [
     'core::json-rpc-server'    => true,
     'inventory-manager'        => false,
     'core::mailing-system'     => true,
+    'core::multicore'          => true,
 ];

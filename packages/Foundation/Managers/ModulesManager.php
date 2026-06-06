@@ -186,15 +186,15 @@ class ModulesManager
         }
 
         foreach ($registrables as $module) {
-
             Options::registerSchema($module->options);
             foreach ($module->providers as $provider) {
                 $app->register($provider);
             }
+        }
 
-            $app->booting(function () use ($module) {
-                $module->supports->execute();
-            });
+        // Keep after registering providers
+        foreach ($registrables as $module) {
+            $module->supports->execute();
         }
 
         $this->booted = true;

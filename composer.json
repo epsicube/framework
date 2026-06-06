@@ -89,9 +89,10 @@
         "EpsicubeModules\\Administration\\AdministrationModule",
         "EpsicubeModules\\ExecutionPlatform\\ExecutionPlatformModule",
         "EpsicubeModules\\Hypercore\\HypercoreModule",
+        "EpsicubeModules\\JsonRpcServer\\JsonRpcServerModule",
         "EpsicubeModules\\MailingSystem\\MailingSystemModule",
         "EpsicubeModules\\McpServer\\McpServerModule",
-        "EpsicubeModules\\JsonRpcServer\\JsonRpcServerModule"
+        "EpsicubeModules\\Multicore\\MulticoreModule"
       ],
       "hypercore": {
         "adapters": [

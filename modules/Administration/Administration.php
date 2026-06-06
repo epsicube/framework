@@ -20,6 +20,7 @@ use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
 use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Session\Middleware\StartSession;
 use Illuminate\Support\Facades\Blade;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\HtmlString;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
 
@@ -41,6 +42,7 @@ class Administration
     public static function configure(Panel $panel): Panel
     {
         AdministrationOptions::all();
+        Log::info('test', [request()->host(), request()->path()]);
 
         return $panel
             ->id(static::$identifier)

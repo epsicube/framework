@@ -29,6 +29,7 @@ use Epsicube\Foundation\Utilities\Manifest;
 use Epsicube\Support\Facades\Epsicube;
 use Epsicube\Support\Facades\Modules;
 use Epsicube\Support\Facades\Options;
+use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Contracts\Translation\Translator;
 use Illuminate\Filesystem\Filesystem;
 use Illuminate\Foundation\Console\AboutCommand;
@@ -125,6 +126,12 @@ class EpsicubeServiceProvider extends ServiceProvider
         // Extend translator to handle number formatting
         $this->app->extend('translator', function (Translator $translator) {
             return new NumberTranslator($translator);
+        });
+
+        // Bootstrap module after all providers registered
+        $this->app->booting(function (Application $app): void {
+            $modulesManager = $app->make(Modules::$accessor);
+            $modulesManager->bootstrap($app);
         });
     }
 
