@@ -127,12 +127,6 @@ class EpsicubeServiceProvider extends ServiceProvider
         $this->app->extend('translator', function (Translator $translator) {
             return new NumberTranslator($translator);
         });
-
-        // Bootstrap module after all providers registered
-        $this->app->booting(function (Application $app): void {
-            $modulesManager = $app->make(Modules::$accessor);
-            $modulesManager->bootstrap($app);
-        });
     }
 
     public function boot(): void

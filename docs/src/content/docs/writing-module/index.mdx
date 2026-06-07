@@ -87,6 +87,31 @@ This contract exposes the metadata required by Epsicube to register, identify, a
 
 </Steps>
 
+## Preventing Laravel Providers
+
+When your module needs to disable one or more Laravel package providers, declare them in `module(): Module` with `preventProviders()`.
+
+```php
+use Epsicube\Support\Contracts\IsModule;
+use Epsicube\Support\Modules\Module;
+use Illuminate\Support\ServiceProvider;
+use Vendor\Package\PackageServiceProvider;
+
+class BillingModule extends ServiceProvider implements IsModule
+{
+    public function module(): Module
+    {
+        return Module::make('app::billing', '1.0.0')
+            ->providers(static::class)
+            ->preventProviders(PackageServiceProvider::class);
+    }
+}
+```
+
+During application bootstrap, Epsicube updates Laravel's package manifest before providers are registered. Any provider declared through `preventProviders()` is excluded from Laravel's discovered provider list for that boot cycle.
+
+Use this when your module replaces a package integration, needs to avoid duplicate bindings, or must prevent a conflicting package provider from loading.
+
 ## Related Laravel Documentation
 
 * **[Package Development](https://laravel.com/docs/packages)** — Learn how to create reusable packages with configuration, migrations, assets, and service providers.

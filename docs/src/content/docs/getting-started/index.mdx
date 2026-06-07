@@ -70,22 +70,31 @@ Choose the method that best fits your project needs:
         composer require epsicube/framework
         ```
 
-    2. ### Register the Epsicube service provider
-        Epsicube integrates into the native Laravel application builder through `withProviders()`.
+    2. ### Inject Epsicube before Laravel bootstraps providers
+        Epsicube now hooks into the native Laravel application lifecycle before provider registration.
         Update your `bootstrap/app.php` file:
 
         ```php
-        use Epsicube\Foundation\Providers\EpsicubeServiceProvider;
+        use Epsicube\Foundation\Actions\InjectEpsicube;
         use Illuminate\Foundation\Application;
+        use Illuminate\Foundation\Bootstrap\LoadEnvironmentVariables;
+        use Illuminate\Foundation\Configuration\Exceptions;
+        use Illuminate\Foundation\Configuration\Middleware;
 
-        return Application::configure(basePath: dirname(__DIR__))
-            ->withProviders([
-                EpsicubeServiceProvider::class,
-            ])
-            ->withRouting()
-            ->withMiddleware()
-            ->withExceptions()
-            ->create();
+        return tap(Application::configure(basePath: dirname(__DIR__))
+            ->withRouting(
+                web: __DIR__.'/../routes/web.php',
+                commands: __DIR__.'/../routes/console.php',
+                health: '/up',
+            )
+            ->withMiddleware(function (Middleware $middleware): void {
+                //
+            })
+            ->withExceptions(function (Exceptions $exceptions): void {
+                //
+            })->create(), function (Application $app) {
+                $app->beforeBootstrapping(LoadEnvironmentVariables::class, InjectEpsicube::configure(...));
+            });
         ```
 
     3. ### Run Migrations
