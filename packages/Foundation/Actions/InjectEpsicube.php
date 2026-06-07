@@ -30,11 +30,11 @@ class InjectEpsicube
 
             /** @var EpsicubePackageManifest $manifest */
             $manifest = $app->make(PackageManifest::class);
-            $manifest->addExclusions($providers);
+            $manifest->addExclusions(...$providers);
         });
 
         // Bootstrap module after all providers registered
-        $app->booting(function (Application $app): void {
+        $app->afterBootstrapping(RegisterProviders::class, function (Application $app): void {
             $modulesManager = $app->make(Modules::$accessor);
             $modulesManager->bootstrap($app);
         });

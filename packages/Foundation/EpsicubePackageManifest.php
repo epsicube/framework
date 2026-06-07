@@ -5,12 +5,16 @@ declare(strict_types=1);
 namespace Epsicube\Foundation;
 
 use Illuminate\Foundation\PackageManifest;
+use Illuminate\Support\ServiceProvider;
 
 class EpsicubePackageManifest extends PackageManifest
 {
     protected array $exclusions = [];
 
-    public function addExclusions(array $providers): void
+    /**
+     * @param  class-string<ServiceProvider>  ...$providers
+     */
+    public function addExclusions(string ...$providers): void
     {
         $this->exclusions = array_merge($this->exclusions, $providers);
     }
