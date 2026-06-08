@@ -128,16 +128,16 @@ class PanelApplicationNavigation
                 $navigationGroup->items(array_values($items));
             }
 
-            $applicationGroup = null;
-
+            /** @var ApplicationGroupContract $applicationGroup */
+            $applicationGroup = ApplicationGroup::EXTRAS;
             foreach ($items as $item) {
-                $applicationGroup = $item->getGroup();
-                if ($applicationGroup instanceof ApplicationGroupContract) {
+                $group = $item->getGroup();
+                if ($group instanceof ApplicationGroupContract) {
+                    $applicationGroup = $group;
                     break;
                 }
             }
 
-            $applicationGroup ??= ApplicationGroup::EXTRAS;
             $key = $applicationGroup->getLabel();
 
             $applications[$key] ??= [
