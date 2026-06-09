@@ -76,7 +76,7 @@ FROM base AS web
 ENV SERVER_NAME=":80"
 ENV SERVER_ROOT="/app/public"
 
-COPY Caddyfile /etc/caddy/Caddyfile.d/custom.caddyfile
+COPY Caddyfile /etc/caddy/Caddyfile
 
 HEALTHCHECK --interval=30s --timeout=5s --start-period=3s --retries=3 \
     CMD curl --fail http://localhost:2020/health || exit 1

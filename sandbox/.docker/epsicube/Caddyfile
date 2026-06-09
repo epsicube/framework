@@ -1,6 +1,74 @@
-# Custom healthcheck endpoint
-:2020 {
-    root {$SERVER_ROOT:public/}
-    request_header Host epsicube.internal
-    php_server
+{
+        skip_install_trust
+
+        {$CADDY_GLOBAL_OPTIONS}
+
+        frankenphp {
+                {$FRANKENPHP_CONFIG}
+        }
 }
+
+{$CADDY_EXTRA_CONFIG}
+
+{$SERVER_NAME:localhost} {
+        log {
+               # Redact the authorization query parameter that can be set by Mercure
+               format filter {
+                       request>uri query {
+                               replace authorization REDACTED
+                       }
+               }
+        }
+
+        route {
+                root * "{$SERVER_ROOT:public/}"
+                encode zstd br gzip
+
+                # Uncomment the following lines to enable Mercure and Vulcain modules
+                #mercure {
+                #       # Publisher JWT key
+                #       publisher_jwt {env.MERCURE_PUBLISHER_JWT_KEY} {env.MERCURE_PUBLISHER_JWT_ALG}
+                #       # Subscriber JWT key
+                #       subscriber_jwt {env.MERCURE_SUBSCRIBER_JWT_KEY} {env.MERCURE_SUBSCRIBER_JWT_ALG}
+                #       # Allow anonymous subscribers (double-check that it's what you want)
+                #       anonymous
+                #       # Enable the subscription API (double-check that it's what you want)
+                #       subscriptions
+                #       # Extra directives
+                #       {$MERCURE_EXTRA_DIRECTIVES}
+                #}
+                #vulcain
+
+                {$CADDY_SERVER_EXTRA_DIRECTIVES}
+
+                @static {
+                        file
+                        path *.js *.css *.jpg *.jpeg *.gif *.png *.ico *.cur *.gz *.svg *.svgz *.mp4 *.mp3 *.ogg *.ogv *.webm *.htc *.woff2 *.woff
+                }
+                header @static Cache-Control "public, immutable, stale-while-revalidate=86400, max-age=31536000"
+
+                @rejected {
+                        file
+                        expression `path('*.bak', '*.conf', '*.dist', '*.fla', '*.ini', '*.inc', '*.inci', '*.log', '*.orig', '*.psd', '*.sh', '*.sql', '*.swo', '*.swp', '*.swop', '*/.*') && !path('*/.well-known/')`
+                }
+                error @rejected 401
+
+                php_server {
+                        try_files {path} /index.php
+                        resolve_root_symlink
+                }
+        }
+}
+
+# Custom healthcheck endpoint, or tls on_demand issuing (internal)
+:2020 {
+    root * "{$SERVER_ROOT:public/}"
+    request_header Host epsicube.internal
+    php_server {
+            try_files {path} /index.php
+            resolve_root_symlink
+    }
+}
+
+
+import Caddyfile.d/*.caddyfile
