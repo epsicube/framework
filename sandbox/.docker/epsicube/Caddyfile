@@ -47,6 +47,11 @@
                 }
                 header @static Cache-Control "public, immutable, stale-while-revalidate=86400, max-age=31536000"
 
+                header {
+                    -Server
+                    -X-Powered-By
+                }
+
                 @rejected {
                         file
                         expression `path('*.bak', '*.conf', '*.dist', '*.fla', '*.ini', '*.inc', '*.inci', '*.log', '*.orig', '*.psd', '*.sh', '*.sql', '*.swo', '*.swp', '*.swop', '*/.*') && !path('*/.well-known/')`
