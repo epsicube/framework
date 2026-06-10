@@ -39,7 +39,7 @@ RUN curl -1sLf 'https://dl.cloudsmith.io/public/evilmartians/lefthook/setup.deb.
 ARG PHP_EXTENSIONS="bcmath curl intl mbstring opcache pcntl pdo_sqlite pdo_pgsql pgsql readline sockets xml zip"
 RUN install-php-extensions ${PHP_EXTENSIONS} @composer
 
-COPY php.ini $PHP_INI_DIR/conf.d/99-custom.ini
+COPY php.ini $PHP_INI_DIR/conf.d/zz-custom.ini
 RUN cp $PHP_INI_DIR/php.ini-development $PHP_INI_DIR/php.ini
 
 
