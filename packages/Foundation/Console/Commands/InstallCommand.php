@@ -18,16 +18,26 @@ class InstallCommand extends Command
         'ec:i',
     ];
 
-    public function handle(): void
+    public function handle(): int
     {
         $this->components->info('Install Epsicube core and modules.');
 
         $commands = Epsicube::installCommands();
+        $installed = true;
 
         foreach ($commands as $key => $command) {
-            $this->components->task($key, fn () => $this->callSilently($command) === 0);
+            $succeeded = $this->callSilently($command) === self::SUCCESS;
+            $installed = $installed && $succeeded;
+
+            $this->components->task($key, fn () => $succeeded);
+        }
+
+        if (! $installed) {
+            return self::FAILURE;
         }
 
         $this->newLine();
+
+        return self::SUCCESS;
     }
 }

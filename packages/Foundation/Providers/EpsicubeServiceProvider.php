@@ -150,8 +150,19 @@ class EpsicubeServiceProvider extends ServiceProvider
         $this->loadMigrationsFrom(__DIR__.'/../database/migrations');
         $this->reloads('epsicube:reload', 'epsicube');
         $this->optimizes('epsicube:cache', 'epsicube:clear', 'epsicube');
-        AboutCommand::add('Epsicube', ['Version' => Epsicube::version()]);
+        AboutCommand::add('Epsicube', fn () => [
+            'Version' => Epsicube::version(),
+        ]);
 
         $this->loadRoutesFrom(__DIR__.'/../routes.php');
+    }
+
+    private function installationStatus(): string
+    {
+        $installationDate = Epsicube::getInstallationDate();
+
+        return $installationDate
+            ? '<fg=green;options=bold>'.$installationDate->toIso8601String().'</>'
+            : '<fg=red;options=bold>NOT INSTALLED</>';
     }
 }

@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 use Epsicube\Foundation\Managers\ModulesManager;
 use Epsicube\Foundation\Providers\EpsicubeServiceProvider;
+use Epsicube\Support\Exceptions\BootstrapEpsicubeException;
 use Epsicube\Tests\Fixtures\Modules\PreventDiscoveredProviderModule;
+use Epsicube\Tests\Fixtures\OptionsStores\NonFunctionalOptionsStore;
 use Epsicube\Tests\Fixtures\Providers\DiscoveredProbeServiceProvider;
 use Illuminate\Contracts\Foundation\Application;
 
@@ -12,6 +14,13 @@ test('ensure EpsicubeServiceProvider is registered into application', function (
     $this->configureModules([]);
     expect($this->app)->toBeInstanceOf(Application::class)
         ->and($this->app->getLoadedProviders())->toHaveKey(EpsicubeServiceProvider::class);
+});
+
+test('ensure EpsicubeServiceProvider is still registered when options store is not functional', function () {
+    $this->useOptionsStore(NonFunctionalOptionsStore::class);
+
+    expect(fn () => $this->refreshApplication())
+        ->toThrow(BootstrapEpsicubeException::class);
 });
 
 test('ensure ModulesManager is registered into application', function () {

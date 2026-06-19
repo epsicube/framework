@@ -9,8 +9,8 @@
     }
   ],
   "require": {
-    "php": "^8.3",
-    "illuminate/support": "^12.8",
+    "php": "^8.4",
+    "illuminate/support": "^12.41 | ^13.16",
     "sajya/server": "^7.0.0",
     "epsicube/support": "*"
   },

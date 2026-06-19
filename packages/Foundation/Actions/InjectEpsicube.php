@@ -6,7 +6,10 @@ namespace Epsicube\Foundation\Actions;
 
 use Epsicube\Foundation\EpsicubePackageManifest;
 use Epsicube\Foundation\Providers\EpsicubeServiceProvider;
+use Epsicube\Support\Exceptions\BootstrapEpsicubeException;
 use Epsicube\Support\Facades\Modules;
+use Epsicube\Support\Facades\Options;
+use Illuminate\Console\Events\CommandStarting;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Filesystem\Filesystem;
 use Illuminate\Foundation\Bootstrap\RegisterProviders;
@@ -35,8 +38,29 @@ class InjectEpsicube
 
         // Bootstrap module after all providers registered
         $app->afterBootstrapping(RegisterProviders::class, function (Application $app): void {
-            $modulesManager = $app->make(Modules::$accessor);
-            $modulesManager->bootstrap($app);
+            if (! Options::isFunctional()) {
+                if ($app->runningInConsole() && ! $app->runningUnitTests()) {
+                    self::registerConsoleWarning($app);
+
+                    return;
+                }
+
+                if (! $app->runningInConsole() || $app->runningUnitTests()) {
+                    throw BootstrapEpsicubeException::dueToNonFunctionalOptionsStore();
+                }
+            }
+
+            $app->make(Modules::$accessor)->bootstrap($app);
+        });
+    }
+
+    private static function registerConsoleWarning(Application $app): void
+    {
+        $app['events']->listen(CommandStarting::class, function (CommandStarting $event): void {
+            $event->output->writeln(sprintf(
+                '<fg=red;options=bold>WARNING</> %s',
+                BootstrapEpsicubeException::dueToNonFunctionalOptionsStore()->getMessage()
+            ));
         });
     }
 }

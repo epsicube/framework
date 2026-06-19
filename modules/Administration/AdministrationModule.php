@@ -33,7 +33,6 @@ class AdministrationModule extends ServiceProvider implements IsModule
 
     public function register(): void
     {
-        // TODO error on first-install
         Filament::registerPanel(static fn (): Panel => Administration::configure(Panel::make()));
     }
 

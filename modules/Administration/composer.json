@@ -11,7 +11,7 @@
   "require": {
     "ext-intl": "*",
     "php": "^8.3",
-    "illuminate/support": "^12.8",
+    "illuminate/support": "^12.41 | ^13.16",
     "filament/filament": "^5.1.3",
     "epsicube/support": "*",
     "codeat3/blade-phosphor-icons": "^2.0",

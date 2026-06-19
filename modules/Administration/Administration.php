@@ -40,6 +40,7 @@ class Administration
 
     public static function configure(Panel $panel): Panel
     {
+        // Eager-load all options
         AdministrationOptions::all();
 
         return $panel

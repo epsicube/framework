@@ -8,16 +8,36 @@ use Epsicube\Foundation\Models\Option;
 use Epsicube\Schemas\Types\UndefinedValue;
 use Epsicube\Support\Contracts\OptionsStore;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Illuminate\Support\Facades\DB;
+use Throwable;
 
 class DatabaseOptionStore implements OptionsStore
 {
+    public function isFunctional(): bool
+    {
+        try {
+            $m = new Option;
+
+            return DB::connection($m->getConnectionName())
+                ->getSchemaBuilder()
+                ->hasTable($m->getTable());
+        } catch (Throwable) {
+            return false;
+        } finally {
+            unset($m);
+        }
+    }
+
     /**
      * {@inheritDoc}
      */
     public function get(string $key, string $group): mixed
     {
         try {
-            return Option::query()->where('group', $group)->where('key', $key)->soleValue('value');
+            return Option::query()
+                ->where('group', $group)
+                ->where('key', $key)
+                ->soleValue('value');
         } catch (ModelNotFoundException) {
             return new UndefinedValue;
         }
@@ -28,7 +48,6 @@ class DatabaseOptionStore implements OptionsStore
      */
     public function set(string $key, mixed $value, string $group): void
     {
-        // Value null are stored as empty string (laravel json cast behaviour)
         Option::query()->updateOrCreate(
             ['key' => $key, 'group' => $group],
             ['value' => $value]

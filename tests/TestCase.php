@@ -9,10 +9,13 @@ use Epsicube\Support\Facades\Modules;
 use Epsicube\Support\Modules\Module;
 use Illuminate\Filesystem\Filesystem;
 use Illuminate\Foundation\Application;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\TestCase as BaseTestCase;
 
 abstract class TestCase extends BaseTestCase
 {
+    use RefreshDatabase;
+
     protected Filesystem $files;
 
     protected string $workspace;
@@ -43,6 +46,26 @@ abstract class TestCase extends BaseTestCase
         $this->writePhpFile($this->workspace.'/bootstrap/modules-activation.php', $state);
 
         $this->refreshApplication();
+    }
+
+    protected function refreshApplication(): void
+    {
+        $shouldReinitializeTraits = $this->setUpHasRun && isset($this->app);
+
+        if ($shouldReinitializeTraits) {
+            $this->callBeforeApplicationDestroyedCallbacks();
+            $this->beforeApplicationDestroyedCallbacks = [];
+            $this->afterApplicationCreatedCallbacks = [];
+            TestApplicationFactory::resetOptions($this->app);
+            $this->app->flush();
+            $this->app = null;
+        }
+
+        parent::refreshApplication();
+
+        if ($shouldReinitializeTraits) {
+            $this->refreshDatabase();
+        }
     }
 
     /**
@@ -84,5 +107,23 @@ abstract class TestCase extends BaseTestCase
     {
         $this->files->ensureDirectoryExists(dirname($path));
         $this->files->replace($path, "<?php\n\nreturn ".var_export($payload, true).";\n");
+    }
+
+    protected function useOptionsStore(string $storeClass): void
+    {
+        $path = $this->workspace.'/bootstrap/app.php';
+        $needle = "        \$app->beforeBootstrapping(LoadEnvironmentVariables::class, InjectEpsicube::configure(...));\n";
+        $storeClass = '\\'.mb_ltrim($storeClass, '\\');
+
+        $replacement = $needle
+            ."        \$app->beforeBootstrapping(\\Illuminate\\Foundation\\Bootstrap\\RegisterProviders::class, function (\\Illuminate\\Foundation\\Application \$app): void {\n"
+            ."            \$app->singleton('foundation-options', fn () => new \\Epsicube\\Foundation\\Managers\\OptionsManager(new {$storeClass}));\n"
+            ."            \$app->alias('foundation-options', \\Epsicube\\Support\\Facades\\Options::\$accessor);\n"
+            ."        });\n";
+
+        $this->files->replace(
+            $path,
+            str_replace($needle, $replacement, $this->files->get($path))
+        );
     }
 }

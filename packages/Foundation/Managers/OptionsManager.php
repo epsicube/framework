@@ -12,8 +12,6 @@ use Epsicube\Support\Exceptions\MissingRequiredOptionsException;
 use Epsicube\Support\Exceptions\OptionNotRegisteredException;
 use Epsicube\Support\Exceptions\SchemaNotFound;
 use Epsicube\Support\Exceptions\UnresolvableOptionException;
-use Illuminate\Database\QueryException;
-use RuntimeException;
 
 class OptionsManager
 {
@@ -29,7 +27,12 @@ class OptionsManager
     /** @var array<string,true> */
     protected array $fullyLoaded = [];
 
-    public function __construct(protected OptionsStore $store) {}
+    protected readonly bool $functional;
+
+    public function __construct(protected OptionsStore $store)
+    {
+        $this->functional = $this->store->isFunctional();
+    }
 
     public function registerSchema(Schema $schema): void
     {
@@ -67,11 +70,7 @@ class OptionsManager
     public function get(string $group, string $key): mixed
     {
         if (! array_key_exists($key, $this->loadedKeys[$group] ?? [])) {
-            try {
-                $value = $this->store->get($key, $group);
-            } catch (QueryException $e) {
-                $value = $this->handleNonInstalledEpsicubeException($e, new UndefinedValue);
-            }
+            $value = $this->store->get($key, $group);
 
             if (! $value instanceof UndefinedValue) {
                 $this->state[$group][$key] = $value;
@@ -104,11 +103,7 @@ class OptionsManager
         $this->state[$group][$key] = $value;
         $this->loadedKeys[$group][$key] = true;
 
-        try {
-            $this->store->set($key, $value, $group);
-        } catch (QueryException $e) {
-            $this->handleNonInstalledEpsicubeException($e, null);
-        }
+        $this->store->set($key, $value, $group);
     }
 
     public function delete(string $group, string $key): void
@@ -118,11 +113,7 @@ class OptionsManager
             $this->loadedKeys[$group][$key]
         );
 
-        try {
-            $this->store->delete($key, $group);
-        } catch (QueryException $e) {
-            $this->handleNonInstalledEpsicubeException($e, null);
-        }
+        $this->store->delete($key, $group);
     }
 
     /**
@@ -147,11 +138,7 @@ class OptionsManager
             array_filter($schema->properties(), fn (Property $property) => $property->hasDefault())
         );
 
-        try {
-            $storedValues = $this->store->all($group);
-        } catch (QueryException $e) {
-            $storedValues = $this->handleNonInstalledEpsicubeException($e, []);
-        }
+        $storedValues = $this->store->all($group);
 
         $stored = array_filter($storedValues, fn (mixed $v) => ! ($v instanceof UndefinedValue));
 
@@ -178,34 +165,15 @@ class OptionsManager
         return $this->store;
     }
 
-    private function handleNonInstalledEpsicubeException(QueryException $e, mixed $fallback): mixed
+    public function isFunctional(): bool
     {
-        if (! $this->isNonInstalledEpsicubeException($e)) {
-            throw $e;
-        }
-
-        if (! app()->runningInConsole()) {
-            throw new RuntimeException(
-                'Epsicube is not installed. Run `php artisan migrate` before booting the application.',
-                previous: $e
-            );
-        }
-
-        return $fallback;
+        return $this->functional;
     }
 
-    private function isNonInstalledEpsicubeException(QueryException $e): bool
+    public function flush(): void
     {
-        $message = $e->getMessage();
-
-        return str_contains($message, 'options')
-            && (
-                str_contains($message, '42P01')
-                || str_contains($message, '42S02')
-                || str_contains($message, '1146')
-                || str_contains($message, 'no such table')
-                || str_contains($message, 'Undefined table')
-                || str_contains($message, 'Base table or view not found')
-            );
+        $this->state = [];
+        $this->loadedKeys = [];
+        $this->fullyLoaded = [];
     }
 }

@@ -9,6 +9,11 @@ use Epsicube\Schemas\Types\UndefinedValue;
 interface OptionsStore
 {
     /**
+     * Determine whether the store can be used safely during application bootstrap.
+     */
+    public function isFunctional(): bool;
+
+    /**
      * Retrieve a single option value or return the default.
      *
      * @return mixed|UndefinedValue
