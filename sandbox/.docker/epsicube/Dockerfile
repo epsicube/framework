@@ -1,4 +1,4 @@
-FROM dunglas/frankenphp:1.11-php8.5-trixie AS base
+FROM dunglas/frankenphp:1.12-php8.5-trixie AS base
 
 ENV TZ=UTC
 ENV DEBIAN_FRONTEND=noninteractive
