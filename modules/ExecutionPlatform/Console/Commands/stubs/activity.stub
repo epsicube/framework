@@ -1,0 +1,43 @@
+<?php
+
+declare(strict_types=1);
+
+namespace {{ namespace }};
+
+use Epsicube\Schemas\Schema;
+use EpsicubeModules\ExecutionPlatform\Contracts\Activity;
+
+class {{ class }} implements Activity
+{
+    public function identifier(): string
+    {
+        return '{{ identifier }}';
+    }
+
+    public function label(): string
+    {
+        return __('{{ class }}');
+    }
+
+    public function description(): string
+    {
+        return '';
+    }
+
+    public function inputSchema(Schema $schema): void
+    {
+        //
+    }
+
+    public function handle(array $inputs = []): ?array
+    {
+        //
+
+        return [];
+    }
+
+    public function outputSchema(Schema $schema): void
+    {
+        //
+    }
+}
