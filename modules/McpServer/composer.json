@@ -11,7 +11,7 @@
   "require": {
     "php": "^8.4",
     "illuminate/support": "^12.41 | ^13.16",
-    "laravel/mcp": "^0.5",
+    "laravel/mcp": "^1.0",
     "epsicube/support": "*"
   },
   "autoload": {

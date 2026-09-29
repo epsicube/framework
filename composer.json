@@ -22,7 +22,7 @@
     "filafly/filament-phosphor-icons": "^2.0",
     "filament/filament": "^5.1.3",
     "laravel/framework": "^12.41 | ^13.16",
-    "laravel/mcp": "^0.5",
+    "laravel/mcp": "^1.0",
     "laravel/serializable-closure": "^2.0.8",
     "nunomaduro/termwind": "^2.0",
     "phiki/phiki": "^2.0.4",
