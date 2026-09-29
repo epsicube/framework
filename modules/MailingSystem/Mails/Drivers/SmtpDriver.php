@@ -30,6 +30,20 @@ class SmtpDriver implements Driver
     public function inputSchema(Schema $schema): void
     {
         $schema->append([
+            'host' => StringProperty::make()
+                ->title(__('Host'))
+                ->optional()->default('127.0.0.1'),
+            'port' => IntegerProperty::make()
+                ->title(__('Port'))
+                ->minimum(1)
+                ->maximum(65535)
+                ->optional()->default(25),
+            'username' => StringProperty::make()
+                ->title(__('Username'))
+                ->nullable()->optional()->default(null),
+            'password' => StringProperty::make()
+                ->title(__('Password'))
+                ->nullable()->optional()->default(null),
             'scheme' => StringProperty::make()
                 ->title(__('Scheme'))
                 ->nullable()->optional()->default(null)
@@ -38,20 +52,6 @@ class SmtpDriver implements Driver
                 ->title(__('URL'))
                 ->nullable()->optional()->default(null)
                 ->description(__('Optional DSN-like URL, overrides the other connection fields when provided')),
-            'host' => StringProperty::make()
-                ->title(__('Host'))
-                ->default('127.0.0.1'),
-            'port' => IntegerProperty::make()
-                ->title(__('Port'))
-                ->minimum(1)
-                ->maximum(65535)
-                ->default(25),
-            'username' => StringProperty::make()
-                ->title(__('Username'))
-                ->nullable()->optional()->default(null),
-            'password' => StringProperty::make()
-                ->title(__('Password'))
-                ->nullable()->optional()->default(null),
             'timeout' => IntegerProperty::make()
                 ->title(__('Timeout'))
                 ->minimum(1)
