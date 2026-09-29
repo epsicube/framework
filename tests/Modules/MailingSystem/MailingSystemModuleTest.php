@@ -42,7 +42,7 @@ test('mailing system registers its built-in drivers when enabled', function () {
         'core::mailing-system' => true,
     ]);
 
-    expect(Drivers::all())->toHaveKeys(['laravel', 'mailjet', 'sendgrid']);
+    expect(Drivers::all())->toHaveKeys(['laravel', 'mailjet', 'sendgrid', 'smtp']);
 });
 
 test('webhook endpoint returns no content for unknown drivers', function () {
@@ -102,6 +102,23 @@ test('mailer model resolves to a sendable laravel mailer using stored configurat
     $mailer = $mailerModel->toMailer();
 
     expect($mailer->getSymfonyTransport()->__toString())->toContain('array');
+});
+
+test('smtp driver builds a mailer from stored configuration', function () {
+    $this->configureModules([
+        MailingSystemModule::class,
+    ], [
+        'core::mailing-system' => true,
+    ]);
+
+    $mailer = Drivers::get('smtp')->build([
+        'host'     => 'smtp.example.test',
+        'port'     => 2525,
+        'username' => 'john',
+        'password' => 'secret',
+    ]);
+
+    expect((string) $mailer->getSymfonyTransport())->toContain('smtp.example.test');
 });
 
 test('message tracking subscriber applies delivery and engagement priorities to persisted messages', function () {

@@ -23,6 +23,7 @@ use EpsicubeModules\MailingSystem\Mails\Drivers\LaravelDriver;
 use EpsicubeModules\MailingSystem\Mails\Drivers\Mailjet\MailjetServiceProvider;
 use EpsicubeModules\MailingSystem\Mails\Drivers\MailjetDriver;
 use EpsicubeModules\MailingSystem\Mails\Drivers\SendGridDriver;
+use EpsicubeModules\MailingSystem\Mails\Drivers\SmtpDriver;
 use EpsicubeModules\MailingSystem\Mails\Templates\Blank;
 use EpsicubeModules\MailingSystem\Mails\Templates\Html;
 use EpsicubeModules\MailingSystem\Mails\TrackedTransport;
@@ -60,7 +61,7 @@ class MailingSystemModule extends ServiceProvider implements IsModule
     {
         $this->app->singleton(Drivers::$accessor, function () {
             $registry = new DriversRegistry;
-            $registry->register(new LaravelDriver, new MailjetDriver, new SendGridDriver);
+            $registry->register(new LaravelDriver, new MailjetDriver, new SendGridDriver, new SmtpDriver);
 
             return $registry;
         });
