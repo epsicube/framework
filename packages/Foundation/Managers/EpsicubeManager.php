@@ -17,10 +17,7 @@ class EpsicubeManager
     /**
      * @var array<string, string>
      */
-    protected array $workCommands = [
-        'schedule' => 'schedule:work --no-ansi --whisper',
-        //        'queue'    => 'queue:work',
-    ];
+    protected array $workCommands = [];
 
     /** @var array<string, string> */
     protected array $optimizeCommands = [];

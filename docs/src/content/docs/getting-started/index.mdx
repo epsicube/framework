@@ -106,13 +106,14 @@ Choose the method that best fits your project needs:
   </TabItem>
 </Tabs>
 
-## Worker Configuration
+## Scheduler & Queue Configuration
 
-Epsicube relies on its own worker system (`epsicube:work`) to supervise long-running processes (queues, schedulers, custom loops).
+Epsicube does not change how Laravel runs the scheduler and queues. Configure them as usual, following the Laravel documentation:
 
-**This step is required for both installation methods** (unless you are using Docker, where the worker is already pre-configured in the services).
+* **[Task Scheduling](https://laravel.com/docs/scheduling#running-the-scheduler)**
+* **[Queues](https://laravel.com/docs/queues#running-the-queue-worker)**
 
-Refer to the **[Production Setup](/usage/manage-processes/#setup-for-production)** for detailed instructions on using Supervisor.
+Some modules may register their own long-running processes, supervised by `epsicube:work`. See **[Manage Processes](/usage/manage-processes/)** if you use such modules.
 
 ## Verify Installation
 

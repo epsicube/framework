@@ -22,17 +22,14 @@ php artisan epsicube:work
 ```
 
 ```text
-[12:51:11] [Supervisor] Starting sub-processes…
-[12:51:11] [Supervisor] Starting 'schedule'…
-[12:51:11] [Supervisor] Starting 'queue'…
-[12:51:12] [schedule] INFO  Running scheduled tasks.
-...
+[12:51:11] [supervisor] Starting sub-processes…
+[12:51:11] [my-module ] ...
 ```
 Once started, the worker continues running until manually stopped or until the terminal is closed.
 
 <Aside>
-By default, `epsicube:work` manages both the [Laravel Scheduler](https://laravel.com/docs/scheduling#running-the-scheduler) and the [Queue Worker](https://laravel.com/docs/queues#running-the-queue-worker).
-If you already run scheduling via `crontab`, or if your queue workers are externally supervised, you can safely replace those setups with `epsicube:work`.
+Epsicube does **not** register the Laravel scheduler or queue worker by default: `epsicube:work` only supervises the commands registered by modules (and does nothing if none are registered).
+Configure scheduling and queues the standard Laravel way, see [Task Scheduling](https://laravel.com/docs/scheduling#running-the-scheduler) and [Queues](https://laravel.com/docs/queues#running-the-queue-worker).
 </Aside>
 
 ## Reloading the Worker
