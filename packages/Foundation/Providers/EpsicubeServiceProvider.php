@@ -16,6 +16,7 @@ use Epsicube\Foundation\Console\Commands\ModulesStatusCommand;
 use Epsicube\Foundation\Console\Commands\OptionsListCommand;
 use Epsicube\Foundation\Console\Commands\OptionsSetCommand;
 use Epsicube\Foundation\Console\Commands\OptionsUnsetCommand;
+use Epsicube\Foundation\Console\Commands\QueueHeartbeatCommand;
 use Epsicube\Foundation\Console\Commands\ReloadCommand;
 use Epsicube\Foundation\Console\Commands\TerminateCommand;
 use Epsicube\Foundation\Console\Commands\WorkCommand;
@@ -33,7 +34,10 @@ use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Contracts\Translation\Translator;
 use Illuminate\Filesystem\Filesystem;
 use Illuminate\Foundation\Console\AboutCommand;
+use Illuminate\Queue\Events\Looping;
 use Illuminate\Support\Env;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Event;
 use RuntimeException;
 use Throwable;
 
@@ -143,10 +147,14 @@ class EpsicubeServiceProvider extends ServiceProvider
             OptionsListCommand::class,
             OptionsSetCommand::class,
             OptionsUnsetCommand::class,
+            QueueHeartbeatCommand::class,
             ReloadCommand::class,
             TerminateCommand::class,
             WorkCommand::class,
         ]);
+        Event::listen(function (Looping $event): void {
+            Cache::put(QueueHeartbeatCommand::cacheKey(), time(), now()->addMinutes(5));
+        });
         $this->loadMigrationsFrom(__DIR__.'/../database/migrations');
         $this->reloads('epsicube:reload', 'epsicube');
         $this->optimizes('epsicube:cache', 'epsicube:clear', 'epsicube');
