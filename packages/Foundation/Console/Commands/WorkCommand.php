@@ -39,12 +39,11 @@ class WorkCommand extends Command
         $subCommands = Epsicube::workCommands();
 
         if (empty($subCommands)) {
-            $this->log('No work commands registered. Supervisor cannot start.', 'warn');
-
-            return;
+            $this->log('No work to do, supervisor stays idle.');
+        } else {
+            $this->log('Starting sub-processes…');
         }
 
-        $this->log('Starting sub-processes…');
         foreach ($subCommands as $key => $command) {
             $this->processes[$key] = $this->startProcess($key, $command);
         }
@@ -59,12 +58,18 @@ class WorkCommand extends Command
         // Handle terminate and reload
         $startTime = now()->timestamp;
         $lastReload = $this->cache->get('epsicube:work:reload', 0);
+        $lastIdleLog = $startTime;
         while ($this->shouldKeepRunning) {
             if ($this->checkTermination($startTime)) {
                 $this->log('Termination signal detected. Stopping all sub-processes and exiting…', 'info');
                 $this->stopRunningProcesses();
 
                 break;
+            }
+
+            if (empty($subCommands) && now()->timestamp - $lastIdleLog >= 60) {
+                $this->log('No work to do, supervisor stays idle.');
+                $lastIdleLog = now()->timestamp;
             }
 
             $this->checkProcesses($subCommands);
