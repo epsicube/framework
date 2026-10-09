@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace EpsicubeModules\AccountsManager\Integrations\Administration;
 
+use EpsicubeModules\AccountsManager\AccountsManagerOptions;
 use EpsicubeModules\Administration\Administration;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Panel;
@@ -18,15 +19,18 @@ class AdministrationIntegration
 
             // Enable authentication
             $admin->login();
-            $admin->passwordReset();
-            $admin->registration();
+            if (AccountsManagerOptions::canResetPassword()) {
+                $admin->passwordReset();
+            }
+            if (AccountsManagerOptions::isRegistrationAllowed()) {
+                $admin->registration();
+            }
             $admin->profile();
             $admin->authMiddleware([
                 Authenticate::class,
             ]);
             $admin->authGuard('accounts');
             $admin->authPasswordBroker('accounts');
-
         });
     }
 }

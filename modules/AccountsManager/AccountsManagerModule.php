@@ -41,6 +41,7 @@ class AccountsManagerModule extends ServiceProvider implements IsModule
                 ->name(__('Accounts Manager'))
                 ->author('Core Team')
             )
+            ->options(AccountsManagerOptions::configure(...))
             ->supports(fn (Supports $supports) => $supports->add(
                 Support::forModule('core::administration', AdministrationIntegration::handle(...)),
                 Support::for(Condition::databaseDrivers('pgsql'), function () {
