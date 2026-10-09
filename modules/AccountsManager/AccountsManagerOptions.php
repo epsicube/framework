@@ -13,8 +13,8 @@ class AccountsManagerOptions
     public static function configure(Schema $options): void
     {
         $options->append([
-            'allow_registration'   => BooleanProperty::make()->title('Allow registration')->default(true),
-            'allow_reset_password' => BooleanProperty::make()->title('Allow reset password')->default(true),
+            'allow_registration'   => BooleanProperty::make()->title('Allow registration')->optional()->default(true),
+            'allow_reset_password' => BooleanProperty::make()->title('Allow reset password')->optional()->default(true),
         ]);
     }
 
